@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
 
                     {/* Center: Mode Switcher Pill */}
-                    {!isAdmin && (
+                    {!isAdmin && session?.user?.role !== 'FACULTY' && (
                         <div className="flex-1 flex justify-center">
                             <ModeToggle />
                         </div>

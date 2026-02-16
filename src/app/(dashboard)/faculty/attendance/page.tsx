@@ -21,33 +21,7 @@ import { DEMO_TIMETABLE } from "@/lib/store";
 import { useRealtime } from "@/hooks/useRealtime";
 
 
-// Extended mock student data with sections
-const SECTION_STUDENTS = {
-    "4G2": [
-        { id: 101, rollNo: "CSE-23-4G2-01", name: "Rahul Sharma", attendance: 85 },
-        { id: 102, rollNo: "CSE-23-4G2-02", name: "Priya Gupta", attendance: 92 },
-        { id: 103, rollNo: "CSE-23-4G2-03", name: "Amit Kumar", attendance: 78 },
-        { id: 104, rollNo: "CSE-23-4G2-04", name: "Sneha Patel", attendance: 88 },
-        { id: 105, rollNo: "CSE-23-4G2-05", name: "Vikram Singh", attendance: 95 },
-        { id: 106, rollNo: "CSE-23-4G2-06", name: "Ananya Reddy", attendance: 70 },
-        { id: 107, rollNo: "CSE-23-4G2-07", name: "Rohan Verma", attendance: 82 },
-        { id: 108, rollNo: "CSE-23-4G2-08", name: "Kavya Iyer", attendance: 90 },
-        { id: 109, rollNo: "CSE-23-4G2-09", name: "Arjun Nair", attendance: 65 },
-        { id: 110, rollNo: "CSE-23-4G2-10", name: "Divya Menon", attendance: 88 },
-    ],
-    "4G3": [
-        { id: 201, rollNo: "CSE-23-4G3-01", name: "Kabir Bhat", attendance: 91 },
-        { id: 202, rollNo: "CSE-23-4G3-02", name: "Zoya Ali", attendance: 68 },
-        { id: 203, rollNo: "CSE-23-4G3-03", name: "Sahil Jain", attendance: 85 },
-        { id: 204, rollNo: "CSE-23-4G3-04", name: "Diya Rao", attendance: 93 },
-        { id: 205, rollNo: "CSE-23-4G3-05", name: "Kunal Sen", attendance: 72 },
-        { id: 206, rollNo: "CSE-23-4G3-06", name: "Tanvi Hegde", attendance: 89 },
-        { id: 207, rollNo: "CSE-23-4G3-07", name: "Ishaan Das", attendance: 75 },
-        { id: 208, rollNo: "CSE-23-4G3-08", name: "Meera Joshi", attendance: 82 },
-        { id: 209, rollNo: "CSE-23-4G3-09", name: "Aryan Khan", attendance: 88 },
-        { id: 210, rollNo: "CSE-23-4G3-10", name: "Sanya Roy", attendance: 94 },
-    ]
-};
+// Student sync enabled - mock data removed to prevent sync confusion
 
 export default function FacultyAttendancePage() {
     const { data: session } = useSession();
@@ -92,11 +66,12 @@ export default function FacultyAttendancePage() {
         setIsSaved(false);
     }, [selectedSection, selectedDate]);
 
-    // Get subjects for this faculty from timetable
-    const myLectures = DEMO_TIMETABLE.filter(t => t.facultyId === facultyId);
-    const mySubjects = Array.from(new Set(myLectures.map(l => l.subject).filter(Boolean)));
+    // Get current students from state
+    const currentStudents = sectionStudents[selectedSection] || [];
 
-    const currentStudents = sectionStudents[selectedSection as keyof typeof SECTION_STUDENTS] || [];
+    // Get subjects for this faculty from timetable
+    const facultySubjects = (session?.user as any)?.subjects?.split(',') || ["Java"];
+    const currentSubject = facultySubjects[0].trim();
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -175,7 +150,7 @@ export default function FacultyAttendancePage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     facultyId,
-                    subject: "Java", // Mock - would come from selector
+                    subject: currentSubject,
                     date: selectedDate,
                     periods: selectedPeriods,
                     attendance
@@ -243,7 +218,7 @@ export default function FacultyAttendancePage() {
                     <div className="grid grid-cols-3 gap-3">
                         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3">
                             <p className="text-emerald-100 text-[10px] uppercase font-bold mb-1">My Subjects</p>
-                            <p className="text-lg font-bold text-white leading-tight">{mySubjects.length}</p>
+                            <p className="text-lg font-bold text-white leading-tight">{facultySubjects.length}</p>
                         </div>
                         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3">
                             <p className="text-emerald-100 text-[10px] uppercase font-bold mb-1">Sections</p>

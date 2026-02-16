@@ -154,7 +154,7 @@ export default function StudentAttendancePage() {
                                                                     {new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                                 </p>
                                                                 <p className="text-[11px] text-slate-400 font-medium mt-0.5 leading-none">
-                                                                    {new Date(record.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Prof. {record.faculty?.name || "Faculty"}
+                                                                    Prof. {record.faculty?.name || "Faculty"}
                                                                 </p>
                                                             </div>
                                                         </div>

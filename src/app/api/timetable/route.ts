@@ -15,7 +15,7 @@ export async function GET(req: Request) {
         const section = searchParams.get('section');
         const facultyId = searchParams.get('facultyId');
 
-        let timetable = [];
+        let timetable: any[] = [];
 
         if (role === 'STUDENT' && section) {
             timetable = await prisma.timetable.findMany({

@@ -61,7 +61,8 @@ export const authOptions: NextAuthOptions = {
                     email: null,
                     role: "FACULTY",
                     facultyId: faculty.facultyId,
-                    department: faculty.department
+                    department: faculty.department,
+                    subjects: faculty.subjects
                 };
             }
         }),
@@ -136,6 +137,7 @@ export const authOptions: NextAuthOptions = {
                 token.facultyId = (user as any).facultyId;
                 token.section = (user as any).section;
                 token.username = (user as any).username;
+                token.subjects = (user as any).subjects;
             }
             return token;
         },
@@ -147,6 +149,7 @@ export const authOptions: NextAuthOptions = {
                 (session.user as any).facultyId = token.facultyId;
                 (session.user as any).section = token.section;
                 (session.user as any).username = token.username;
+                (session.user as any).subjects = token.subjects;
             }
             return session;
         }
