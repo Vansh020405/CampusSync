@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions);
@@ -19,16 +21,19 @@ export async function POST(req: Request) {
         }
 
         const studentId = (session.user as any).id;
-        const id = crypto.randomUUID();
 
-        // Using raw query to insert into Booking with potentially new schema fields
-        // agendaType set to 'DOUBT' as default for message-based bookings
-        await prisma.$executeRaw`
-            INSERT INTO Booking (id, studentId, facultyId, agenda, agendaType, status, notes, createdAt, updatedAt, slotDate, slotTime, location)
-            VALUES (${id}, ${studentId}, ${facultyId}, 'Message', 'DOUBT', 'PENDING', ${message}, datetime('now'), datetime('now'), NULL, NULL, NULL)
-        `;
+        const booking = await prisma.booking.create({
+            data: {
+                studentId,
+                facultyId,
+                agenda: 'Message',
+                agendaType: 'DOUBT',
+                status: 'PENDING',
+                notes: message
+            }
+        });
 
-        return NextResponse.json({ success: true, id });
+        return NextResponse.json({ success: true, id: booking.id });
     } catch (error) {
         console.error("Create booking error:", error);
         return NextResponse.json({ error: "Failed to send message" }, { status: 500 });
@@ -46,26 +51,32 @@ export async function GET(req: Request) {
         let bookings: any[];
 
         if (role === 'STUDENT') {
-            bookings = await prisma.$queryRaw`
-                SELECT b.id, b.status, b.notes as message, b.createdAt,
-                       f.name as facultyName, f.email as facultyEmail, 
-                       b.slotDate, b.slotTime, b.location
-                FROM Booking b
-                JOIN Faculty f ON b.facultyId = f.id
-                WHERE b.studentId = ${userId}
-                ORDER BY b.createdAt DESC
-            `;
+            bookings = await prisma.booking.findMany({
+                where: { studentId: userId },
+                include: {
+                    faculty: {
+                        select: {
+                            name: true,
+                            email: true
+                        }
+                    }
+                },
+                orderBy: { createdAt: 'desc' }
+            });
         } else {
             // Faculty view
-            bookings = await prisma.$queryRaw`
-                SELECT b.id, b.status, b.notes as message, b.createdAt,
-                       s.name as studentName, s.rollNo as studentRollNo,
-                       b.slotDate, b.slotTime, b.location
-                FROM Booking b
-                JOIN Student s ON b.studentId = s.id
-                WHERE b.facultyId = ${userId}
-                ORDER BY b.createdAt DESC
-            `;
+            bookings = await prisma.booking.findMany({
+                where: { facultyId: userId },
+                include: {
+                    student: {
+                        select: {
+                            name: true,
+                            rollNo: true
+                        }
+                    }
+                },
+                orderBy: { createdAt: 'desc' }
+            });
         }
 
         const mapped = bookings.map(b => ({
