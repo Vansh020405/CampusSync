@@ -59,12 +59,14 @@ export default function CampusDashboard() {
     const fetchTimetable = async () => {
         if (!studentData.section) return;
         try {
-            const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+            const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+            const currentDay = days[new Date().getDay()];
             const res = await fetch(`/api/timetable?section=${studentData.section}`);
             const data = await res.json();
 
             if (Array.isArray(data)) {
-                const dayClasses = data.filter((t: any) => t.day === currentDay);
+                // Filter for current day precisely
+                const dayClasses = data.filter((t: any) => t.day.trim().toUpperCase() === currentDay);
                 let filtered = dayClasses;
 
                 // Fallback: If no classes today, show the first available day's classes
@@ -114,87 +116,113 @@ export default function CampusDashboard() {
         : "88.4";
 
     return (
-        <div className="max-w-2xl mx-auto space-y-10 pb-32 px-6 py-12 bg-white min-h-screen">
-            {/* Minimal Header */}
-            <div className="flex items-end justify-between px-1">
-                <div className="space-y-0.5">
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter">
-                        Journal
-                    </h1>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Monday • Series 4G2
-                    </p>
+        <div className="max-w-2xl mx-auto pb-32 px-8 py-16 bg-white min-h-screen font-light">
+            {/* Elegant Minimal Header */}
+            <div className="mb-16">
+                <h1 className="text-4xl font-normal text-slate-800 tracking-tight mb-2">
+                    Journal
+                </h1>
+                <div className="flex items-center gap-3 text-slate-400">
+                    <span className="text-[11px] font-medium uppercase tracking-[0.2em]">
+                        {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+                    </span>
+                    <div className="h-[1px] w-6 bg-slate-100" />
+                    <span className="text-[11px] font-medium uppercase tracking-[0.2em]">
+                        Series {studentData.section}
+                    </span>
                 </div>
-                <Badge variant="outline" className="rounded-full border-slate-100 text-[9px] font-black uppercase tracking-widest px-3 py-1 text-slate-400">
-                    Live Session
-                </Badge>
             </div>
 
-            {/* Attendance Alerts - Slim Pill */}
+            {/* Attendance Status - Subtle Integrated Design */}
             {parseFloat(overallAttendance) < 75 && (
-                <div className="bg-rose-50/50 border border-rose-100 rounded-3xl p-4 flex items-center gap-4 mx-1">
-                    <div className="h-10 w-10 bg-rose-500 rounded-2xl flex items-center justify-center text-white shrink-0">
-                        <AlertTriangle className="h-5 w-5" />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest leading-none mb-1">Status Critical</p>
-                        <p className="text-xs font-bold text-rose-900 leading-none">Attendance currently {overallAttendance}%.</p>
+                <div className="mb-12">
+                    <div className="bg-slate-50 rounded-[2rem] p-6 border border-slate-100/50 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="h-8 w-8 rounded-full bg-rose-50 flex items-center justify-center text-rose-500">
+                                <AlertTriangle className="h-4 w-4" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Alert</p>
+                                <p className="text-[13px] text-slate-600 font-medium">Attendance at {overallAttendance}%</p>
+                            </div>
+                        </div>
+                        <Button variant="ghost" className="text-[11px] font-medium text-indigo-500 uppercase tracking-wider hover:bg-transparent px-0">
+                            Details
+                        </Button>
                     </div>
                 </div>
             )}
 
-            {/* Timetable List - Ultra Minimal */}
-            <div className="space-y-4">
-                <div className="px-1">
-                    <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timeline</h2>
+            {/* Timeline - Pure Minimalist List */}
+            <div className="space-y-8 mb-20">
+                <div className="flex items-center justify-between border-b border-slate-50 pb-4">
+                    <h2 className="text-[10px] font-semibold text-slate-300 uppercase tracking-[0.3em]">Timeline</h2>
+                    {todayClasses.length > 0 && (
+                        <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">
+                            {todayClasses.length} sessions
+                        </span>
+                    )}
                 </div>
 
                 {timetableLoading ? (
-                    <div className="space-y-3">
+                    <div className="space-y-6">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-20 bg-slate-50 rounded-[1.5rem] animate-pulse" />
+                            <div key={i} className="h-16 bg-slate-50/50 rounded-2xl animate-pulse" />
                         ))}
                     </div>
                 ) : todayClasses.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-1">
                         {todayClasses.map((cls) => (
-                            <div key={cls.id} className="p-4 bg-white border border-slate-100 rounded-[1.5rem] flex items-center justify-between group hover:border-slate-300 transition-all duration-300">
-                                <div className="flex items-center gap-4">
-                                    <div className="h-12 w-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all">
-                                        <BookOpen className="h-5 w-5" />
+                            <div key={cls.id} className="group flex items-center justify-between py-5 border-b border-slate-50 hover:border-slate-100 transition-colors">
+                                <div className="flex items-center gap-6">
+                                    <div className="text-slate-300 group-hover:text-indigo-500 transition-colors">
+                                        <BookOpen className="h-5 w-5 stroke-[1.5px]" />
                                     </div>
                                     <div>
-                                        <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase leading-none mb-1">
+                                        <h3 className="text-[15px] font-medium text-slate-800 tracking-tight mb-1">
                                             {cls.subject}
                                         </h3>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                            {cls.time} • Room {cls.room}
-                                        </p>
+                                        <div className="flex items-center gap-3 text-slate-400">
+                                            <span className="text-[11px] font-normal tracking-wide">{cls.time}</span>
+                                            <div className="h-1 w-1 rounded-full bg-slate-200" />
+                                            <span className="text-[11px] font-normal tracking-wide">Room {cls.room}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <ChevronRight className="h-4 w-4 text-slate-200 group-hover:text-slate-900" />
+                                <div className="h-8 w-8 rounded-full flex items-center justify-center border border-transparent group-hover:border-slate-50 group-hover:bg-slate-50/50 transition-all">
+                                    <ChevronRight className="h-4 w-4 text-slate-300 transition-colors" />
+                                </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="p-12 text-center bg-slate-50 rounded-[2rem] border-dashed border-slate-200 border">
-                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No active classes found</p>
+                    <div className="py-20 text-center">
+                        <p className="text-[11px] font-medium text-slate-300 uppercase tracking-widest">No active sessions for today</p>
                     </div>
                 )}
             </div>
 
-            {/* Quick Note - Minimal Dark Card */}
-            <div className="bg-[#0F172A] rounded-[2rem] p-6 text-white shadow-xl shadow-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Note</p>
-                    <Badge className="bg-slate-800 text-slate-400 border-none px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest">
-                        Sync
-                    </Badge>
+            {/* Broadcast Hub - Aesthetic Footer Note */}
+            <div className="pt-12 border-t border-slate-50">
+                <div className="flex items-start justify-between gap-12">
+                    <div className="max-w-xs">
+                        <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-[0.2em] mb-4">Verification Note</p>
+                        <p className="text-[14px] text-slate-500 leading-relaxed font-normal">
+                            {liveMessage ? liveMessage.message : "System operational. All faculty transmissions are verified and linked to your current series."}
+                        </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                        <div className="inline-flex items-center gap-2 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                            <div className="h-1.5 w-1.5 rounded-full bg-slate-300" />
+                            <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">
+                                {liveMessage?.time || "Protocol Idle"}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <p className="text-sm font-medium text-slate-200 leading-relaxed">
-                    {liveMessage ? liveMessage.message : "Check portal for daily updates and faculty transmissions."}
-                </p>
             </div>
         </div>
+    );
+        </div >
     );
 }
