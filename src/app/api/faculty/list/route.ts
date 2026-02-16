@@ -4,13 +4,23 @@ import prisma from "@/lib/prisma";
 
 export async function GET() {
     try {
-        // Use queryRaw to bypass potentially stale Prisma client definitions
-        // Fetch specific fields including the new 'status' and 'email'
-        const faculty: any[] = await prisma.$queryRaw`
-            SELECT id, name, "facultyId", department, subjects, "sectionsTeaching", "cabinLocation", email, status 
-            FROM Faculty
-            ORDER BY name ASC
-        `;
+        // Use standard Prisma findMany for reliability and type safety
+        const faculty = await prisma.faculty.findMany({
+            select: {
+                id: true,
+                name: true,
+                facultyId: true,
+                department: true,
+                subjects: true,
+                sectionsTeaching: true,
+                cabinLocation: true,
+                email: true,
+                status: true
+            },
+            orderBy: {
+                name: 'asc'
+            }
+        });
 
         const mapped = faculty.map(f => ({
             id: f.id,
