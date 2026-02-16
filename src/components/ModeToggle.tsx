@@ -19,7 +19,7 @@ export function ModeToggle() {
             {/* Animated Background Slider */}
             <div
                 className={cn(
-                    "absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-sm bg-[#0D9488]",
+                    "absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full transition-all duration-500 ease-bounce-ease shadow-sm bg-[#0D9488]",
                     mode === 'internships'
                         ? "left-1"
                         : "left-[calc(50%+3px)]"

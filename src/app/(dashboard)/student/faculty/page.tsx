@@ -204,7 +204,7 @@ export default function FacultyDirectoryPage() {
 
                         {/* Recent Transmission status mini-widget */}
                         {bookings.length > 0 && (
-                            <Card className="border-none shadow-sm rounded-2xl bg-indigo-600 p-6 text-white group cursor-pointer overflow-hidden relative" onClick={() => setActiveTab?.('active')}>
+                            <Card className="border-none shadow-sm rounded-2xl bg-indigo-600 p-6 text-white group overflow-hidden relative">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 blur-xl transition-transform group-hover:scale-110"></div>
                                 <p className="text-[9px] font-black text-indigo-200 uppercase tracking-widest mb-4">Active Buffers</p>
                                 <div className="flex items-baseline gap-2">
