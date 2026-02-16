@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Student {
+  id           String              @id @default(uuid())
+  name         String
+  rollNo       String              @unique
+  section      String
+  department   String
+  semester     String
+  email        String?             @unique
+  password     String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  applications Application[]
+  bookings     Booking[]
+  attendance   StudentAttendance[]
+}
+
+model Faculty {
+  id               String              @id @default(uuid())
+  name             String
+  facultyId        String              @unique
+  department       String
+  subjects         String
+  sectionsTeaching String
+  cabinLocation    String?
+  status           String              @default("AVAILABLE")
+  password         String
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  email            String?
+  bookings         Booking[]
+  attendance       FacultyAttendance[]
+  leaves           FacultyLeave[]
+  timetable        FacultyTimetable[]
+  sentMessages     Message[]           @relation("SentMessages")
+  markings         StudentAttendance[]
+  assignedClasses  Timetable[]         @relation("FacultyClasses")
+  topicProgress    TopicProgress[]
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+model Timetable {
+  id         String   @id @default(uuid())
+  department String
+  section    String
+  semester   String
+  subject    String
+  facultyId  String
+  classroom  String
+  floor      String
+  day        String
+  startTime  String
+  endTime    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  faculty    Faculty  @relation("FacultyClasses", fields: [facultyId], references: [id])
+
+  @@index([department, section, semester])
+  @@index([facultyId, day])
+}
+
+model StudentAttendance {
+  id        String   @id @default(uuid())
+  studentId String
+  facultyId String
+  subject   String
+  date      DateTime
+  period    Int      @default(1)
+  status    String
+  createdAt DateTime @default(now())
+  faculty   Faculty  @relation(fields: [facultyId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
+
+  @@index([studentId, subject])
+  @@index([subject, date, period])
+}
+
+model FacultyAttendance {
+  id        String   @id @default(uuid())
+  facultyId String
+  date      DateTime
+  status    String
+  leaveType String?
+  createdAt DateTime @default(now())
+  faculty   Faculty  @relation(fields: [facultyId], references: [id])
+
+  @@unique([facultyId, date])
+}
+
+model Message {
+  id              String   @id @default(uuid())
+  senderId        String
+  senderRole      String   @default("FACULTY")
+  receiverSection String
+  message         String
+  timestamp       DateTime @default(now())
+  sender          Faculty  @relation("SentMessages", fields: [senderId], references: [id])
+
+  @@index([receiverSection])
+}
+
+model FacultyTimetable {
+  id        String   @id @default(uuid())
+  facultyId String
+  day       String
+  startTime String
+  endTime   String
+  isFree    Boolean  @default(false)
+  subject   String?
+  room      String?
+  createdAt DateTime @default(now())
+  faculty   Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@index([facultyId, day])
+}
+
+model Booking {
+  id         String    @id @default(uuid())
+  studentId  String
+  facultyId  String
+  slotDate   DateTime?
+  slotTime   String?
+  location   String?
+  agenda     String
+  agendaType String
+  status     String    @default("PENDING")
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  faculty    Faculty   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  student    Student   @relation(fields: [studentId], references: [id])
+
+  @@index([facultyId, status])
+  @@index([studentId, status])
+}
+
+model FacultyLeave {
+  id        String   @id @default(uuid())
+  facultyId String
+  fromDate  DateTime
+  toDate    DateTime
+  reason    String
+  status    String   @default("PENDING")
+  appliedAt DateTime @default(now())
+  faculty   Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@index([facultyId, status])
+}
+
+model Internship {
+  id               String        @id @default(uuid())
+  company          String
+  role             String
+  stipend          String
+  location         String
+  mode             String
+  eligibilityCgpa  Float
+  branchesAllowed  String
+  deadline         DateTime
+  jdUrl            String?
+  applyLink        String?
+  description      String?
+  skills           String
+  selectionProcess String?
+  createdAt        DateTime      @default(now())
+  applications     Application[]
+}
+
+model Application {
+  id           String     @id @default(uuid())
+  studentId    String
+  internshipId String
+  status       String
+  appliedAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  internship   Internship @relation(fields: [internshipId], references: [id])
+  student      Student    @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, internshipId])
+}
+
+model SyllabusSubject {
+  id          String          @id @default(uuid())
+  subjectName String          @unique
+  subjectCode String?
+  department  String
+  topics      SyllabusTopic[]
+}
+
+model SyllabusTopic {
+  id            String          @id @default(uuid())
+  subjectId     String
+  title         String
+  totalLectures Int             @default(1)
+  order         Int             @default(0)
+  subject       SyllabusSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  progress      TopicProgress[]
+}
+
+model TopicProgress {
+  id                String        @id @default(uuid())
+  topicId           String
+  facultyId         String
+  section           String
+  status            String        @default("NOT_STARTED")
+  completedLectures Int           @default(0)
+  completedDate     DateTime?
+  notes             String?
+  updatedAt         DateTime      @updatedAt
+  faculty           Faculty       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  topic             SyllabusTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, facultyId, section])
+}

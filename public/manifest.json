@@ -1,0 +1,17 @@
+{
+    "name": "CampusSync - Career & Academic Interaction Platform",
+    "short_name": "CampusSync",
+    "theme_color": "#020617",
+    "background_color": "#020617",
+    "display": "standalone",
+    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "/",
+    "icons": [
+        {
+            "src": "/icons/logo.svg",
+            "sizes": "192x192 512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}
