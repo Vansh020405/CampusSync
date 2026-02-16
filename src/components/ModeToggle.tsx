@@ -15,14 +15,14 @@ export function ModeToggle() {
     };
 
     return (
-        <div className="relative flex items-center p-1.5 bg-[#F1F5F9] rounded-[2rem] w-fit shadow-sm border border-slate-100">
+        <div className="relative flex items-center p-1 bg-[#F1F5F9] rounded-[1.75rem] w-fit shadow-sm border border-slate-100">
             {/* Animated Background Slider */}
             <div
                 className={cn(
-                    "absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] rounded-[1.5rem] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-sm bg-[#0D9488]",
+                    "absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-[1.25rem] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-sm bg-[#0D9488]",
                     mode === 'internships'
-                        ? "left-1.5"
-                        : "left-[calc(50%+3.5px)]"
+                        ? "left-1"
+                        : "left-[calc(50%+3px)]"
                 )}
             />
 
@@ -30,12 +30,12 @@ export function ModeToggle() {
             <button
                 onClick={() => handleModeSwitch('internships')}
                 className={cn(
-                    "relative w-36 py-3.5 rounded-full flex items-center justify-center transition-all duration-300 z-10",
+                    "relative w-28 md:w-32 py-2 rounded-full flex items-center justify-center transition-all duration-300 z-10",
                     mode === 'internships' ? "" : ""
                 )}
             >
                 <Briefcase className={cn(
-                    "w-5 h-5 transition-all duration-300",
+                    "w-4 h-4 md:w-5 md:h-5 transition-all duration-300",
                     mode === 'internships' ? "text-white" : "text-slate-400"
                 )} />
             </button>
@@ -44,12 +44,12 @@ export function ModeToggle() {
             <button
                 onClick={() => handleModeSwitch('campus')}
                 className={cn(
-                    "relative w-36 py-3.5 rounded-full flex items-center justify-center transition-all duration-300 z-10",
+                    "relative w-28 md:w-32 py-2 rounded-full flex items-center justify-center transition-all duration-300 z-10",
                     mode === 'campus' ? "" : ""
                 )}
             >
                 <GraduationCap className={cn(
-                    "w-6 h-6 transition-all duration-300",
+                    "w-5 h-5 md:w-6 md:h-6 transition-all duration-300",
                     mode === 'campus' ? "text-white" : "text-slate-400"
                 )} />
             </button>

@@ -72,8 +72,8 @@ export function BottomNav() {
     }
 
     return (
-        <div className="fixed bottom-0 left-0 z-50 w-full bg-white/90 backdrop-blur-xl border-t border-slate-50 pt-3 pb-8 shadow-[0_-10px_40px_-12px_rgba(0,0,0,0.05)]">
-            <div className="flex items-center justify-around px-4">
+        <div className="fixed bottom-0 left-0 z-50 w-full bg-white/95 backdrop-blur-xl border-t border-slate-100 pt-2 pb-safe pb-6 md:pb-8 shadow-[0_-10px_40px_-12px_rgba(0,0,0,0.08)] safe-area-inset-bottom">
+            <div className="flex items-center justify-around px-2 md:px-4 max-w-screen-xl mx-auto">
                 {links.map((link) => {
                     const Icon = link.icon
                     const isActive = pathname === link.href || (link.href !== '/home' && pathname.startsWith(link.href))
@@ -84,7 +84,7 @@ export function BottomNav() {
                             key={link.href}
                             href={link.href}
                             className={cn(
-                                "flex flex-col items-center justify-center transition-all duration-300 flex-1",
+                                "flex flex-col items-center justify-center transition-all duration-300 flex-1 min-w-0 px-1",
                                 isActive ? "text-[#0D9488]" : "text-slate-400"
                             )}
                         >
@@ -93,12 +93,12 @@ export function BottomNav() {
                                 isActive && isAttendance ? "bg-[#0D9488] text-white" : ""
                             )}>
                                 <Icon className={cn(
-                                    "h-[22px] w-[22px] transition-all",
+                                    "h-5 w-5 md:h-[22px] md:w-[22px] transition-all",
                                     isActive && !isAttendance ? "stroke-[2.5]" : "stroke-[1.5]"
                                 )} />
                             </div>
                             <span className={cn(
-                                "text-[10px] font-bold mt-1 tracking-tight transition-all duration-300 opacity-80",
+                                "text-[9px] md:text-[10px] font-bold mt-0.5 md:mt-1 tracking-tight transition-all duration-300 truncate max-w-full",
                                 isActive ? "opacity-100" : "opacity-0 scale-90"
                             )}>{link.label}</span>
                         </Link>
