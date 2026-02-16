@@ -2,6 +2,9 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
+    // Clear existing timetable
+    await prisma.timetable.deleteMany();
+
     const faculty = await prisma.faculty.findMany();
     if (faculty.length === 0) {
         console.error("No faculty found. Please run seed.js first.");
