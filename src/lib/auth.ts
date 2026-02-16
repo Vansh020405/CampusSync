@@ -13,10 +13,16 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
+                console.log("Student Authorize called with:", credentials);
                 if (!credentials?.rollNo || !credentials?.password) return null;
 
-                const student = await prisma.student.findUnique({
-                    where: { rollNo: credentials.rollNo }
+                const student = await prisma.student.findFirst({
+                    where: {
+                        OR: [
+                            { rollNo: credentials.rollNo },
+                            { email: credentials.rollNo }
+                        ]
+                    }
                 });
 
                 if (!student) return null;
@@ -45,8 +51,13 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials?.facultyId || !credentials?.password) return null;
 
-                const faculty = await prisma.faculty.findUnique({
-                    where: { facultyId: credentials.facultyId }
+                const faculty = await prisma.faculty.findFirst({
+                    where: {
+                        OR: [
+                            { facultyId: credentials.facultyId },
+                            { email: credentials.facultyId }
+                        ]
+                    }
                 });
 
                 if (!faculty) return null;
