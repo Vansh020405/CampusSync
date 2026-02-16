@@ -26,15 +26,18 @@ export default function AdminInternships() {
         eligibilityCgpa: 0,
         branchesAllowed: '',
         description: '',
-        applyLink: ''
+        applyLink: '',
+        skills: ''
     });
 
     const handleCreate = (e: React.FormEvent) => {
         e.preventDefault();
         addInternship({
             ...form,
-            branchesAllowed: form.branchesAllowed.split(',').map(s => s.trim()),
-            eligibilityCgpa: Number(form.eligibilityCgpa)
+            branchesAllowed: form.branchesAllowed.split(',').map(s => s.trim()).filter(Boolean),
+            eligibilityCgpa: Number(form.eligibilityCgpa),
+            skills: form.skills.split(',').map(s => s.trim()).filter(Boolean),
+            postedDate: "Just now"
         });
         setView('list');
         alert("Internship Posted!");
@@ -101,6 +104,10 @@ export default function AdminInternships() {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Job Description</label>
                                 <Textarea className="min-h-[100px]" required value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Required Skills (comma separated)</label>
+                                <Input placeholder="React, Node.js, TypeScript" value={form.skills} onChange={e => setForm({ ...form, skills: e.target.value })} />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Application Link/Email</label>

@@ -19,7 +19,17 @@ export async function GET() {
             return NextResponse.json({ error: "Student not found" }, { status: 404 });
         }
 
-        const subjects = JSON.parse(student.subjects || "[]");
+        // Fetch subjects from Timetable for this student's section/semester
+        const timetableEntries = await prisma.timetable.findMany({
+            where: {
+                department: student.department,
+                semester: student.semester,
+                section: student.section
+            },
+            select: { subject: true },
+            distinct: ['subject']
+        });
+        const subjects = timetableEntries.map(t => t.subject);
         const section = student.section;
         console.log(`Debug: Student ${student.name} is in section "${section}" and enrolled in: ${subjects.join(', ')}`);
 
