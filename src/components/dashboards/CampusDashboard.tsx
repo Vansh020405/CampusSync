@@ -75,14 +75,24 @@ export default function CampusDashboard() {
                     filtered = data.filter((t: any) => t.day === firstDay);
                 }
 
-                const mapped = filtered.map((t: any, idx: number) => ({
-                    id: t.id,
-                    subject: t.subject,
-                    faculty: t.faculty?.name || "Faculty",
-                    time: `${t.startTime} - ${t.endTime}`,
-                    room: t.classroom,
-                    status: idx === 0 ? "Next" : "Scheduled"
-                }));
+                const timeToMinutes = (timeStr: string) => {
+                    const [time, modifier] = timeStr.split(' ');
+                    let [hours, minutes] = time.split(':').map(Number);
+                    if (hours === 12) hours = 0;
+                    if (modifier === 'PM') hours += 12;
+                    return hours * 60 + minutes;
+                };
+
+                const mapped = filtered
+                    .sort((a: any, b: any) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime))
+                    .map((t: any, idx: number) => ({
+                        id: t.id,
+                        subject: t.subject,
+                        faculty: t.faculty?.name || "Faculty",
+                        time: `${t.startTime} - ${t.endTime}`,
+                        room: t.classroom,
+                        status: idx === 0 ? "Next" : "Scheduled"
+                    }));
                 setTodayClasses(mapped);
             }
         } catch (err) {
@@ -117,19 +127,25 @@ export default function CampusDashboard() {
 
     return (
         <div className="max-w-2xl mx-auto pb-32 px-8 py-16 bg-white min-h-screen font-light">
-            {/* Elegant Minimal Header */}
+            {/* Elegant Minimal Header with Personalization */}
             <div className="mb-16">
-                <h1 className="text-4xl font-normal text-slate-800 tracking-tight mb-2">
-                    Journal
+                <h1 className="text-5xl font-normal text-slate-800 tracking-tight mb-4">
+                    {studentData.name}
                 </h1>
-                <div className="flex items-center gap-3 text-slate-400">
-                    <span className="text-[11px] font-medium uppercase tracking-[0.2em]">
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                    </span>
-                    <div className="h-[1px] w-6 bg-slate-100" />
-                    <span className="text-[11px] font-medium uppercase tracking-[0.2em]">
-                        Series {studentData.section}
-                    </span>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-400">
+                    <div className="flex items-center gap-2">
+                        <Calendar className="h-3 w-3" />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em]">
+                            {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+                        </span>
+                    </div>
+                    <div className="h-[1px] w-4 bg-slate-100 hidden sm:block" />
+                    <div className="flex items-center gap-2 text-indigo-400/80">
+                        <Users className="h-3 w-3" />
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.15em]">
+                            Series {studentData.section} • {studentData.rollNo}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -171,26 +187,39 @@ export default function CampusDashboard() {
                         ))}
                     </div>
                 ) : todayClasses.length > 0 ? (
-                    <div className="space-y-1">
+                    <div className="space-y-4">
                         {todayClasses.map((cls) => (
-                            <div key={cls.id} className="group flex items-center justify-between py-5 border-b border-slate-50 hover:border-slate-100 transition-colors">
-                                <div className="flex items-center gap-6">
-                                    <div className="text-slate-300 group-hover:text-indigo-500 transition-colors">
-                                        <BookOpen className="h-5 w-5 stroke-[1.5px]" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-[15px] font-medium text-slate-800 tracking-tight mb-1">
-                                            {cls.subject}
-                                        </h3>
-                                        <div className="flex items-center gap-3 text-slate-400">
-                                            <span className="text-[11px] font-normal tracking-wide">{cls.time}</span>
-                                            <div className="h-1 w-1 rounded-full bg-slate-200" />
-                                            <span className="text-[11px] font-normal tracking-wide">Room {cls.room}</span>
+                            <div key={cls.id} className="relative group p-[1px] rounded-3xl bg-gradient-to-br from-slate-100 via-slate-50 to-indigo-50 hover:from-indigo-200 hover:via-purple-100 hover:to-indigo-50 transition-all duration-500">
+                                <div className="bg-white rounded-[1.45rem] p-6 flex items-center justify-between">
+                                    <div className="flex items-center gap-6">
+                                        <div className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 group-hover:text-indigo-500 group-hover:bg-indigo-50 transition-all duration-300">
+                                            <BookOpen className="h-6 w-6 stroke-[1.5px]" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-[16px] font-medium text-slate-800 tracking-tight mb-1">
+                                                {cls.subject}
+                                            </h3>
+                                            <div className="flex items-center gap-3 text-slate-400">
+                                                <div className="flex items-center gap-1.5 font-normal tracking-wide text-[11px]">
+                                                    <Clock className="h-3 w-3" />
+                                                    {cls.time}
+                                                </div>
+                                                <div className="h-1 w-1 rounded-full bg-slate-200" />
+                                                <div className="flex items-center gap-1.5 font-normal tracking-wide text-[11px]">
+                                                    <MapPin className="h-3 w-3" />
+                                                    Room {cls.room}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="h-8 w-8 rounded-full flex items-center justify-center border border-transparent group-hover:border-slate-50 group-hover:bg-slate-50/50 transition-all">
-                                    <ChevronRight className="h-4 w-4 text-slate-300 transition-colors" />
+                                    <div className="flex items-center gap-4">
+                                        <Badge variant="outline" className="border-slate-100 text-[9px] font-semibold uppercase tracking-widest px-3 py-1 bg-slate-50/50 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                                            {cls.status}
+                                        </Badge>
+                                        <div className="h-8 w-8 rounded-full flex items-center justify-center border border-slate-50 group-hover:bg-slate-50 transition-all">
+                                            <ChevronRight className="h-4 w-4 text-slate-300 transition-colors" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ))}

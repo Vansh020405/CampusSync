@@ -72,29 +72,35 @@ export function BottomNav() {
     }
 
     return (
-        <div className="fixed bottom-0 left-0 z-50 w-full border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-            <div className="flex h-16 items-center justify-around px-2">
+        <div className="fixed bottom-0 left-0 z-50 w-full bg-white/90 backdrop-blur-xl border-t border-slate-50 pt-3 pb-8 shadow-[0_-10px_40px_-12px_rgba(0,0,0,0.05)]">
+            <div className="flex items-center justify-around px-4">
                 {links.map((link) => {
                     const Icon = link.icon
                     const isActive = pathname === link.href || (link.href !== '/home' && pathname.startsWith(link.href))
+                    const isAttendance = link.label === 'Attendance'
+
                     return (
                         <Link
                             key={link.href}
                             href={link.href}
                             className={cn(
-                                "flex flex-1 flex-col items-center justify-center py-2 text-xs font-medium transition-all hover:scale-105 active:scale-95",
-                                isActive
-                                    ? mode === 'internships'
-                                        ? "text-blue-600"
-                                        : "text-emerald-600"
-                                    : "text-slate-500"
+                                "flex flex-col items-center justify-center transition-all duration-300 flex-1",
+                                isActive ? "text-[#0D9488]" : "text-slate-400"
                             )}
                         >
-                            <Icon className={cn(
-                                "h-5 w-5 mb-1 transition-all",
-                                isActive && "fill-current scale-110"
-                            )} />
-                            <span className="text-[10px] scale-90">{link.label}</span>
+                            <div className={cn(
+                                "p-2 rounded-full transition-all duration-300",
+                                isActive && isAttendance ? "bg-[#0D9488] text-white" : ""
+                            )}>
+                                <Icon className={cn(
+                                    "h-[22px] w-[22px] transition-all",
+                                    isActive && !isAttendance ? "stroke-[2.5]" : "stroke-[1.5]"
+                                )} />
+                            </div>
+                            <span className={cn(
+                                "text-[10px] font-bold mt-1 tracking-tight transition-all duration-300 opacity-80",
+                                isActive ? "opacity-100" : "opacity-0 scale-90"
+                            )}>{link.label}</span>
                         </Link>
                     )
                 })}

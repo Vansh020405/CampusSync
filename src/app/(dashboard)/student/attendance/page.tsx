@@ -68,158 +68,128 @@ export default function StudentAttendancePage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto space-y-4 pb-20 animate-in fade-in duration-500">
-            <div className="px-1 py-4 flex items-center justify-between">
+        <div className="max-w-xl mx-auto space-y-6 pb-20 animate-in fade-in duration-500 font-sans">
+            {/* Journal Header */}
+            <div className="px-1 py-6 flex items-start justify-between">
                 <div>
-                    <h1 className="text-xl font-bold text-slate-900 tracking-tight">Attendance Journal</h1>
-                    <p className="text-xs text-slate-500 font-medium">Section AIML 4G2 • Spring 2026</p>
+                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">{(session?.user as any)?.name}</h1>
+                    <p className="text-[13px] text-slate-400 font-medium mt-1">Section {(session?.user as any)?.section || '4G2'} • Spring 2026</p>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                        setIsLoading(true);
-                        fetchAttendance();
-                    }}
-                    className={cn(
-                        "rounded-full hover:bg-slate-100 transition-all active:scale-90",
-                        isLoading && "animate-spin opacity-50"
-                    )}
-                    disabled={isLoading}
-                >
-                    <Clock className="h-5 w-5 text-slate-400" />
-                </Button>
+                <div className="pt-2">
+                    <Clock className="h-6 w-6 text-slate-300 stroke-[1.5px]" />
+                </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
                 {subjects.map((subject) => {
                     const isExpanded = expandedSubject === subject.name;
                     const subjectRecords = allRecords.filter(r => r.subject === subject.name);
+                    const shortName = subject.name.split(' ')[0];
 
                     return (
                         <Card
                             key={subject.name}
                             className={cn(
-                                "border-none shadow-sm bg-white rounded-2xl overflow-hidden transition-all duration-300",
-                                isExpanded ? "ring-1 ring-slate-200" : "active:scale-[0.98]"
+                                "border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] bg-white rounded-[2rem] overflow-hidden transition-all duration-300",
+                                isExpanded ? "ring-1 ring-slate-100" : ""
                             )}
                         >
                             <CardContent
                                 className="p-0 cursor-pointer"
                                 onClick={() => setExpandedSubject(isExpanded ? null : subject.name)}
                             >
-                                <div className="p-4 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className={cn(
-                                            "h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
-                                            subject.percentage < 75 ? "bg-red-50 text-red-600" : "bg-slate-50 text-slate-400"
-                                        )}>
-                                            <BookOpen className="h-5 w-5" />
+                                <div className="p-6 flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-14 w-14 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 border border-slate-100">
+                                            <BookOpen className="h-6 w-6 text-slate-400" />
                                         </div>
                                         <div>
-                                            <h3 className="text-sm font-bold text-slate-800 leading-none mb-1">
-                                                {subject.name}
+                                            <h3 className="text-xl font-bold text-slate-800 tracking-tight">
+                                                {shortName}
                                             </h3>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[10px] font-medium text-slate-400">
-                                                    {subject.attended}/{subject.total} Classes
-                                                </span>
-                                                {subject.percentage < 75 && (
-                                                    <span className="flex items-center gap-0.5 text-[9px] font-bold text-red-500 uppercase tracking-tighter">
-                                                        <AlertCircle className="h-2.5 w-2.5" /> Low
-                                                    </span>
-                                                )}
-                                            </div>
+                                            <p className="text-[13px] font-medium text-slate-400 mt-0.5">
+                                                {subject.attended}/{subject.total} Classes
+                                            </p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-4">
-                                        <div className="text-right">
-                                            <div className={cn(
-                                                "text-sm font-black",
-                                                subject.percentage >= 85 ? "text-slate-900" :
-                                                    subject.percentage >= 75 ? "text-slate-700" : "text-red-600"
-                                            )}>
+                                        <div className="text-right flex flex-col items-end">
+                                            <div className="text-xl font-bold text-slate-900 leading-none mb-2">
                                                 {subject.percentage.toFixed(0)}%
                                             </div>
-                                            <div className="w-12 h-1 bg-slate-100 rounded-full mt-1 overflow-hidden">
+                                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                                 <div
                                                     className={cn(
-                                                        "h-full rounded-full transition-all duration-700",
-                                                        subject.percentage >= 85 ? "bg-emerald-500" :
-                                                            subject.percentage >= 75 ? "bg-blue-500" : "bg-red-500"
+                                                        "h-full rounded-full transition-all duration-1000",
+                                                        subject.percentage >= 75 ? "bg-[#0D9488]" : "bg-red-500"
                                                     )}
                                                     style={{ width: `${subject.percentage}%` }}
                                                 />
                                             </div>
                                         </div>
-                                        <ChevronRight className={cn(
-                                            "h-4 w-4 text-slate-300 transition-transform duration-300",
-                                            isExpanded && "rotate-90"
-                                        )} />
+                                        <div className="pt-1">
+                                            <ChevronRight className={cn(
+                                                "h-5 w-5 text-slate-200 transition-transform duration-300",
+                                                isExpanded && "rotate-90 text-slate-400"
+                                            )} />
+                                        </div>
                                     </div>
                                 </div>
 
                                 {isExpanded && (
-                                    <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-300">
-                                        <div className="space-y-2 pt-2 border-t border-slate-50">
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Historical Logs</p>
-                                            {subjectRecords.map((record, idx) => (
-                                                <div key={idx} className="flex items-center justify-between py-2 px-3 bg-slate-50/50 rounded-xl">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={cn(
-                                                            "h-1.5 w-1.5 rounded-full",
-                                                            record.status === 'PRESENT' ? "bg-emerald-500" : "bg-red-500"
-                                                        )} />
-                                                        <div>
-                                                            <p className="text-[11px] font-bold text-slate-700">
-                                                                {new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                            </p>
-                                                            <p className="text-[9px] text-slate-400 font-medium">
-                                                                {(() => {
-                                                                    if (record.period) {
-                                                                        const d = new Date(record.date);
-                                                                        d.setHours(9 + (record.period - 1), 0, 0);
-                                                                        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                                                    }
-                                                                    return new Date(record.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                                                })()} • Prof. {record.faculty?.name || "Faculty"}
-                                                            </p>
+                                    <div className="px-6 pb-6 animate-in slide-in-from-top-2 duration-400">
+                                        <div className="space-y-3 pt-4 border-t border-slate-50">
+                                            <p className="text-[11px] font-bold text-slate-300 uppercase tracking-[0.15em] mb-4">Historical Logs</p>
+                                            <div className="space-y-4">
+                                                {subjectRecords.map((record, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className={cn(
+                                                                "h-2 w-2 rounded-full",
+                                                                record.status === 'PRESENT' ? "bg-[#0D9488]" : "bg-red-500"
+                                                            )} />
+                                                            <div>
+                                                                <p className="text-[13px] font-bold text-slate-700">
+                                                                    {new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                                </p>
+                                                                <p className="text-[11px] text-slate-400 font-medium mt-0.5 leading-none">
+                                                                    {new Date(record.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Prof. {record.faculty?.name || "Faculty"}
+                                                                </p>
+                                                            </div>
                                                         </div>
+                                                        <Badge className={cn(
+                                                            "text-[10px] font-bold px-3 py-1 rounded-full border-none shadow-none",
+                                                            record.status === 'PRESENT' ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                                                        )}>
+                                                            {record.status}
+                                                        </Badge>
                                                     </div>
-                                                    <Badge className={cn(
-                                                        "text-[9px] font-black uppercase tracking-tighter px-2 h-5 flex items-center border-none",
-                                                        record.status === 'PRESENT' ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
-                                                    )}>
-                                                        {record.status}
-                                                    </Badge>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {subject.percentage < 75 && (
-                                            <div className="mt-4 p-3 bg-red-50/50 rounded-xl flex items-center gap-3 text-[10px] text-red-600 font-bold border border-red-100/50">
-                                                <AlertCircle className="h-4 w-4 shrink-0" />
-                                                <span>Recovery Plan: Attend next {Math.ceil((0.75 * subject.total - subject.attended) / 0.25)} sessions to hit 75%.</span>
+                                                ))}
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
                                 )}
                             </CardContent>
                         </Card>
                     );
                 })}
-            </div >
-
-            <div className="p-6 bg-slate-900 rounded-[2rem] text-white flex items-center justify-between">
-                <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-50">Quick Note</p>
-                    <p className="text-xs font-medium mt-1">Check faculty page for makeup sessions.</p>
-                </div>
-                <Badge className="bg-white/10 hover:bg-white/20 border-white/10 text-[10px] font-bold">
-                    REFRESHED
-                </Badge>
             </div>
-        </div >
+
+            {/* Quick Note Card */}
+            <div className="mt-8 p-8 bg-[#111827] rounded-[2.5rem] text-white overflow-hidden relative shadow-xl">
+                <div className="flex items-start justify-between relative z-10 transition-all">
+                    <div>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500">Quick Note</p>
+                        <p className="text-[15px] font-medium mt-2 leading-relaxed text-slate-100 max-w-[240px]">
+                            Check faculty page for makeup sessions.
+                        </p>
+                    </div>
+                    <Badge className="bg-slate-800 text-slate-400 border-none px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider hover:bg-slate-800">
+                        REFRESHED
+                    </Badge>
+                </div>
+            </div>
+        </div>
     );
 }

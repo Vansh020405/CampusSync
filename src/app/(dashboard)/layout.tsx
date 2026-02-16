@@ -43,48 +43,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
-            {/* Top Navbar */}
-            <header className="sticky top-0 z-40 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-                <div className="flex h-16 items-center justify-between px-4 md:px-6">
-                    {/* Logo/Brand */}
-                    <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 relative rounded-lg overflow-hidden shadow-sm">
-                            <Image src="/icons/logo.svg" alt="Logo" fill className="object-cover" />
+            {/* Top Navbar - Screenshot Match */}
+            <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md">
+                <div className="flex h-20 items-center justify-between px-6">
+                    {/* Left: CS Logo Tag */}
+                    <div className="flex items-center">
+                        <div className="h-10 w-10 bg-[#0D9488] rounded-xl flex items-center justify-center font-bold text-white shadow-sm ring-1 ring-emerald-600/10">
+                            CS
                         </div>
-                        <span className="font-bold text-lg hidden sm:inline text-slate-900">CampusSync</span>
                     </div>
 
-                    {/* Mode Toggle - Only for Students in Career/Campus modes */}
-                    {!isAdmin && session?.user?.role !== 'FACULTY' && (
-                        <div className="flex-1 flex justify-center px-4">
+                    {/* Center: Mode Switcher Pill */}
+                    {!isAdmin && (
+                        <div className="flex-1 flex justify-center">
                             <ModeToggle />
                         </div>
                     )}
 
-                    {/* User Menu */}
-                    <div className="flex items-center gap-4">
+                    {/* Right: User Profile Circle */}
+                    <div className="flex items-center">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
-                                    <User className="h-5 w-5 text-slate-600" />
+                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-all">
+                                    <User className="h-5 w-5 text-slate-400" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56 rounded-2xl border-slate-100 shadow-xl">
-                                <DropdownMenuLabel>
+                            <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] border-slate-100 shadow-2xl p-2 mt-2">
+                                <DropdownMenuLabel className="px-4 py-3">
                                     <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-black text-slate-900">{session?.user?.name}</p>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{session?.user?.email}</p>
+                                        <p className="text-sm font-bold text-slate-800">{session?.user?.name}</p>
+                                        <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">{session?.user?.email}</p>
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-slate-50" />
-                                <DropdownMenuItem onClick={() => router.push('/home')} className="rounded-xl font-bold text-xs uppercase tracking-tight">
-                                    Home Dashboard
+                                <DropdownMenuItem onClick={() => router.push('/home')} className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-tight text-slate-600 hover:text-slate-900 transition-colors">
+                                    Dashboard
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => router.push('/student/profile')} className="rounded-xl font-bold text-xs uppercase tracking-tight">
+                                <DropdownMenuItem onClick={() => router.push('/student/profile')} className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-tight text-slate-600 hover:text-slate-900 transition-colors">
                                     Profile Settings
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator className="bg-slate-50" />
-                                <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })} className="text-red-500 rounded-xl font-bold text-xs uppercase tracking-tight">
+                                <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })} className="text-red-500 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-tight hover:bg-red-50 transition-colors">
                                     <LogOut className="mr-2 h-4 w-4" />
                                     Sign Out
                                 </DropdownMenuItem>
