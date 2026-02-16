@@ -1,0 +1,48 @@
+===========================================
+🚨 QUICK FIX - COPY THIS SQL COMMAND
+===========================================
+
+1. Go to: https://supabase.com/dashboard
+2. Select project: bhwbmfgvqdaeqpxbaoyk
+3. Click: SQL Editor (left sidebar)
+4. Click: + New Query
+5. Paste and RUN this:
+
+ALTER TABLE "Student" DROP CONSTRAINT IF EXISTS "Student_email_key";
+
+6. Verify with this query:
+
+SELECT conname FROM pg_constraint 
+WHERE conrelid = '"Student"'::regclass 
+AND conname LIKE '%email%';
+
+Expected: No rows returned ✅
+
+7. Then deploy your code:
+
+git add .
+git commit -m "fix: remove email unique constraint"
+git push
+
+===========================================
+⏱️ Time to fix: 2 minutes
+🎯 Result: Signup will work on Vercel!
+===========================================
+
+WHAT THIS DOES:
+- Removes the unique constraint on Student.email
+- Allows multiple students without emails (NULL values)
+- Your updated code will validate emails when provided
+
+WHY IT'S NEEDED:
+- Database has unique constraint on email field
+- Multiple NULL emails violate this constraint
+- Causes "Internal server error" during signup
+
+AFTER THE FIX:
+✅ Students can sign up without emails
+✅ Email validation happens in application code
+✅ No more constraint errors
+✅ Vercel deployment will work
+
+===========================================

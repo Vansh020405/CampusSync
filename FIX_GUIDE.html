@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix CampusSync Signup Error - Step by Step</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .error-box {
+            background: #fee;
+            border-left: 4px solid #f44;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .error-box h3 {
+            color: #c33;
+            margin-bottom: 10px;
+        }
+
+        .error-box code {
+            background: #fdd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .step {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .step h3 {
+            display: inline-block;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .step p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .sql-code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .success-box h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .link-btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 10px 10px 0;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        .link-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .checklist li:before {
+            content: "☐ ";
+            font-size: 1.5em;
+            margin-right: 10px;
+            color: #667eea;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Fix Signup Error</h1>
+            <p>CampusSync - Email Constraint Issue</p>
+        </div>
+
+        <div class="content">
+            <div class="error-box">
+                <h3>❌ Current Error</h3>
+                <p><code>Unique constraint failed on the fields: (`email`)</code></p>
+                <p>This error occurs because your database has a unique constraint on the email field that doesn't allow
+                    multiple NULL values.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Open Supabase Dashboard</h3>
+                <p>Click the button below to open your Supabase dashboard:</p>
+                <a href="https://supabase.com/dashboard" target="_blank" class="link-btn">Open Supabase Dashboard →</a>
+                <p style="margin-top: 15px;">Then select your project: <strong>bhwbmfgvqdaeqpxbaoyk</strong></p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Navigate to SQL Editor</h3>
+                <p>In the left sidebar, click on <strong>SQL Editor</strong> (looks like a terminal icon
+                    <code>&gt;_</code>)</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Create New Query</h3>
+                <p>Click the <strong>"+ New Query"</strong> button at the top</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Run This SQL Command</h3>
+                <p>Copy and paste the following SQL command:</p>
+                <div class="sql-code">
+                    <button class="copy-btn" onclick="copySQL()">Copy</button>
+                    <pre id="sql-command">ALTER TABLE "Student" DROP CONSTRAINT IF EXISTS "Student_email_key";</pre>
+                </div>
+                <p>Then click <strong>"RUN"</strong> or press <strong>Ctrl+Enter</strong></p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Verify the Fix</h3>
+                <p>Run this verification query to confirm the constraint is removed:</p>
+                <div class="sql-code">
+                    <button class="copy-btn" onclick="copyVerify()">Copy</button>
+                    <pre id="verify-command">SELECT conname FROM pg_constraint 
+WHERE conrelid = '"Student"'::regclass 
+AND conname LIKE '%email%';</pre>
+                </div>
+                <div class="success-box">
+                    <h4>✅ Expected Result</h4>
+                    <p>The query should return <strong>no rows</strong>. This means the constraint has been successfully
+                        removed!</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">6</span>
+                <h3>Deploy Code Changes</h3>
+                <p>Now push your updated code to trigger a Vercel deployment:</p>
+                <div class="sql-code">
+                    <button class="copy-btn" onclick="copyGit()">Copy</button>
+                    <pre id="git-commands">git add .
+git commit -m "fix: remove email unique constraint and add validation"
+git push</pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">7</span>
+                <h3>Test Signup</h3>
+                <p>Wait for Vercel to deploy (about 2 minutes), then test the signup on your Vercel URL!</p>
+                <a href="https://vercel.com/dashboard" target="_blank" class="link-btn">Open Vercel Dashboard →</a>
+            </div>
+
+            <div class="warning">
+                <h4>⚠️ Important Note</h4>
+                <p>After this fix, students can sign up without providing an email. If you want to require emails,
+                    update your signup form validation.</p>
+            </div>
+
+            <h2 style="margin-top: 40px; margin-bottom: 20px;">✅ Checklist</h2>
+            <ul class="checklist">
+                <li>Open Supabase Dashboard and select project</li>
+                <li>Navigate to SQL Editor</li>
+                <li>Run the DROP CONSTRAINT command</li>
+                <li>Verify constraint is removed</li>
+                <li>Commit and push code changes</li>
+                <li>Wait for Vercel deployment</li>
+                <li>Test signup functionality</li>
+            </ul>
+
+            <div class="success-box" style="margin-top: 30px;">
+                <h4>🎉 After Completion</h4>
+                <p>Your signup should work perfectly! Students can now register without emails, and the system will
+                    validate email uniqueness in the application code when emails are provided.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copySQL() {
+            const text = document.getElementById('sql-command').textContent;
+            navigator.clipboard.writeText(text);
+            alert('SQL command copied to clipboard!');
+        }
+
+        function copyVerify() {
+            const text = document.getElementById('verify-command').textContent;
+            navigator.clipboard.writeText(text);
+            alert('Verification query copied to clipboard!');
+        }
+
+        function copyGit() {
+            const text = document.getElementById('git-commands').textContent;
+            navigator.clipboard.writeText(text);
+            alert('Git commands copied to clipboard!');
+        }
+    </script>
+</body>
+
+</html>

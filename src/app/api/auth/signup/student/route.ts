@@ -10,12 +10,24 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        // Check if roll number already exists
         const existingStudent = await prisma.student.findUnique({
             where: { rollNo }
         });
 
         if (existingStudent) {
             return NextResponse.json({ error: "Student with this Roll Number already exists" }, { status: 400 });
+        }
+
+        // Check if email already exists (only if email is provided)
+        if (email) {
+            const existingEmail = await prisma.student.findFirst({
+                where: { email }
+            });
+
+            if (existingEmail) {
+                return NextResponse.json({ error: "Email already in use" }, { status: 400 });
+            }
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
