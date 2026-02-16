@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,8 +43,8 @@ export default function TimetableArchitecture() {
     // Dynamic Lists State
     const [subjects, setSubjects] = useState(["Java", "DBMS", "OS", "Maths", "CN", "AI", "S&UL", "OT"]);
     const [rooms, setRooms] = useState(["LH-101", "LH-102", "LAB-1", "LAB-2", "LH-303", "LH-401"]);
-    const [teachers, setTeachers] = useState(["Sumit", "Dr. Priya", "Prof. Amit", "Dr. Sneha", "Prof. Vikram", "Manpreet", "Priyanka"]);
-    const [sections, setSections] = useState(["4G1", "4G2", "4G3", "6G1", "6G2"]);
+    const [teachers, setTeachers] = useState<{ id: string; name: string }[]>([]);
+    const [sections, setSections] = useState<string[]>([]);
 
     // Custom fields trackers
     const [isCustomSubject, setIsCustomSubject] = useState(false);
@@ -52,8 +52,98 @@ export default function TimetableArchitecture() {
     const [isCustomTeacher, setIsCustomTeacher] = useState(false);
     const [isCustomSection, setIsCustomSection] = useState(false);
 
-    const [selectedSection, setSelectedSection] = useState("4G1");
-    const [selectedTeacher, setSelectedTeacher] = useState("Sumit");
+    const [selectedSection, setSelectedSection] = useState("");
+    const [selectedTeacher, setSelectedTeacher] = useState(""); // This will now store the ID
+    const [isLoading, setIsLoading] = useState(true);
+    const [isDeploying, setIsDeploying] = useState(false);
+
+    // Helper to merge teachers uniquely
+    const mergeTeachers = (current: { id: string, name: string }[], incoming: { id: string, name: string }[]) => {
+        const map = new Map<string, string>();
+        // Process current list first
+        current.forEach(t => {
+            if (t.id && t.name) {
+                // If existing name is just the ID, and we have a better name, we might want to update
+                // But generally, prioritize human names over IDs
+                map.set(t.id.toLowerCase(), t.name);
+            }
+        });
+        // Merge incoming
+        incoming.forEach(t => {
+            const id = t.id.toLowerCase();
+            const existingName = map.get(id);
+            // Only set if we don't have it, OR if the existing name is just the ID and the new one is better
+            if (!map.has(id) || (existingName === t.id && t.name !== t.id)) {
+                map.set(id, t.name);
+            }
+        });
+        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+    };
+
+    // Initial Data Sync
+    useEffect(() => {
+        const fetchResources = async () => {
+            try {
+                const [facRes, secRes] = await Promise.all([
+                    fetch('/api/faculty/list'),
+                    fetch('/api/admin/sections')
+                ]);
+                const facData = await facRes.json();
+                const secData = await secRes.json();
+
+                const teacherObjects = facData.map((f: any) => ({ id: f.id, name: f.name }));
+                setTeachers(prev => mergeTeachers(prev, teacherObjects));
+                setSections(secData);
+
+                if (teacherObjects.length > 0) setSelectedTeacher(teacherObjects[0].id);
+                if (secData.length > 0) setSelectedSection(secData[0]);
+            } catch (error) {
+                console.error("Resource Sync Error:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchResources();
+    }, []);
+
+    // Existing Timetable Sync
+    useEffect(() => {
+        const fetchExisting = async () => {
+            const target = viewMode === 'faculty' ? `facultyId=${selectedTeacher}` : `section=${selectedSection}`;
+            if ((viewMode === 'faculty' && !selectedTeacher) || (viewMode === 'student' && !selectedSection)) return;
+
+            try {
+                const res = await fetch(`/api/timetable?${target}`);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    // Update teachers list if we find new faculty IDs in the fetched timetable
+                    const uniqueTeacherIds = [...new Set(data.map(s => s.facultyId).filter(Boolean))];
+                    const newIncoming: { id: string, name: string }[] = uniqueTeacherIds.map(tid => ({ id: tid as string, name: tid as string }));
+
+                    setTeachers(prev => mergeTeachers(prev, newIncoming));
+
+                    const mapped: SlotData[] = data.map(s => {
+                        // Strip AM/PM for internal UI matching
+                        const cleanStart = s.startTime.replace(/ (AM|PM)/g, '');
+                        const cleanEnd = s.endTime.replace(/ (AM|PM)/g, '');
+
+                        return {
+                            day: s.day,
+                            time: `${cleanStart} - ${cleanEnd}`,
+                            subject: s.subject,
+                            room: s.classroom,
+                            teacher: s.facultyId,
+                            section: s.section
+                        };
+                    });
+                    setTimetable(mapped);
+                }
+            } catch (error) {
+                console.error("Failed to fetch existing matrix:", error);
+            }
+        };
+        fetchExisting();
+    }, [selectedTeacher, selectedSection, viewMode]);
 
     const handleSlotClick = (day: string, time: string) => {
         const existing = timetable.find(s =>
@@ -85,8 +175,9 @@ export default function TimetableArchitecture() {
         if (currentSlot.room && !rooms.includes(currentSlot.room)) {
             setRooms(prev => [...prev, currentSlot.room!]);
         }
-        if (currentSlot.teacher && !teachers.includes(currentSlot.teacher)) {
-            setTeachers(prev => [...prev, currentSlot.teacher!]);
+        if (currentSlot.teacher && !teachers.some(t => t.id === currentSlot.teacher || t.name === currentSlot.teacher)) {
+            // Only add if it's truly a new custom entry
+            setTeachers(prev => [...prev, { id: currentSlot.teacher!, name: currentSlot.teacher! }]);
         }
         if (currentSlot.section && !sections.includes(currentSlot.section)) {
             setSections(prev => [...prev, currentSlot.section!]);
@@ -105,11 +196,88 @@ export default function TimetableArchitecture() {
         toast({ title: "Matrix Synchronized", description: "Slot updated and options indexed." });
     };
 
+    const deploySync = async () => {
+        const targetSlots = timetable.filter(s =>
+            viewMode === 'faculty' ? s.teacher === selectedTeacher : s.section === selectedSection
+        );
+
+        if (targetSlots.length === 0) {
+            toast({
+                title: "Empty Matrix",
+                description: "No slots detected for deployment. Please add at least one period to the architecture.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        setIsDeploying(true);
+        try {
+            const currentTargetId = viewMode === 'faculty' ? selectedTeacher : selectedSection;
+
+            // Map slots and resolve faculty IDs
+            const syncPayload = targetSlots.map(s => {
+                // Find teacher ID from our index
+                const teacherObj = teachers.find(t =>
+                    t.id === s.teacher ||
+                    t.name === s.teacher ||
+                    t.id.toLowerCase() === s.teacher?.toLowerCase()
+                );
+
+                return {
+                    ...s,
+                    facultyId: viewMode === 'faculty' ? selectedTeacher : (teacherObj?.id || s.teacher)
+                };
+            });
+
+            console.log("Synchronizing Matrix Payload:", { viewMode, targetId: currentTargetId, slots: syncPayload });
+
+            const res = await fetch('/api/timetable', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    timetable: syncPayload,
+                    viewMode,
+                    targetId: currentTargetId
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.details || data.error || "Deployment Failed");
+
+            toast({
+                title: "Deployment Successful",
+                description: `Schedules for ${viewMode === 'faculty' ? teachers.find(t => t.id === selectedTeacher)?.name : selectedSection} have been synchronized with the live portal.`,
+            });
+        } catch (error: any) {
+            console.error("Deploy Error:", error);
+            toast({
+                title: "Deployment Failed",
+                description: error.message || "Critical synchronization error. Please check engine connectivity.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsDeploying(false);
+        }
+    };
+
     const deleteSlot = () => {
         if (!currentSlot) return;
         setTimetable(prev => prev.filter(s => !(s.day === currentSlot.day && s.time === currentSlot.time)));
         setIsEditModalOpen(false);
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-white">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="h-12 w-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-sm animate-pulse">
+                        <Box className="h-6 w-6" />
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em]">Analyzing Matrix...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (viewMode === 'selection') {
         return (
@@ -198,13 +366,22 @@ export default function TimetableArchitecture() {
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                                    {teachers.map((t: string) => <SelectItem key={t} value={t}>Prof. {t}</SelectItem>)}
+                                    {teachers.map((t) => <SelectItem key={t.id} value={t.id}>Prof. {t.name}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                         )}
                     </div>
-                    <Button onClick={saveSlot} className="h-10 px-6 rounded-xl bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all">
-                        <Save className="h-4 w-4 mr-2" /> Deploy Sync
+                    <Button
+                        onClick={deploySync}
+                        disabled={isDeploying}
+                        className="h-10 px-6 rounded-xl bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2"
+                    >
+                        {isDeploying ? (
+                            <Clock className="h-4 w-4 animate-spin text-indigo-400" />
+                        ) : (
+                            <Save className="h-4 w-4" />
+                        )}
+                        {isDeploying ? 'Deploying...' : 'Deploy Sync'}
                     </Button>
                 </div>
             </div>
@@ -255,7 +432,7 @@ export default function TimetableArchitecture() {
                                                         <>
                                                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600" />
                                                             <div className="text-[9px] font-black uppercase text-slate-500 mb-0.5 leading-none tracking-widest">
-                                                                {viewMode === 'faculty' ? `SEC ${slot.section}` : (slot.teacher ? `Prof. ${slot.teacher}` : 'Allocated')}
+                                                                {viewMode === 'faculty' ? `SEC ${slot.section}` : (slot.teacher ? `Prof. ${teachers.find(t => t.id === slot.teacher)?.name || slot.teacher}` : 'Allocated')}
                                                             </div>
                                                             <div className="text-[11px] font-black uppercase tracking-tight text-slate-900 mb-1.5 leading-tight overflow-hidden text-ellipsis line-clamp-2">
                                                                 {slot.subject}
@@ -305,7 +482,7 @@ export default function TimetableArchitecture() {
                                 teacher: s.teacher,
                                 section: s.section
                             })))).slice(0, 5).map((presetStr, idx) => {
-                                const preset = JSON.parse(presetStr);
+                                const preset = JSON.parse(presetStr as string);
                                 if (!preset.subject) return null;
                                 return (
                                     <button
@@ -405,7 +582,7 @@ export default function TimetableArchitecture() {
                                                 <SelectValue placeholder="Select Faculty" />
                                             </SelectTrigger>
                                             <SelectContent className="rounded-xl">
-                                                {teachers.map((t: string) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                                                {teachers.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
                                                 <SelectItem value="CUSTOM" className="font-bold text-indigo-600">Custom...</SelectItem>
                                             </SelectContent>
                                         </Select>

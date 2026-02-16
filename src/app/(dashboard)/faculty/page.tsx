@@ -28,8 +28,13 @@ import { useToast } from "@/components/ui/use-toast";
 export default function FacultyDashboardPage() {
     const { data: session } = useSession();
     const { toast } = useToast();
-    const facultyId = (session?.user as any)?.id || "1";
+    const facultyId = (session?.user as any)?.id;
     const facultyName = session?.user?.name || "Faculty Member";
+    const facultyDept = (session?.user as any)?.department || "Academic Department";
+    const facultySubjectsString = (session?.user as any)?.subjects;
+    const facultySubjects = facultySubjectsString
+        ? (facultySubjectsString.startsWith('[') ? JSON.parse(facultySubjectsString) : facultySubjectsString.split(','))
+        : [];
 
     const [broadcastSection, setBroadcastSection] = useState("4G2");
     const [broadcastMessage, setBroadcastMessage] = useState("");
@@ -55,6 +60,7 @@ export default function FacultyDashboardPage() {
     const { broadcast } = useRealtime();
 
     const fetchLeaveStats = async () => {
+        if (!facultyId) return;
         try {
             const res = await fetch("/api/faculty/leave");
             const data = await res.json();
@@ -150,6 +156,7 @@ export default function FacultyDashboardPage() {
 
     useEffect(() => {
         const fetchTimetable = async () => {
+            if (!facultyId) return;
             try {
                 const today = new Date();
                 const dayName = today.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
@@ -193,12 +200,23 @@ export default function FacultyDashboardPage() {
                         </p>
                         <div className="h-1 w-1 rounded-full bg-slate-200" />
                         <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest">
-                            Dept. of Computer Science
+                            {facultyDept}
                         </p>
                     </div>
                 </div>
-                <div className="h-14 w-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
-                    <Users className="h-7 w-7" />
+                <div className="flex flex-col items-end gap-2">
+                    <div className="h-14 w-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
+                        <Users className="h-7 w-7" />
+                    </div>
+                    {facultySubjects.length > 0 && (
+                        <div className="flex flex-wrap gap-1 justify-end max-w-[200px]">
+                            {facultySubjects.map((s: string, i: number) => (
+                                <Badge key={i} variant="outline" className="text-[8px] font-black uppercase text-slate-400 border-slate-100 px-1.5 py-0 min-h-0 h-4">
+                                    {s.trim()}
+                                </Badge>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 

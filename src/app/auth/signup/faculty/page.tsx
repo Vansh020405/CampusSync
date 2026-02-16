@@ -158,59 +158,93 @@ export default function FacultySignupPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-slate-400">Add Subjects</Label>
-                                    <div className="flex gap-2">
-                                        <Input
-                                            placeholder="e.g. DBMS"
-                                            className="h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
-                                            value={subjectInput}
-                                            onChange={(e) => setSubjectInput(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && addSubject()}
-                                        />
-                                        <Button type="button" size="icon" onClick={addSubject} className="rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200">
-                                            <Plus className="h-4 w-4" />
-                                        </Button>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-black uppercase text-slate-400">Add Subjects</Label>
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="e.g. DBMS, OS (Separated by commas)"
+                                                className="h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
+                                                value={subjectInput}
+                                                onChange={(e) => setSubjectInput(e.target.value)}
+                                                onKeyPress={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        addSubject();
+                                                    }
+                                                }}
+                                            />
+                                            <Button type="button" size="icon" onClick={() => {
+                                                if (subjectInput.includes(',')) {
+                                                    const newSubjects = subjectInput.split(',').map(s => s.trim()).filter(s => s !== "");
+                                                    setFormData(prev => ({ ...prev, subjects: Array.from(new Set([...prev.subjects, ...newSubjects])) }));
+                                                    setSubjectInput("");
+                                                } else {
+                                                    addSubject();
+                                                }
+                                            }} className="rounded-xl bg-emerald-100 text-emerald-700 hover:bg-emerald-200 shadow-sm border border-emerald-200/50 transition-all">
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        <div className="flex flex-wrap gap-1.5 mt-2 min-h-[20px]">
+                                            {formData.subjects.length > 0 ? formData.subjects.map(s => (
+                                                <Badge key={s} className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-none rounded-lg px-2 py-1 flex items-center gap-1 group transition-all">
+                                                    <span className="text-[9px] font-black uppercase tracking-tight">{s}</span>
+                                                    <X className="h-2.5 w-2.5 cursor-pointer opacity-50 group-hover:opacity-100" onClick={() => removeSubject(s)} />
+                                                </Badge>
+                                            )) : (
+                                                <p className="text-[9px] font-bold text-slate-300 italic">No subjects added yet</p>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex flex-wrap gap-1.5 mt-2">
-                                        {formData.subjects.map(s => (
-                                            <Badge key={s} className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-none rounded-lg px-2 flex items-center gap-1">
-                                                {s} <X className="h-3 w-3 cursor-pointer" onClick={() => removeSubject(s)} />
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                </div>
 
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-slate-400">Assigned Sections</Label>
-                                    <div className="flex gap-2">
-                                        <Input
-                                            placeholder="e.g. 4G2"
-                                            className="h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
-                                            value={sectionInput}
-                                            onChange={(e) => setSectionInput(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && addSection()}
-                                        />
-                                        <Button type="button" size="icon" onClick={addSection} className="rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200">
-                                            <Plus className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1.5 mt-2">
-                                        {formData.sections.map(s => (
-                                            <Badge key={s} className="bg-slate-900 text-white border-none rounded-lg px-2 flex items-center gap-1">
-                                                {s} <X className="h-3 w-3 cursor-pointer" onClick={() => removeSection(s)} />
-                                            </Badge>
-                                        ))}
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-black uppercase text-slate-400">Target Sections</Label>
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="e.g. 4G2, 4G3"
+                                                className="h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
+                                                value={sectionInput}
+                                                onChange={(e) => setSectionInput(e.target.value)}
+                                                onKeyPress={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        addSection();
+                                                    }
+                                                }}
+                                            />
+                                            <Button type="button" size="icon" onClick={() => {
+                                                if (sectionInput.includes(',')) {
+                                                    const newSections = sectionInput.split(',').map(s => s.trim().toUpperCase()).filter(s => s !== "");
+                                                    setFormData(prev => ({ ...prev, sections: Array.from(new Set([...prev.sections, ...newSections])) }));
+                                                    setSectionInput("");
+                                                } else {
+                                                    addSection();
+                                                }
+                                            }} className="rounded-xl bg-slate-900 text-white hover:bg-black shadow-lg shadow-black/5 transition-all">
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        <div className="flex flex-wrap gap-1.5 mt-2 min-h-[20px]">
+                                            {formData.sections.length > 0 ? formData.sections.map(s => (
+                                                <Badge key={s} className="bg-slate-900 text-white border-none rounded-lg px-2 py-1 flex items-center gap-1 group transition-all">
+                                                    <span className="text-[9px] font-black uppercase tracking-tight">{s}</span>
+                                                    <X className="h-2.5 w-2.5 cursor-pointer opacity-50 group-hover:opacity-100" onClick={() => removeSection(s)} />
+                                                </Badge>
+                                            )) : (
+                                                <p className="text-[9px] font-bold text-slate-300 italic">No sections assigned yet</p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
                                 <Button
                                     type="button"
-                                    className="w-full h-12 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest mt-4"
+                                    className="w-full h-12 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest mt-6 shadow-xl shadow-emerald-600/10 hover:bg-emerald-700 transition-all active:scale-[0.98]"
                                     onClick={handleNext}
-                                    disabled={!formData.name || formData.subjects.length === 0}
+                                    disabled={!formData.name || formData.subjects.length === 0 || formData.sections.length === 0}
                                 >
-                                    Credential Step <ArrowRight className="ml-2 h-4 w-4" />
+                                    Verify Identities <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
                             </div>
                         ) : (
@@ -246,6 +280,11 @@ export default function FacultySignupPage() {
                                 <div className="pt-4 p-4 rounded-2xl bg-slate-50 space-y-2 border border-slate-100">
                                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Onboarding Summary</p>
                                     <p className="text-xs font-bold text-slate-700">Linking Profile to <span className="text-emerald-600">{formData.sections.join(', ')}</span></p>
+                                    {formData.subjects.length > 0 && (
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                                            Teaching: <span className="text-slate-600 font-black">{formData.subjects.join(', ')}</span>
+                                        </p>
+                                    )}
                                     <p className="text-[9px] text-slate-400 leading-relaxed">Once approved, you will be able to manage attendance and broadcast messages to these specific groups.</p>
                                 </div>
 

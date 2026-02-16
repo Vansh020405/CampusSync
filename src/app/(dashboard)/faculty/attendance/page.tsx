@@ -14,10 +14,9 @@ import {
 } from "@/components/ui/select";
 import {
     CheckCircle2, XCircle, Clock, Users, AlertTriangle,
-    Calendar, TrendingDown, LayoutDashboard, Upload, FileCheck, Loader2
+    Calendar, TrendingDown, LayoutDashboard, Upload, FileCheck, Loader2, BookOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DEMO_TIMETABLE } from "@/lib/store";
 import { useRealtime } from "@/hooks/useRealtime";
 
 
@@ -25,9 +24,39 @@ import { useRealtime } from "@/hooks/useRealtime";
 
 export default function FacultyAttendancePage() {
     const { data: session } = useSession();
-    const facultyId = (session?.user as any)?.id || "1";
+    const facultyId = (session?.user as any)?.id;
     const facultyName = session?.user?.name || "Faculty";
-    const [selectedSection, setSelectedSection] = useState<string>("4G2");
+
+    // Get subjects and sections for this faculty from session
+    const facultySubjectsString = (session?.user as any)?.subjects;
+    const facultySubjects = facultySubjectsString
+        ? (facultySubjectsString.startsWith('[') ? JSON.parse(facultySubjectsString) : facultySubjectsString.split(','))
+        : ["No Subjects"];
+
+    const [selectedSection, setSelectedSection] = useState<string>("");
+    const [selectedSubject, setSelectedSubject] = useState<string>("");
+
+    // Automatically select the first assigned subject and section if available
+    useEffect(() => {
+        if (facultySubjects.length > 0 && !selectedSubject) {
+            setSelectedSubject(facultySubjects[0].trim());
+        }
+    }, [facultySubjects, selectedSubject]);
+
+    // Automatically select the first assigned section if available
+    useEffect(() => {
+        const sectionsData = (session?.user as any)?.sectionsTeaching;
+        if (sectionsData) {
+            const sections = typeof sectionsData === 'string' && sectionsData.startsWith('[')
+                ? JSON.parse(sectionsData)
+                : (Array.isArray(sectionsData) ? sectionsData : [sectionsData]);
+
+            if (sections.length > 0 && !selectedSection) {
+                setSelectedSection(sections[0]);
+            }
+        }
+    }, [session, selectedSection]);
+
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedPeriods, setSelectedPeriods] = useState<number[]>([1]);
     const [attendance, setAttendance] = useState<Record<string, 'PRESENT' | 'ABSENT' | 'LATE'>>({});
@@ -41,6 +70,7 @@ export default function FacultyAttendancePage() {
 
     // Fetch students from database
     const fetchStudents = async () => {
+        if (!selectedSection) return;
         setIsLoadingStudents(true);
         try {
             const res = await fetch(`/api/students/by-section/${selectedSection}`);
@@ -57,21 +87,30 @@ export default function FacultyAttendancePage() {
 
     // Fetch students from database
     useEffect(() => {
-        fetchStudents();
+        if (selectedSection) {
+            fetchStudents();
+        }
     }, [selectedSection]);
 
-    // Reset attendance and save state when section or date changes
+    // Reset attendance and save state when section, subject or date changes
     useEffect(() => {
         setAttendance({});
         setIsSaved(false);
-    }, [selectedSection, selectedDate]);
+    }, [selectedSection, selectedSubject, selectedDate]);
 
     // Get current students from state
     const currentStudents = sectionStudents[selectedSection] || [];
 
-    // Get subjects for this faculty from timetable
-    const facultySubjects = (session?.user as any)?.subjects?.split(',') || ["Java"];
-    const currentSubject = facultySubjects[0].trim();
+    const currentSubject = selectedSubject || facultySubjects[0]?.trim() || "Unassigned";
+
+    // Helper to get raw sections list for selectors
+    const getSectionsList = () => {
+        const sectionsData = (session?.user as any)?.sectionsTeaching;
+        if (!sectionsData) return [];
+        return typeof sectionsData === 'string' && sectionsData.startsWith('[')
+            ? JSON.parse(sectionsData)
+            : (Array.isArray(sectionsData) ? sectionsData : [sectionsData]);
+    };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -101,7 +140,7 @@ export default function FacultyAttendancePage() {
             const newStudents = lines.slice(1).map((line, index) => {
                 const cols = line.split(',').map(c => c.trim());
                 return {
-                    id: Date.now() + index, // Generate temporary unique ID
+                    id: `UPLOAD-${Date.now()}-${index}`, // Unique string ID
                     rollNo: cols[rollIdx] || `ROLL-${index}`,
                     name: cols[nameIdx] || `Student ${index}`,
                     attendance: Math.floor(Math.random() * (100 - 60 + 1)) + 60 // Mock overall attendance
@@ -139,7 +178,7 @@ export default function FacultyAttendancePage() {
     };
 
     const handleSave = async () => {
-        if (Object.keys(attendance).length === 0) return;
+        if (!facultyId || Object.keys(attendance).length === 0) return;
 
         setIsSaved(true);
 
@@ -167,7 +206,7 @@ export default function FacultyAttendancePage() {
                         type: 'ATTENDANCE_UPDATE',
                         data: {
                             studentId: student.id.toString(),
-                            subject: "Java",
+                            subject: currentSubject,
                             percentage: status === 'PRESENT' ? Math.min(100, (student.attendance || 75) + 0.5) : (student.attendance || 75)
                         }
                     });
@@ -207,7 +246,7 @@ export default function FacultyAttendancePage() {
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h1 className="text-3xl font-bold text-white mb-1">Attendance</h1>
-                            <p className="text-emerald-100 text-sm">Java Faculty Hub</p>
+                            <p className="text-emerald-100 text-sm tracking-widest uppercase font-black">{currentSubject} Central Hub</p>
                         </div>
                         <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center">
                             <CheckCircle2 className="h-7 w-7 text-white" />
@@ -222,11 +261,11 @@ export default function FacultyAttendancePage() {
                         </div>
                         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3">
                             <p className="text-emerald-100 text-[10px] uppercase font-bold mb-1">Sections</p>
-                            <p className="text-lg font-bold text-white">4G2, 4G3</p>
+                            <p className="text-lg font-bold text-white truncate max-w-full">{getSectionsList().join(', ') || 'N/A'}</p>
                         </div>
                         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3">
-                            <p className="text-emerald-100 text-[10px] uppercase font-bold mb-1">Total Students</p>
-                            <p className="text-lg font-bold text-white">20</p>
+                            <p className="text-emerald-100 text-[10px] uppercase font-bold mb-1">Students</p>
+                            <p className="text-lg font-bold text-white">{currentStudents.length}</p>
                         </div>
                     </div>
                 </div>
@@ -251,7 +290,26 @@ export default function FacultyAttendancePage() {
 
                 <CardContent className="p-6 space-y-7">
                     {/* Selectors Group */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div className="space-y-2.5">
+                            <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 px-1">
+                                <BookOpen className="h-3 w-3 text-emerald-500" />
+                                Active Subject
+                            </label>
+                            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                                <SelectTrigger className="border-2 border-slate-50 focus:ring-emerald-500 h-14 bg-slate-50/50 rounded-2xl transition-all hover:bg-white hover:border-emerald-200 font-bold text-slate-700 px-5">
+                                    <SelectValue placeholder="Select Subject" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-2xl border-2 shadow-2xl p-2">
+                                    {facultySubjects.map((subject: string) => (
+                                        <SelectItem key={subject} value={subject.trim()} className="rounded-xl py-3 font-bold focus:bg-emerald-50 focus:text-emerald-700 whitespace-nowrap">
+                                            {subject.trim()}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
                         <div className="space-y-2.5">
                             <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 px-1">
                                 <Users className="h-3 w-3 text-emerald-500" />
@@ -262,8 +320,17 @@ export default function FacultyAttendancePage() {
                                     <SelectValue placeholder="Select Section" />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-2xl border-2 shadow-2xl p-2">
-                                    <SelectItem value="4G2" className="rounded-xl py-3 font-bold focus:bg-emerald-50 focus:text-emerald-700">Section 4G2 (Java)</SelectItem>
-                                    <SelectItem value="4G3" className="rounded-xl py-3 font-bold focus:bg-emerald-50 focus:text-emerald-700">Section 4G3 (Java)</SelectItem>
+                                    {getSectionsList().length > 0 ? (
+                                        getSectionsList().map((section: string) => (
+                                            <SelectItem key={section} value={section} className="rounded-xl py-3 font-bold focus:bg-emerald-50 focus:text-emerald-700">
+                                                Section {section}
+                                            </SelectItem>
+                                        ))
+                                    ) : (
+                                        <div className="p-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            No sections assigned
+                                        </div>
+                                    )}
                                 </SelectContent>
                             </Select>
                         </div>

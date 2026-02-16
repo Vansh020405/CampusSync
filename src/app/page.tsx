@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, GraduationCap, ShieldCheck, User, Mail, Lock, Hash, Book, Layers } from "lucide-react";
+import { Loader2, GraduationCap, ShieldCheck, User, Mail, Lock, Hash, Book, Layers, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from 'next/link';
 
@@ -30,7 +30,10 @@ export default function AuthPage() {
     password: "",
     semester: "",
     section: "",
-    department: "CSE"
+    department: "CSE",
+    subjects: "",
+    sectionsTeaching: "",
+    cabin: ""
   });
 
   useEffect(() => {
@@ -84,8 +87,9 @@ export default function AuthPage() {
           email: formData.email,
           password: formData.password,
           department: formData.department,
-          subjects: "[]",
-          sectionsTeaching: "[]"
+          subjects: formData.subjects.split(',').map(s => s.trim()).filter(s => s !== ""),
+          sectionsTeaching: formData.sectionsTeaching.split(',').map(s => s.trim().toUpperCase()).filter(s => s !== ""),
+          cabinLocation: formData.cabin
         };
 
       try {
@@ -276,19 +280,60 @@ export default function AuthPage() {
                 )}
 
                 {activeTab === 'signup' && selectedRole === 'faculty' && (
-                  <div className="space-y-1.5 group">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Department</label>
-                    <div className="relative">
-                      <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
-                      <Input
-                        placeholder="e.g. Dept. of CSE"
-                        className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
-                        value={formData.department}
-                        onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                        required
-                      />
+                  <>
+                    <div className="space-y-1.5 group">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Department</label>
+                      <div className="relative">
+                        <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
+                        <Input
+                          placeholder="e.g. Dept. of CSE"
+                          className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
+                          value={formData.department}
+                          onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
+                    <div className="space-y-1.5 group">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Subjects (Comma Separated)</label>
+                      <div className="relative">
+                        <Book className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
+                        <Input
+                          placeholder="e.g. Java, DBMS, OS"
+                          className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
+                          value={formData.subjects}
+                          onChange={(e) => setFormData({ ...formData, subjects: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5 group">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Teaching Sections (e.g. 4G2, 4G3)</label>
+                      <div className="relative">
+                        <Layers className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
+                        <Input
+                          placeholder="e.g. 4G2, 4G1"
+                          className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
+                          value={formData.sectionsTeaching}
+                          onChange={(e) => setFormData({ ...formData, sectionsTeaching: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5 group">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Cabin Location</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
+                        <Input
+                          placeholder="e.g. Block A, Room 301"
+                          className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
+                          value={formData.cabin}
+                          onChange={(e) => setFormData({ ...formData, cabin: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 {activeTab === 'signup' && (

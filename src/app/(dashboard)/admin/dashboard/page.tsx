@@ -9,8 +9,31 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { useEffect, useState } from "react";
+
 export default function AdminDashboardPage() {
     const { data: session } = useSession();
+    const [counts, setCounts] = useState({ students: 0, faculty: 0 });
+
+    useEffect(() => {
+        const fetchCounts = async () => {
+            try {
+                const [stdRes, facRes] = await Promise.all([
+                    fetch('/api/admin/students/list'),
+                    fetch('/api/faculty/list')
+                ]);
+                const stds = await stdRes.json();
+                const facs = await facRes.json();
+                setCounts({
+                    students: Array.isArray(stds) ? stds.length : 0,
+                    faculty: Array.isArray(facs) ? facs.length : 0
+                });
+            } catch (e) {
+                console.error("Dashboard stats error:", e);
+            }
+        };
+        fetchCounts();
+    }, []);
 
     const tiles = [
         {
@@ -26,7 +49,7 @@ export default function AdminDashboardPage() {
             label: "Faculty Directory",
             description: "Manage institutional human resources",
             icon: Users,
-            stats: "84 Active",
+            stats: `${counts.faculty} Active`,
             color: "bg-emerald-50 text-emerald-500"
         },
         {
@@ -34,7 +57,7 @@ export default function AdminDashboardPage() {
             label: "Student Registry",
             description: "Global student data management",
             icon: GraduationCap,
-            stats: "1,240 Enrolled",
+            stats: `${counts.students} Enrolled`,
             color: "bg-blue-50 text-blue-500"
         },
         {

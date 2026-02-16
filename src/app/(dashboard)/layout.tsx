@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { BottomNav } from "@/components/BottomNav"
+import { Clock } from "@/components/Clock"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { data: session, status } = useSession()
@@ -62,6 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                     {/* Right: User Profile Circle */}
                     <div className="flex items-center">
+                        <Clock />
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-all">
