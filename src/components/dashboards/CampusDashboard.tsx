@@ -87,16 +87,36 @@ export default function CampusDashboard() {
                     return hours * 60 + minutes;
                 };
 
+                const now = new Date();
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
                 const mapped = filtered
                     .sort((a: any, b: any) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime))
-                    .map((t: any, idx: number) => ({
-                        id: t.id,
-                        subject: t.subject,
-                        faculty: t.faculty?.name || "Faculty",
-                        time: `${t.startTime} - ${t.endTime}`,
-                        room: t.classroom,
-                        status: idx === 0 ? "Next Up" : "Scheduled"
-                    }));
+                    .map((t: any) => {
+                        const startMin = timeToMinutes(t.startTime);
+                        const endMin = timeToMinutes(t.endTime);
+
+                        let status = "Scheduled";
+                        if (currentMinutes > endMin) status = "Completed";
+                        else if (currentMinutes >= startMin && currentMinutes <= endMin) status = "Live";
+
+                        return {
+                            id: t.id,
+                            subject: t.subject,
+                            faculty: t.faculty?.name || "Faculty",
+                            time: `${t.startTime} - ${t.endTime}`,
+                            room: t.classroom,
+                            status: status
+                        };
+                    });
+
+                // Mark the first "Scheduled" class as "Next Up" if no class is "Live"
+                const hasLive = mapped.some(c => c.status === "Live");
+                if (!hasLive) {
+                    const nextUpIdx = mapped.findIndex(c => c.status === "Scheduled");
+                    if (nextUpIdx !== -1) mapped[nextUpIdx].status = "Next Up";
+                }
+
                 setTodayClasses(mapped);
             }
         } catch (err) {
@@ -140,7 +160,7 @@ export default function CampusDashboard() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
                             <div className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse"></div>
-                            <span className="text-[10px] font-black text-emerald-100 uppercase tracking-[0.3em]">Campus Online</span>
+                            <span className="text-[10px] font-black text-emerald-100 uppercase tracking-[0.3em]">Live</span>
                         </div>
                         <div>
                             <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-none mb-3">
@@ -148,7 +168,7 @@ export default function CampusDashboard() {
                             </h1>
                             <div className="flex items-center gap-3 text-emerald-50/80">
                                 <Badge variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-md px-3 py-1 text-[11px] font-bold">
-                                    Series {studentData.section}
+                                    {studentData.section}
                                 </Badge>
                                 <span className="text-[11px] font-bold tracking-tight opacity-80">{studentData.rollNo}</span>
                             </div>
@@ -163,19 +183,31 @@ export default function CampusDashboard() {
                     <div className="flex items-center justify-between px-2">
                         <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
                             <MessageSquare className="h-4 w-4 text-emerald-500" />
-                            Command Center
+                            Alerts
                         </h2>
                     </div>
-                    {parseFloat(overallAttendance) < 75 && (
-                        <div className="bg-rose-50 border border-rose-100 rounded-3xl p-5 flex items-center gap-4 animate-in slide-in-from-top-4 duration-500">
-                            <div className="h-12 w-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-200">
-                                <AlertTriangle className="h-6 w-6" />
+                    {attendanceStats.some(s => s.percentage < 75) && (
+                        <div className="bg-rose-50 border border-rose-100 rounded-[2.5rem] p-6 flex flex-col md:flex-row items-center gap-6 animate-in slide-in-from-top-4 duration-500 shadow-sm">
+                            <div className="h-16 w-16 rounded-[1.5rem] bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-200 shrink-0">
+                                <AlertTriangle className="h-8 w-8" />
                             </div>
-                            <div className="flex-1">
-                                <p className="text-xs font-black text-rose-400 uppercase tracking-widest mb-0.5">Critical Alert</p>
-                                <p className="text-sm font-bold text-rose-700">Your attendance is below 75%. High risk of detention.</p>
+                            <div className="flex-1 text-center md:text-left">
+                                <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                                    <Sparkles className="h-3 w-3 text-rose-400" />
+                                    <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em]">Priority Protocol • AI Analysis</p>
+                                </div>
+                                <h3 className="text-lg font-black text-rose-900 leading-tight">
+                                    Attendance Deficit Detected
+                                </h3>
+                                <p className="text-sm font-bold text-rose-700/80 mt-1">
+                                    <span className="text-rose-900">{attendanceStats.filter(s => s.percentage < 75).length} subjects</span> are currently below the 75% threshold. AI Recovery Protocol is now available.
+                                </p>
                             </div>
-                            <Button size="sm" variant="outline" className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-100 text-[10px] font-bold uppercase">Details</Button>
+                            <Link href="/student/attendance" className="w-full md:w-auto">
+                                <Button size="lg" className="w-full md:w-auto rounded-2xl bg-rose-900 text-white hover:bg-rose-800 px-8 font-black text-[10px] uppercase tracking-widest h-14 shadow-xl shadow-rose-100">
+                                    View Recovery Strategy
+                                </Button>
+                            </Link>
                         </div>
                     )}
                     {liveMessage && (
@@ -199,7 +231,7 @@ export default function CampusDashboard() {
                     <div className="space-y-1">
                         <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                             <Layout className="h-6 w-6 text-emerald-500" />
-                            Operational Timeline
+                            Today's classes
                         </h2>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -225,31 +257,39 @@ export default function CampusDashboard() {
                                 key={cls.id}
                                 className={cn(
                                     "relative group transition-all duration-500 hover:scale-[1.02]",
-                                    mounted && "animate-in slide-in-from-bottom-4 duration-500"
+                                    mounted && "animate-in slide-in-from-bottom-4 duration-500",
+                                    cls.status === "Completed" && "opacity-60 grayscale-[0.5]"
                                 )}
                                 style={{ animationDelay: `${idx * 100}ms` }}
                             >
                                 <div className={cn(
-                                    "absolute inset-0 bg-gradient-to-r rounded-[2rem] blur-xl opacity-0 group-hover:opacity-10 transition-opacity",
-                                    cls.status === "Next Up" ? "from-emerald-400 to-teal-400" : "from-slate-200 to-indigo-100"
+                                    "absolute inset-0 bg-gradient-to-r rounded-[2rem] blur-xl opacity-0 group-hover:opacity-1 transition-opacity",
+                                    cls.status === "Live" ? "from-emerald-400 to-teal-400 opacity-20" :
+                                        cls.status === "Next Up" ? "from-indigo-400 to-blue-400 opacity-10" : "from-slate-200 to-indigo-100"
                                 )}></div>
 
                                 <Card className={cn(
                                     "relative border-0 rounded-[2rem] shadow-sm group-hover:shadow-xl transition-all overflow-hidden",
-                                    cls.status === "Next Up" ? "ring-2 ring-emerald-500/20" : ""
+                                    cls.status === "Live" ? "ring-2 ring-emerald-500 shadow-lg shadow-emerald-500/10" :
+                                        cls.status === "Next Up" ? "ring-2 ring-indigo-500/20" : ""
                                 )}>
                                     <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
                                         <div className="flex items-center gap-5">
                                             <div className={cn(
                                                 "h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:rotate-6",
-                                                cls.status === "Next Up"
+                                                cls.status === "Live"
                                                     ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-200"
-                                                    : "bg-slate-100 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500"
+                                                    : cls.status === "Next Up"
+                                                        ? "bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-indigo-200"
+                                                        : "bg-slate-100 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500"
                                             )}>
-                                                <BookOpen className="h-7 w-7" />
+                                                {cls.status === "Completed" ? <CheckCircle2 className="h-7 w-7" /> : <BookOpen className="h-7 w-7" />}
                                             </div>
                                             <div className="space-y-1">
-                                                <h3 className="text-lg font-black text-slate-800 tracking-tight group-hover:text-emerald-600 transition-colors">
+                                                <h3 className={cn(
+                                                    "text-lg font-black tracking-tight transition-colors",
+                                                    cls.status === "Live" ? "text-emerald-600" : "text-slate-800"
+                                                )}>
                                                     {cls.subject}
                                                 </h3>
                                                 <div className="flex flex-wrap items-center gap-3 text-slate-400 font-bold">
@@ -274,13 +314,14 @@ export default function CampusDashboard() {
                                             <div className="flex items-center gap-3">
                                                 <Badge className={cn(
                                                     "rounded-xl px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.1em] border-0",
-                                                    cls.status === "Next Up"
-                                                        ? "bg-emerald-500 text-white animate-pulse"
-                                                        : "bg-slate-100 text-slate-500"
+                                                    cls.status === "Live" ? "bg-emerald-500 text-white animate-pulse" :
+                                                        cls.status === "Next Up" ? "bg-indigo-500 text-white" :
+                                                            cls.status === "Completed" ? "bg-slate-200 text-slate-500" :
+                                                                "bg-slate-100 text-slate-500"
                                                 )}>
                                                     {cls.status}
                                                 </Badge>
-                                                <Link href={`/student/classes/${cls.id}`} className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-slate-100">
+                                                <Link href={`/student/classes/${cls.id}`} className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100">
                                                     <ChevronRight className="h-5 w-5" />
                                                 </Link>
                                             </div>

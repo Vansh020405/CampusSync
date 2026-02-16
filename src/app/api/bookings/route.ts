@@ -14,7 +14,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { facultyId, message } = body;
+        const { facultyId, message, agenda, agendaType } = body;
 
         if (!facultyId || !message) {
             return NextResponse.json({ error: "Faculty ID and message are required" }, { status: 400 });
@@ -26,8 +26,8 @@ export async function POST(req: Request) {
             data: {
                 studentId,
                 facultyId,
-                agenda: 'Message',
-                agendaType: 'DOUBT',
+                agenda: agenda || 'Message',
+                agendaType: agendaType || 'DOUBT',
                 status: 'PENDING',
                 notes: message
             }
@@ -81,8 +81,9 @@ export async function GET(req: Request) {
 
         const mapped = bookings.map(b => ({
             ...b,
-            message: b.message || "No message",
-            // Format dates if needed later
+            message: b.notes || b.message || "No protocol content",
+            studentName: b.student?.name || "Student",
+            studentRollNo: b.student?.rollNo || "N/A"
         }));
 
         return NextResponse.json(mapped);

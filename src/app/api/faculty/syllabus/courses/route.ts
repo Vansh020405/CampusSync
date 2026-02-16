@@ -21,12 +21,22 @@ export async function GET() {
             return NextResponse.json({ error: "Faculty not found" }, { status: 404 });
         }
 
-        // Parse JSON subjects/sections
-        const subjects = JSON.parse(faculty.subjects || "[]");
-        const sections = JSON.parse(faculty.sectionsTeaching || "[]");
+        const parseSafe = (input: string) => {
+            if (!input) return [];
+            try {
+                const parsed = JSON.parse(input);
+                return Array.isArray(parsed) ? parsed : [String(parsed)];
+            } catch (e) {
+                return input.split(',').map(s => s.trim()).filter(Boolean);
+            }
+        };
+
+        const subjects = parseSafe(faculty.subjects);
+        const sections = parseSafe(faculty.sectionsTeaching);
 
         return NextResponse.json({ subjects, sections });
     } catch (error) {
+        console.error("Courses fetch error:", error);
         return NextResponse.json({ error: "Failed to fetch courses" }, { status: 500 });
     }
 }

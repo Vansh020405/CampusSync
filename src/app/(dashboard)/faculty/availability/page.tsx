@@ -108,66 +108,6 @@ export default function FacultySchedulePage() {
                 </div>
             </div>
 
-            {/* Today's Classes Overview */}
-            <Card className="border-2 border-emerald-200 bg-emerald-50/30">
-                <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2 text-emerald-900">
-                        <Clock className="h-4 w-4 text-emerald-600" />
-                        Today's Classes - {currentDay}
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    {todayClasses.length > 0 ? (
-                        todayClasses.map((cls, idx) => {
-                            const isClassPast = isPast(cls.time);
-
-                            return (
-                                <div
-                                    key={idx}
-                                    className={cn(
-                                        "flex items-center gap-4 p-4 rounded-xl border-2 transition-all",
-                                        isClassPast
-                                            ? "bg-slate-50 border-slate-200"
-                                            : "bg-white border-emerald-200 shadow-sm"
-                                    )}
-                                >
-                                    <div className={cn(
-                                        "h-14 w-14 rounded-xl flex items-center justify-center shrink-0 font-bold text-xl",
-                                        isClassPast ? "bg-slate-200 text-slate-600" : "bg-emerald-100 text-emerald-700"
-                                    )}>
-                                        {cls.period}
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1.5">
-                                            <h3 className="font-bold text-slate-900 text-lg">{cls.subject}</h3>
-                                            <Badge className="bg-blue-600 hover:bg-blue-700 text-white font-bold">{cls.class}</Badge>
-                                        </div>
-                                        <div className="flex items-center gap-4 text-sm text-slate-600">
-                                            <div className="flex items-center gap-1.5">
-                                                <Clock className="h-4 w-4 text-emerald-600" />
-                                                <span>{cls.time}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1.5">
-                                                <MapPin className="h-4 w-4 text-emerald-600" />
-                                                <span>{cls.room}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {isClassPast && (
-                                        <Badge variant="outline" className="text-slate-500 border-slate-300">Done</Badge>
-                                    )}
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <div className="text-center py-10 bg-white rounded-xl border-2 border-dashed border-slate-200">
-                            <Calendar className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                            <p className="text-slate-600 font-medium">No classes scheduled today</p>
-                            <p className="text-xs text-slate-400 mt-1">Check your weekly timetable below</p>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
 
             {/* Weekly Timetable */}
             <Card className="overflow-hidden border-2 border-slate-100">

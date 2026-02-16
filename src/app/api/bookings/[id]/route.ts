@@ -12,49 +12,100 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        const { id } = params;
         const body = await req.json();
         const { status, slotTime, slotDate, location, replyMessage } = body;
-        const { id } = params;
 
-        // Fetch current message to append reply
-        const bookings = await prisma.$queryRaw`SELECT * FROM Booking WHERE id = ${id}`;
-        const booking = (bookings as any[])[0];
+        // Fetch current booking to verify ownership and get existing notes
+        const booking = await prisma.booking.findUnique({
+            where: { id },
+            include: { student: true }
+        });
 
         if (!booking) {
-            return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+            return NextResponse.json({ error: "Booking session not found" }, { status: 404 });
         }
 
-        const currentMessage = booking.notes || "";
-        const updatedMessage = replyMessage
-            ? `${currentMessage}\n\n-- FACULTY REPLY --\n${replyMessage}`
-            : currentMessage;
-
-        // Parse date if present
-        const parsedDate = slotDate ? new Date(slotDate) : null;
-
-        // Execute update
-        const affected = await prisma.$executeRaw`
-            UPDATE Booking
-            SET status = ${status},
-                slotTime = ${slotTime},
-                slotDate = ${parsedDate},
-                location = ${location},
-                notes = ${updatedMessage},
-                updatedAt = ${new Date()}
-            WHERE id = ${id} AND facultyId = ${(session.user as any).id}
-        `;
-
-        // Check if any row was actually updated
-        // Note: prisma.$executeRaw returns a number (or object with count depending on driver)
-        // safe check:
-        if (Number(affected) === 0) {
-            return NextResponse.json({ error: "Update failed or permission denied" }, { status: 403 });
+        // Verify that the faculty modifying this is the one assigned
+        if (booking.facultyId !== (session.user as any).id) {
+            return NextResponse.json({ error: "Unauthorized access to this protocol" }, { status: 403 });
         }
 
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error("Update booking error:", error);
-        return NextResponse.json({ error: "Failed to update booking" }, { status: 500 });
+        // Handle Reply Message Logic
+        let finalReply = replyMessage;
+        if (status === 'REJECTED' && !finalReply) {
+            finalReply = "Faculty currently not available for this time slot.";
+        }
+
+        const currentNotes = booking.notes || "";
+        const updatedNotes = finalReply
+            ? `${currentNotes}\n\n[FACULTY RESPONSE]: ${finalReply}`
+            : currentNotes;
+
+        // Standardize the update payload
+        const updatedBooking = await prisma.booking.update({
+            where: { id },
+            data: {
+                status,
+                slotTime: status === 'APPROVED' ? slotTime : null,
+                slotDate: status === 'APPROVED' && slotDate ? new Date(slotDate) : null,
+                location: status === 'APPROVED' ? location : null,
+                notes: updatedNotes,
+                updatedAt: new Date()
+            }
+        });
+
+        return NextResponse.json({
+            success: true,
+            message: "Protocol updated successfully",
+            status: updatedBooking.status
+        });
+    } catch (error: any) {
+        console.error("Update protocol error:", error);
+        return NextResponse.json({
+            error: "Internal Server Error in Protocol Handshake",
+            details: error.message
+        }, { status: 500 });
     }
 }
 
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = params;
+        const userId = (session.user as any).id;
+        const role = (session.user as any).role;
+
+        // Fetch booking to verify ownership
+        const booking = await prisma.booking.findUnique({
+            where: { id }
+        });
+
+        if (!booking) {
+            return NextResponse.json({ error: "Booking session not found" }, { status: 404 });
+        }
+
+        // Only allow deletion if the user is the student who created it or the faculty assigned to it
+        const isOwner = role === 'STUDENT' ? booking.studentId === userId : booking.facultyId === userId;
+
+        if (!isOwner) {
+            return NextResponse.json({ error: "Unauthorized access to this protocol" }, { status: 403 });
+        }
+
+        await prisma.booking.delete({
+            where: { id }
+        });
+
+        return NextResponse.json({ success: true, message: "Protocol purged from system" });
+    } catch (error: any) {
+        console.error("Purge protocol error:", error);
+        return NextResponse.json({
+            error: "Failed to purge protocol record",
+            details: error.message
+        }, { status: 500 });
+    }
+}

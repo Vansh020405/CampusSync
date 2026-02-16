@@ -31,9 +31,11 @@ export async function GET() {
             select: { subject: true },
             distinct: ['subject']
         });
-        const subjects = timetableEntries.map(t => t.subject);
-        const section = student.section;
-        console.log(`Debug: Student ${student.name} is in section "${section}" and enrolled in: ${subjects.join(', ')}`);
+        const subjects = timetableEntries.map(t => t.subject.trim());
+        const section = student.section.trim();
+        const semester = student.semester.trim();
+
+        console.log(`[SyllabusAPI] Student: ${student.name}, Section: "${section}", Sem: "${semester}", Subjects: [${subjects.join(', ')}]`);
 
         const syllabusProgress = [];
 
@@ -43,9 +45,12 @@ export async function GET() {
                 include: { topics: { orderBy: { order: 'asc' } } }
             });
 
-            if (!syllabus) continue;
+            if (!syllabus) {
+                console.log(`[SyllabusAPI] No SyllabusSubject found for name: "${subject}"`);
+                continue;
+            }
 
-            // Fetch progress strictly for this section
+            // Fetch progress strictly for this section - Trim matched
             const progress = await prisma.topicProgress.findMany({
                 where: {
                     section: section,
@@ -54,7 +59,8 @@ export async function GET() {
                 orderBy: { updatedAt: 'desc' },
                 include: { faculty: true }
             });
-            console.log(`Debug: Found ${progress.length} progress records for ${subject} in section ${section}`);
+
+            console.log(`[SyllabusAPI] Subject "${subject}": ${syllabus.topics.length} topics, ${progress.length} progress records found.`);
 
             const targetProgress = progress;
 
@@ -76,6 +82,7 @@ export async function GET() {
                         status: p ? p.status : 'NOT_STARTED',
                         completedDate: p ? p.completedDate : null,
                         completedLectures: p ? p.completedLectures : 0,
+                        notes: p ? p.notes : null,
                     };
                 })
             });

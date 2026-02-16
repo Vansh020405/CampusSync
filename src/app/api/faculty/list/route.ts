@@ -24,6 +24,18 @@ export async function GET() {
             }
         });
 
+        const safeParse = (val: any) => {
+            if (!val) return [];
+            if (typeof val !== 'string') return val;
+            try {
+                const parsed = JSON.parse(val);
+                return Array.isArray(parsed) ? parsed : [parsed];
+            } catch (e) {
+                // If it's a comma separated string, split it, otherwise return as single-item array
+                return val.includes(',') ? val.split(',').map(s => s.trim()) : [val];
+            }
+        };
+
         const mapped = faculty.map(f => ({
             id: f.id,
             facultyId: f.facultyId,
@@ -31,10 +43,10 @@ export async function GET() {
             department: f.department,
             email: f.email,
             cabin: f.cabinLocation,
-            status: f.status || 'AVAILABLE',
-            subjects: f.subjects ? (typeof f.subjects === 'string' ? JSON.parse(f.subjects) : f.subjects) : [],
-            sections: f.sectionsTeaching ? (typeof f.sectionsTeaching === 'string' ? JSON.parse(f.sectionsTeaching) : f.sectionsTeaching) : [],
-            isAvailable: f.status === 'AVAILABLE'
+            status: (f.status || 'AVAILABLE').toUpperCase(),
+            subjects: safeParse(f.subjects),
+            sections: safeParse(f.sectionsTeaching),
+            isAvailable: (f.status || 'AVAILABLE').toUpperCase() === 'AVAILABLE'
         }));
 
         return NextResponse.json(mapped);

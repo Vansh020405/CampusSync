@@ -6,15 +6,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
     Users, TrendingUp, ChevronRight, Send, CheckCircle2,
-    BookOpen, FileText, LayoutGrid, Clock, MapPin, Calendar
+    BookOpen, FileText, LayoutGrid, Clock, MapPin, Calendar,
+    Plus, FileUp, Activity, Palmtree, AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useRealtime } from "@/hooks/useRealtime";
-
+import { useToast } from "@/components/ui/use-toast";
 export default function FacultyDashboardPage() {
     const { data: session } = useSession();
+    const { toast } = useToast();
     const facultyId = (session?.user as any)?.id || "1";
     const facultyName = session?.user?.name || "Faculty Member";
 
@@ -24,7 +37,81 @@ export default function FacultyDashboardPage() {
     const [todaySchedule, setTodaySchedule] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Leave State
+    const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+    const [leaveData, setLeaveData] = useState({
+        fromDate: "",
+        toDate: "",
+        reason: ""
+    });
+    const [recentLeaves, setRecentLeaves] = useState<any[]>([]);
+    const [isSubmittingLeave, setIsSubmittingLeave] = useState(false);
+    const [leaveStats, setLeaveStats] = useState({
+        approvedCount: 0,
+        pendingCount: 0,
+        totalCount: 0
+    });
+
     const { broadcast } = useRealtime();
+
+    const fetchLeaveStats = async () => {
+        try {
+            const res = await fetch("/api/faculty/leave");
+            const data = await res.json();
+            if (!data.error) {
+                setLeaveStats({
+                    approvedCount: data.approvedCount,
+                    pendingCount: data.pendingCount,
+                    totalCount: data.totalCount
+                });
+                setRecentLeaves(data.leaves || []);
+            }
+        } catch (e) {
+            console.error("Failed to fetch leave stats");
+        }
+    };
+
+    const handleLeaveSubmit = async () => {
+        if (!leaveData.fromDate || !leaveData.toDate || !leaveData.reason) {
+            toast({
+                title: "Invalid Input",
+                description: "Please fill all required fields.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        setIsSubmittingLeave(true);
+        try {
+            const res = await fetch("/api/faculty/leave", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(leaveData)
+            });
+            const data = await res.json();
+            if (data.success) {
+                toast({
+                    title: "Application Dispatched",
+                    description: "Your leave request has been submitted for review.",
+                });
+                setIsLeaveDialogOpen(false);
+                setLeaveData({ fromDate: "", toDate: "", reason: "" });
+                fetchLeaveStats();
+            }
+        } catch (e) {
+            toast({
+                title: "Internal Error",
+                description: "Failed to transmit leave request.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsSubmittingLeave(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchLeaveStats();
+    }, [facultyId]);
 
     const handleSendBroadcast = async () => {
         if (!broadcastMessage.trim()) return;
@@ -114,6 +201,7 @@ export default function FacultyDashboardPage() {
                     <Users className="h-7 w-7" />
                 </div>
             </div>
+
 
             {/* Upcoming Sessions Tiles */}
             <div className="space-y-6">
@@ -244,6 +332,146 @@ export default function FacultyDashboardPage() {
                         </Button>
                     </div>
                 </div>
+            </div>
+
+            {/* Attendance & Leave Protocol Section */}
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Attendance Protocol</h2>
+                    <Dialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button size="sm" className="bg-emerald-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest px-6 h-10 hover:bg-emerald-700 shadow-lg shadow-emerald-100">
+                                <Plus className="h-3 w-3 mr-2" />
+                                Request Leave
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="rounded-[2.5rem] border-slate-100 p-8 max-w-lg">
+                            <DialogHeader>
+                                <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">Leave Application</DialogTitle>
+                                <DialogDescription className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                                    Official Curriculum Sync Override
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-6 py-6">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">From Date</Label>
+                                        <Input
+                                            type="date"
+                                            className="h-12 rounded-2xl border-slate-100 focus:ring-emerald-500 font-bold text-sm"
+                                            value={leaveData.fromDate}
+                                            onChange={(e) => setLeaveData({ ...leaveData, fromDate: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">To Date</Label>
+                                        <Input
+                                            type="date"
+                                            className="h-12 rounded-2xl border-slate-100 focus:ring-emerald-500 font-bold text-sm"
+                                            value={leaveData.toDate}
+                                            onChange={(e) => setLeaveData({ ...leaveData, toDate: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reason for Leave</Label>
+                                    <Textarea
+                                        placeholder="Briefly describe the reason (e.g., Medical, Personal, Seminar)"
+                                        className="rounded-2xl border-slate-100 min-h-[100px] font-bold text-sm leading-relaxed"
+                                        value={leaveData.reason}
+                                        onChange={(e) => setLeaveData({ ...leaveData, reason: e.target.value })}
+                                    />
+                                </div>
+                                <div className="p-5 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 group hover:border-emerald-300 transition-colors cursor-pointer">
+                                    <div className="flex flex-col items-center justify-center text-center space-y-2">
+                                        <FileUp className="h-6 w-6 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Medical / Proof (Optional)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    className="w-full h-12 rounded-2xl bg-slate-900 text-white font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-black disabled:opacity-50"
+                                    onClick={handleLeaveSubmit}
+                                    disabled={isSubmittingLeave}
+                                >
+                                    {isSubmittingLeave ? "Transmitting..." : "Submit Application"}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className="border-none bg-[#F8FAFC] rounded-[2.5rem] shadow-sm overflow-hidden group">
+                        <CardContent className="p-8 flex items-center justify-between">
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <Activity className="h-4 w-4 text-emerald-500" />
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Leaves Consumed</p>
+                                </div>
+                                <div className="flex items-baseline gap-2">
+                                    <h3 className="text-4xl font-black text-slate-900">{leaveStats.approvedCount}</h3>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Days Approved</span>
+                                </div>
+                            </div>
+                            <div className="h-16 w-16 rounded-[1.5rem] bg-white shadow-sm flex items-center justify-center text-emerald-500 group-hover:rotate-12 transition-all">
+                                <Palmtree className="h-8 w-8" />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-none bg-[#F8FAFC] rounded-[2.5rem] shadow-sm overflow-hidden group">
+                        <CardContent className="p-8 flex items-center justify-between">
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <AlertCircle className="h-4 w-4 text-amber-500" />
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">In Pipeline</p>
+                                </div>
+                                <div className="flex items-baseline gap-2">
+                                    <h3 className="text-4xl font-black text-slate-900">{leaveStats.pendingCount}</h3>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Leaves Awaiting</span>
+                                </div>
+                            </div>
+                            <div className="h-16 w-16 rounded-[1.5rem] bg-white shadow-sm flex items-center justify-center text-amber-500 group-hover:rotate-12 transition-all">
+                                <Clock className="h-8 w-8" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Recents Section */}
+                {recentLeaves.length > 0 && (
+                    <div className="space-y-4 pt-4">
+                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Recent Logs</h3>
+                        <div className="space-y-3">
+                            {recentLeaves.map((leave) => (
+                                <div key={leave.id} className="flex items-center justify-between p-5 bg-white border border-slate-50 rounded-3xl shadow-sm hover:shadow-md transition-all">
+                                    <div className="flex items-center gap-4">
+                                        <div className={cn(
+                                            "h-10 w-10 rounded-2xl flex items-center justify-center",
+                                            leave.status === "APPROVED" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                                        )}>
+                                            <Calendar className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-900">{leave.reason}</p>
+                                            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tight">
+                                                {new Date(leave.fromDate).toLocaleDateString()} - {new Date(leave.toDate).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Badge className={cn(
+                                        "capitalize font-bold text-[9px] tracking-wider px-3 py-1 rounded-full border-none",
+                                        leave.status === "APPROVED" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                                    )}>
+                                        {leave.status}
+                                    </Badge>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

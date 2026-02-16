@@ -98,9 +98,11 @@ export function BottomNav() {
                                 )} />
                             </div>
                             <span className={cn(
-                                "text-[9px] md:text-[10px] font-bold mt-0.5 md:mt-1 tracking-tight transition-all duration-300 truncate max-w-full",
-                                isActive ? "opacity-100" : "opacity-0 scale-90"
-                            )}>{link.label}</span>
+                                "text-[9px] md:text-[10px] font-bold mt-0.5 md:mt-1 tracking-tight transition-all duration-300 truncate max-w-full px-1 text-center",
+                                isActive ? "opacity-100 text-[#0D9488]" : "opacity-70 text-slate-400"
+                            )}>
+                                {link.label}
+                            </span>
                         </Link>
                     )
                 })}

@@ -13,7 +13,7 @@ interface ModeContextType {
 const ModeContext = createContext<ModeContextType | undefined>(undefined);
 
 export function ModeProvider({ children }: { children: ReactNode }) {
-    const [mode, setModeState] = useState<AppMode>('internships');
+    const [mode, setModeState] = useState<AppMode>('campus');
 
     // Persist mode selection
     useEffect(() => {

@@ -5,12 +5,12 @@ const prisma = new PrismaClient()
 async function main() {
     console.log('Seeding Syllabus Data...')
 
-    // 1. Create Core Subjects
-    const java = await prisma.syllabusSubject.upsert({
-        where: { subjectName: 'Java Programming' },
+    // 1. Create Java Subject
+    await prisma.syllabusSubject.upsert({
+        where: { subjectName: 'Java' },
         update: {},
         create: {
-            subjectName: 'Java Programming',
+            subjectName: 'Java',
             subjectCode: 'CS201',
             department: 'CSE',
             topics: {
@@ -35,11 +35,12 @@ async function main() {
         }
     })
 
-    const dbms = await prisma.syllabusSubject.upsert({
-        where: { subjectName: 'Database Management Systems' },
+    // 2. Create DBMS Subject
+    await prisma.syllabusSubject.upsert({
+        where: { subjectName: 'DBMS' },
         update: {},
         create: {
-            subjectName: 'Database Management Systems',
+            subjectName: 'DBMS',
             subjectCode: 'CS202',
             department: 'CSE',
             topics: {
@@ -58,7 +59,27 @@ async function main() {
         }
     })
 
-    console.log('Syllabus Seeding Completed!')
+    // 3. Create Applied Prob Subject
+    await prisma.syllabusSubject.upsert({
+        where: { subjectName: 'Applied Prob' },
+        update: {},
+        create: {
+            subjectName: 'Applied Prob',
+            subjectCode: 'MA201',
+            department: 'MATH',
+            topics: {
+                create: [
+                    { title: 'Basic Probability', totalLectures: 2, order: 1 },
+                    { title: 'Random Variables', totalLectures: 3, order: 2 },
+                    { title: 'Distributions (Normal, Binomial)', totalLectures: 4, order: 3 },
+                    { title: 'Expected Value & Variance', totalLectures: 2, order: 4 },
+                    { title: 'Correlation & Regression', totalLectures: 3, order: 5 },
+                ]
+            }
+        }
+    })
+
+    console.log('Syllabus Seeding Completed with additional matches!')
 }
 
 main()
