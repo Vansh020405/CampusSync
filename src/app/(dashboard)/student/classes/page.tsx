@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, MapPin, User, GraduationCap, ChevronRight } from "lucide-react";
+import { Calendar, Clock, MapPin, User, GraduationCap, ChevronRight, Loader2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
 const PERIODS = [
-    { id: 1, time: "9:00 - 10:00" },
+    { id: 1, time: "09:00 - 10:00" },
     { id: 2, time: "10:00 - 11:00" },
     { id: 3, time: "11:00 - 12:00" },
     { id: 4, time: "12:00 - 13:00" },
@@ -17,14 +18,71 @@ const PERIODS = [
     { id: 7, time: "15:00 - 16:00" },
 ];
 
-import { STUDENT_TIMETABLE_4G2 as STUDENT_TIMETABLE } from "@/lib/store";
+const getColorForSubject = (subject?: string) => {
+    if (!subject) return 'slate';
+    const s = subject.toLowerCase();
+    if (s.includes('java')) return 'blue';
+    if (s.includes('dbms')) return 'emerald';
+    if (s.includes('os') || s.includes('operating')) return 'rose';
+    if (s.includes('math')) return 'orange';
+    if (s.includes('cn') || s.includes('network')) return 'indigo';
+    if (s.includes('ai') || s.includes('intelligence')) return 'purple';
+    return 'slate';
+};
 
 export default function StudentClassesPage() {
+    const { data: session } = useSession();
     const [selectedDay, setSelectedDay] = useState(DAYS[0]);
+    const [timetable, setTimetable] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const section = (session?.user as any)?.section || "4G2";
+
+    useEffect(() => {
+        const fetchTimetable = async () => {
+            if (!section) return;
+            try {
+                const res = await fetch(`/api/timetable?section=${section}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setTimetable(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch student timetable:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchTimetable();
+    }, [section]);
+
+    const getEntryForSlot = (day: string, periodId: number) => {
+        const period = PERIODS.find(p => p.id === periodId);
+        if (!period) return undefined;
+
+        const startTime = period.time.split(' - ')[0];
+        const h = parseInt(startTime.split(':')[0]);
+        const displayH = h > 12 ? h - 12 : h;
+        const timeBase = `${displayH.toString().padStart(2, '0')}:${startTime.split(':')[1]}`;
+        const amPm = (h >= 9 && h <= 11) ? 'AM' : 'PM';
+        const formattedStart = `${timeBase} ${amPm}`;
+
+        return timetable.find(c => {
+            if (c.day !== day) return false;
+            return c.startTime === formattedStart || c.startTime === timeBase || c.startTime === startTime;
+        });
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex h-[60vh] w-full items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Header Section - Compact */}
+            {/* Header Section */}
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-5">
                     <Calendar className="h-20 w-20 rotate-12" />
@@ -34,10 +92,10 @@ export default function StudentClassesPage() {
                         AY 2025-26 • SEM 4
                     </Badge>
                     <h1 className="text-2xl font-black text-slate-800 tracking-tight">
-                        Section AIML 4G2
+                        Section AIML {section}
                     </h1>
                     <p className="text-slate-500 text-xs font-medium flex items-center gap-1.5 mt-1">
-                        <MapPin className="h-3.5 w-3.5 text-blue-500" /> MB LH-303
+                        <MapPin className="h-3.5 w-3.5 text-blue-500" /> Institutional Matrix Hub
                     </p>
                 </div>
             </div>
@@ -65,76 +123,68 @@ export default function StudentClassesPage() {
             {/* Desktop View: Full Grid */}
             <div className="hidden md:block overflow-x-auto pb-4 -mx-4 px-4">
                 <div className="min-w-[1000px] space-y-4">
-                    {/* Desktop Header Row */}
                     <div className="grid grid-cols-8 gap-3 mb-6">
                         <div className="bg-slate-100 rounded-2xl p-4 flex items-center justify-center">
                             <Clock className="h-5 w-5 text-slate-400" />
                         </div>
                         {PERIODS.map(p => (
                             <div key={p.id} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col items-center justify-center">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{p.id}</span>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">P{p.id}</span>
                                 <span className="text-xs font-bold text-slate-700">{p.time}</span>
                             </div>
                         ))}
                     </div>
 
-                    {/* Day Rows */}
                     {DAYS.map(day => (
                         <div key={day} className="grid grid-cols-8 gap-2 min-h-[120px]">
-                            <div className="bg-slate-800 rounded-2xl p-4 flex items-center justify-center shadow-lg">
+                            <div className={cn(
+                                "rounded-2xl p-4 flex items-center justify-center shadow-lg transition-all",
+                                day === selectedDay ? "bg-blue-600 scale-105 z-10" : "bg-slate-800"
+                            )}>
                                 <span className="text-white font-black tracking-tighter text-lg rotate-[-90deg]">
                                     {day.substring(0, 3)}
                                 </span>
                             </div>
 
-                            {Array.from({ length: 7 }, (_, i) => i + 1).map(periodNum => {
-                                const entry = STUDENT_TIMETABLE.find(t => t.day === day && t.period === periodNum);
-                                const isCoveredByPreviousSpan = STUDENT_TIMETABLE.some(t =>
-                                    t.day === day &&
-                                    t.period < periodNum &&
-                                    t.span &&
-                                    t.period + t.span > periodNum
-                                );
-
-                                if (isCoveredByPreviousSpan) return null;
-
-                                if (entry?.isLunch) {
+                            {PERIODS.map(period => {
+                                const entry = getEntryForSlot(day, period.id);
+                                if (period.id === 5) { // Lunch
                                     return (
-                                        <div key={`${day}-${periodNum}`} className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center opacity-60">
+                                        <div key={`${day}-${period.id}`} className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center opacity-60">
                                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest rotate-[-90deg]">Lunch Phase</span>
                                         </div>
                                     );
                                 }
 
                                 if (entry) {
+                                    const color = getColorForSubject(entry.subject);
                                     return (
                                         <div
-                                            key={`${day}-${periodNum}`}
+                                            key={`${day}-${period.id}`}
                                             className={cn(
                                                 "rounded-2xl p-4 shadow-sm border-2 transition-all hover:scale-[1.02] group relative overflow-hidden",
-                                                entry.color === 'blue' ? "bg-blue-50 border-blue-100 text-blue-700" :
-                                                    entry.color === 'emerald' ? "bg-emerald-50 border-emerald-100 text-emerald-700" :
-                                                        entry.color === 'rose' ? "bg-rose-50 border-rose-100 text-rose-700" :
-                                                            entry.color === 'orange' ? "bg-orange-50 border-orange-100 text-orange-700" :
-                                                                entry.color === 'indigo' ? "bg-indigo-50 border-indigo-100 text-indigo-700" :
-                                                                    entry.color === 'purple' ? "bg-purple-50 border-purple-100 text-purple-700" :
-                                                                        "bg-slate-50 border-slate-100 text-slate-700",
-                                                entry.span && entry.span === 2 ? "col-span-2" : "col-span-1"
+                                                color === 'blue' ? "bg-blue-50 border-blue-100 text-blue-700" :
+                                                    color === 'emerald' ? "bg-emerald-50 border-emerald-100 text-emerald-700" :
+                                                        color === 'rose' ? "bg-rose-50 border-rose-100 text-rose-700" :
+                                                            color === 'orange' ? "bg-orange-50 border-orange-100 text-orange-700" :
+                                                                color === 'indigo' ? "bg-indigo-50 border-indigo-100 text-indigo-700" :
+                                                                    color === 'purple' ? "bg-purple-50 border-purple-100 text-purple-700" :
+                                                                        "bg-slate-50 border-slate-100 text-slate-700"
                                             )}
                                         >
                                             <div className="h-full flex flex-col justify-between relative z-10">
                                                 <div>
-                                                    <h3 className="font-black text-base tracking-tight leading-none">
+                                                    <h3 className="font-black text-[13px] tracking-tight leading-tight group-hover:underline">
                                                         {entry.subject}
                                                     </h3>
                                                     <div className="flex items-center gap-1 mt-2 opacity-70">
                                                         <User className="h-2.5 w-2.5" />
-                                                        <span className="text-[9px] font-black uppercase tracking-tight truncate">{entry.faculty}</span>
+                                                        <span className="text-[9px] font-black uppercase tracking-tight truncate">{entry.faculty?.name || 'TBA'}</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-1 mt-2 opacity-70">
                                                     <MapPin className="h-2.5 w-2.5" />
-                                                    <span className="text-[9px] font-black uppercase tracking-tight">{entry.room}</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-tight">{entry.classroom || 'TBA'}</span>
                                                 </div>
                                             </div>
                                             <div className="absolute -bottom-1 -right-1 opacity-5">
@@ -144,7 +194,9 @@ export default function StudentClassesPage() {
                                     );
                                 }
 
-                                return <div key={`${day}-${periodNum}`} className="bg-slate-50/50 border border-slate-50 rounded-2xl flex items-center justify-center opacity-30" />;
+                                return <div key={`${day}-${period.id}`} className="bg-slate-50/50 border border-slate-50 rounded-2xl flex items-center justify-center opacity-30">
+                                    <div className="h-1 w-1 rounded-full bg-slate-300" />
+                                </div>;
                             })}
                         </div>
                     ))}
@@ -154,17 +206,8 @@ export default function StudentClassesPage() {
             {/* Mobile View: Vertical Timeline */}
             <div className="md:hidden space-y-3">
                 {PERIODS.map(p => {
-                    const entry = STUDENT_TIMETABLE.find(t => t.day === selectedDay && t.period === p.id);
-                    const isCovered = STUDENT_TIMETABLE.some(t =>
-                        t.day === selectedDay &&
-                        t.period < p.id &&
-                        t.span &&
-                        t.period + t.span > p.id
-                    );
-
-                    if (isCovered) return null;
-
-                    if (entry?.isLunch) {
+                    const entry = getEntryForSlot(selectedDay, p.id);
+                    if (p.id === 5) {
                         return (
                             <div key={p.id} className="flex gap-4 items-center px-2 py-4 opacity-50 border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/50">
                                 <div className="w-12 text-center">
@@ -178,6 +221,7 @@ export default function StudentClassesPage() {
                     }
 
                     if (entry) {
+                        const color = getColorForSubject(entry.subject);
                         return (
                             <div key={p.id} className="flex gap-3">
                                 <div className="w-12 pt-4 flex flex-col items-center gap-1">
@@ -187,28 +231,28 @@ export default function StudentClassesPage() {
                                 </div>
                                 <div className={cn(
                                     "flex-1 rounded-[1.5rem] p-4 shadow-sm border-2 relative overflow-hidden",
-                                    entry.color === 'blue' ? "bg-blue-50 border-blue-100 text-blue-700" :
-                                        entry.color === 'emerald' ? "bg-emerald-50 border-emerald-100 text-emerald-700" :
-                                            entry.color === 'rose' ? "bg-rose-50 border-rose-100 text-rose-700" :
-                                                entry.color === 'orange' ? "bg-orange-50 border-orange-100 text-orange-700" :
-                                                    entry.color === 'indigo' ? "bg-indigo-50 border-indigo-100 text-indigo-700" :
-                                                        entry.color === 'purple' ? "bg-purple-50 border-purple-100 text-purple-700" :
+                                    color === 'blue' ? "bg-blue-50 border-blue-100 text-blue-700" :
+                                        color === 'emerald' ? "bg-emerald-50 border-emerald-100 text-emerald-700" :
+                                            color === 'rose' ? "bg-rose-50 border-rose-100 text-rose-700" :
+                                                color === 'orange' ? "bg-orange-50 border-orange-100 text-orange-700" :
+                                                    color === 'indigo' ? "bg-indigo-50 border-indigo-100 text-indigo-700" :
+                                                        color === 'purple' ? "bg-purple-50 border-purple-100 text-purple-700" :
                                                             "bg-slate-50 border-slate-100 text-slate-700"
                                 )}>
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h3 className="font-black text-lg tracking-tight leading-none mb-2">{entry.subject}</h3>
                                             <p className="text-[9px] font-black uppercase tracking-widest opacity-70 flex items-center gap-1">
-                                                <User className="h-3 w-3" /> {entry.faculty}
+                                                <User className="h-3 w-3" /> {entry.faculty?.name || 'TBA'}
                                             </p>
                                         </div>
                                         <Badge variant="outline" className="bg-white/50 border-transparent text-[8px] font-black rounded-lg">
-                                            {entry.span && entry.span > 1 ? "DOUBLE" : "PERIOD"}
+                                            PERIOD {p.id}
                                         </Badge>
                                     </div>
                                     <div className="mt-3 flex items-center gap-2 pt-3 border-t border-current/5">
                                         <MapPin className="h-3 w-3 opacity-60" />
-                                        <span className="text-[9px] font-black uppercase tracking-widest opacity-60">{entry.room}</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest opacity-60">{entry.classroom || 'TBA'}</span>
                                     </div>
                                     <GraduationCap className="absolute -bottom-2 -right-2 opacity-5 h-12 w-12" />
                                 </div>
@@ -230,23 +274,12 @@ export default function StudentClassesPage() {
             </div>
 
             {/* Bottom Insight Card */}
-            <Card className="border-none shadow-lg bg-indigo-600 rounded-[2rem] overflow-hidden relative">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <GraduationCap className="h-20 w-20" />
+            {timetable.length === 0 && (
+                <div className="py-20 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
+                    <Info className="h-10 w-10 text-slate-200 mx-auto mb-4" />
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">No matrix entries found for Section {section}</p>
                 </div>
-                <CardContent className="p-6">
-                    <div className="flex items-center gap-4 text-white">
-                        <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center">
-                            <Clock className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">Sync Alert</p>
-                            <h3 className="text-sm font-black tracking-tight">Next Class starts at 09:00 AM Monday</h3>
-                        </div>
-                        <ChevronRight className="ml-auto h-5 w-5 opacity-50" />
-                    </div>
-                </CardContent>
-            </Card>
+            )}
         </div>
     );
 }

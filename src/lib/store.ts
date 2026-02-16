@@ -308,38 +308,8 @@ export const DEMO_FACULTY: Faculty[] = [
     }
 ];
 
-// Demo Timetable Data - Java Faculty (Sumit)
-export const DEMO_TIMETABLE: TimeSlot[] = [
-    // Monday
-    { id: 1, facultyId: 1, day: "MONDAY", startTime: "09:00", endTime: "10:00", isFree: false, subject: "Java", room: "MB LH-303 (4G2)" },
-    { id: 2, facultyId: 1, day: "MONDAY", startTime: "10:00", endTime: "11:00", isFree: false, subject: "Java", room: "MB LH-303 (4G2)" },
-    { id: 3, facultyId: 1, day: "MONDAY", startTime: "11:00", endTime: "12:00", isFree: false, subject: "Java Lab", room: "MB LH-303 (4G2)" },
-    { id: 4, facultyId: 1, day: "MONDAY", startTime: "12:00", endTime: "13:00", isFree: false, subject: "Java Lab", room: "MB LH-303 (4G2)" },
-    { id: 5, facultyId: 1, day: "MONDAY", startTime: "14:00", endTime: "15:00", isFree: false, subject: "Java", room: "MB LH-401 (4G3)" },
-    { id: 6, facultyId: 1, day: "MONDAY", startTime: "15:00", endTime: "16:00", isFree: false, subject: "Java", room: "MB LH-401 (4G3)" },
-
-    // Tuesday 
-    { id: 7, facultyId: 1, day: "TUESDAY", startTime: "09:00", endTime: "10:00", isFree: false, subject: "Java", room: "MB LH-303 (4G2)" },
-    { id: 8, facultyId: 1, day: "TUESDAY", startTime: "10:00", endTime: "11:00", isFree: false, subject: "Java", room: "MB LH-303 (4G2)" },
-    { id: 9, facultyId: 1, day: "TUESDAY", startTime: "14:00", endTime: "15:00", isFree: false, subject: "Java Lab", room: "MB LH-401 (4G3)" },
-    { id: 10, facultyId: 1, day: "TUESDAY", startTime: "15:00", endTime: "16:00", isFree: false, subject: "Java Lab", room: "MB LH-401 (4G3)" },
-
-    // Wednesday
-    { id: 11, facultyId: 1, day: "WEDNESDAY", startTime: "11:00", endTime: "12:00", isFree: false, subject: "Java", room: "MB LH-303 (4G2)" },
-    { id: 12, facultyId: 1, day: "WEDNESDAY", startTime: "12:00", endTime: "13:00", isFree: false, subject: "Java", room: "MB LH-303 (4G2)" },
-    { id: 13, facultyId: 1, day: "WEDNESDAY", startTime: "14:00", endTime: "15:00", isFree: false, subject: "Java", room: "MB LH-401 (4G3)" },
-    { id: 14, facultyId: 1, day: "WEDNESDAY", startTime: "15:00", endTime: "16:00", isFree: false, subject: "Java", room: "MB LH-401 (4G3)" },
-
-    // Thursday
-    { id: 15, facultyId: 1, day: "THURSDAY", startTime: "11:00", endTime: "12:00", isFree: false, subject: "Java", room: "MB LH-401 (4G3)" },
-    { id: 16, facultyId: 1, day: "THURSDAY", startTime: "12:00", endTime: "13:00", isFree: false, subject: "Java", room: "MB LH-401 (4G3)" },
-    { id: 17, facultyId: 1, day: "THURSDAY", startTime: "14:00", endTime: "15:00", isFree: false, subject: "Java", room: "MB LH-303 (4G2)" },
-    { id: 18, facultyId: 1, day: "THURSDAY", startTime: "15:00", endTime: "16:00", isFree: false, subject: "Java", room: "MB LH-303 (4G2)" },
-
-    // Friday
-    { id: 19, facultyId: 1, day: "FRIDAY", startTime: "09:00", endTime: "10:00", isFree: false, subject: "Java", room: "MB LH-401 (4G3)" },
-    { id: 20, facultyId: 1, day: "FRIDAY", startTime: "10:00", endTime: "11:00", isFree: false, subject: "Java", room: "MB LH-401 (4G3)" },
-];
+// Demo Timetable Data - Purged
+export const DEMO_TIMETABLE: TimeSlot[] = [];
 
 // Demo Bookings
 export const DEMO_BOOKINGS: Booking[] = [
@@ -389,39 +359,5 @@ export const DEMO_STUDENTS: Student[] = [
     }
 ];
 
-// 4G2 Student Timetable (Consistent with CampusDashboard)
-export const STUDENT_TIMETABLE_4G2 = [
-    // Monday
-    { day: "MONDAY", period: 1, subject: "Java", room: "MB LH-303", faculty: "Sumit", color: "blue", span: 2, time: "9:00 - 11:00" },
-    { day: "MONDAY", period: 3, subject: "Java Lab", room: "MB LH-303", faculty: "Aarchit / Sumit", color: "emerald", span: 2, time: "11:00 - 13:00" },
-    { day: "MONDAY", period: 5, isLunch: true, time: "13:00 - 14:00" },
-    { day: "MONDAY", period: 6, subject: "Applied Prob", room: "MB LH-303", faculty: "Manpreet", color: "orange", time: "14:00 - 15:00" },
-    { day: "MONDAY", period: 7, subject: "OT", room: "MB LH-303", faculty: "Priyanka", color: "purple", time: "15:00 - 16:00" },
-
-    // Tuesday
-    { day: "TUESDAY", period: 1, subject: "Java", room: "MB LH-303", faculty: "Sumit", color: "blue", span: 2, time: "9:00 - 11:00" },
-    { day: "TUESDAY", period: 3, subject: "S&UL", room: "MB LH-303", faculty: "Surender", color: "rose", span: 2, time: "11:00 - 13:00" },
-    { day: "TUESDAY", period: 5, isLunch: true, time: "13:00 - 14:00" },
-    { day: "TUESDAY", period: 6, subject: "DBMS", room: "MB LH-303", faculty: "Harsh / Niharika", color: "indigo", span: 2, time: "14:00 - 16:00" },
-
-    // Wednesday
-    { day: "WEDNESDAY", period: 1, subject: "S&UL", room: "MB LH-303", faculty: "Surender", color: "rose", span: 2, time: "9:00 - 11:00" },
-    { day: "WEDNESDAY", period: 3, subject: "Java", room: "MB LH-303", faculty: "Sumit", color: "blue", span: 2, time: "11:00 - 13:00" },
-    { day: "WEDNESDAY", period: 5, isLunch: true, time: "13:00 - 14:00" },
-    { day: "WEDNESDAY", period: 6, subject: "DBMS", room: "MB LH-303", faculty: "Deepali", color: "indigo", span: 2, time: "14:00 - 16:00" },
-
-    // Thursday
-    { day: "THURSDAY", period: 1, subject: "DBMS", room: "MB LH-303", faculty: "Harsh", color: "indigo", time: "9:00 - 10:00" },
-    { day: "THURSDAY", period: 2, subject: "DBMS", room: "MB LH-303", faculty: "Aarchit / Harsh", color: "indigo", time: "10:00 - 11:00" },
-    { day: "THURSDAY", period: 3, subject: "Applied Prob", room: "MB LH-303", faculty: "Manpreet", color: "orange", time: "11:00 - 12:00" },
-    { day: "THURSDAY", period: 4, subject: "Explore", room: "MB LH-303", faculty: "Trainer 1", color: "slate", time: "12:00 - 13:00" },
-    { day: "THURSDAY", period: 5, isLunch: true, time: "13:00 - 14:00" },
-    { day: "THURSDAY", period: 6, subject: "Java", room: "MB LH-303", faculty: "Sumit", color: "blue", span: 2, time: "14:00 - 16:00" },
-
-    // Friday
-    { day: "FRIDAY", period: 1, subject: "S&UL", room: "MB LH-303", faculty: "Divyanshi / Harjeet", color: "rose", span: 2, time: "9:00 - 11:00" },
-    { day: "FRIDAY", period: 3, subject: "OT", room: "MB LH-303", faculty: "Priyanka", color: "purple", time: "11:00 - 12:00" },
-    { day: "FRIDAY", period: 4, subject: "Applied Prob", room: "MB LH-303", faculty: "Manpreet", color: "orange", time: "12:00 - 13:00" },
-    { day: "FRIDAY", period: 5, isLunch: true, time: "13:00 - 14:00" },
-    { day: "FRIDAY", period: 6, subject: "S&UL Lab", room: "MB LH-303", faculty: "Harjeet", color: "rose", span: 2, time: "14:00 - 16:00" },
-];
+// Static matrices purged. Real-time API sync prioritized.
+export const STUDENT_TIMETABLE_4G2 = [];

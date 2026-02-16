@@ -22,12 +22,22 @@ export async function GET(req: Request) {
         if ((role === 'STUDENT' || role === 'ADMIN') && section) {
             timetable = await prisma.timetable.findMany({
                 where: { section },
+                include: {
+                    faculty: {
+                        select: { name: true }
+                    }
+                },
                 orderBy: { day: 'asc' }
             });
         } else if ((role === 'FACULTY' || role === 'ADMIN') && (facultyId || (session.user as any).id)) {
             const targetId = role === 'ADMIN' ? facultyId : (session.user as any).id;
             timetable = await prisma.timetable.findMany({
                 where: { facultyId: targetId },
+                include: {
+                    faculty: {
+                        select: { name: true }
+                    }
+                },
                 orderBy: { day: 'asc' }
             });
         }
@@ -70,15 +80,23 @@ export async function POST(req: Request) {
         // Transactions: Clear old and insert new
         await prisma.$transaction(async (tx) => {
             if (viewMode === 'student') {
-                console.log("Cleaning section matrix for:", targetId);
-                await tx.timetable.deleteMany({
+                console.log(`[Matrix Sync] Clearing section ${targetId}`);
+                const deleted = await tx.timetable.deleteMany({
                     where: { section: targetId }
                 });
+                console.log(`[Matrix Sync] Purged ${deleted.count} legacy entries for section ${targetId}`);
             } else {
-                console.log("Cleaning faculty matrix for:", targetId);
-                await tx.timetable.deleteMany({
+                console.log(`[Matrix Sync] Clearing faculty ${targetId}`);
+                const deleted = await tx.timetable.deleteMany({
                     where: { facultyId: targetId }
                 });
+                console.log(`[Matrix Sync] Purged ${deleted.count} legacy entries for faculty ${targetId}`);
+            }
+
+            // If empty array, we just stop here (successful clear)
+            if (!timetable || timetable.length === 0) {
+                console.log(`[Matrix Sync] Deployment complete: Matrix cleared for ${targetId}`);
+                return;
             }
 
             // Create new slots
@@ -88,18 +106,26 @@ export async function POST(req: Request) {
                 const [start, end] = parts;
                 if (!start || !end) continue;
 
-                // Institutional Format: 12-hour AM/PM
+                // Institutional Format: Proper 12-hour AM/PM
                 const formatTime = (time: string) => {
-                    const h = parseInt(time.split(':')[0]);
-                    if (h >= 9 && h <= 11) return `${time} AM`;
-                    return `${time} PM`; // 12:00, 01:00 etc
+                    const [hStr, mStr] = time.split(':');
+                    const h = parseInt(hStr);
+                    const m = parseInt(mStr);
+                    const hh = h % 12 || 12;
+                    const ampm = h < 12 ? 'AM' : 'PM';
+                    return `${hh.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
                 };
 
                 const fId = viewMode === 'faculty' ? targetId : (slot.facultyId || null);
-                if (!fId) continue;
+                if (!fId) {
+                    console.warn(`[Matrix Sync] Skipping slot: Missing faculty identity for section ${slot.section}`);
+                    continue;
+                }
 
+                // Verify Faculty Existence
                 const facultyExists = await tx.faculty.findUnique({ where: { id: fId } });
                 if (!facultyExists) {
+                    console.error(`[Matrix Sync] Identity Breach: ${fId} not verified.`);
                     throw new Error(`Faculty Identity ${fId} not verified in system core.`);
                 }
 
@@ -109,7 +135,7 @@ export async function POST(req: Request) {
                         startTime: formatTime(start),
                         endTime: formatTime(end),
                         subject: slot.subject || "No Subject",
-                        classroom: slot.room || "TBA",
+                        classroom: slot.classroom || slot.room || "TBA",
                         section: slot.section || (viewMode === 'student' ? targetId : "TBA"),
                         facultyId: fId,
                         department: "CSE",
@@ -119,7 +145,7 @@ export async function POST(req: Request) {
                 });
                 createdCount++;
             }
-            console.log(`Successfully deployed ${createdCount} slots for ${targetId}`);
+            console.log(`[Matrix Sync] Reconstruction complete: Generated ${createdCount} valid entries for ${targetId}`);
         });
 
         return NextResponse.json({ success: true, message: "Matrix Synchronized with Foundation" });

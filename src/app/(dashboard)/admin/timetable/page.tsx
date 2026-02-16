@@ -21,7 +21,7 @@ const TIME_SLOTS = [
     "03:00 - 04:00"
 ];
 
-type ViewMode = 'selection' | 'faculty' | 'student';
+type ViewMode = 'faculty' | 'student';
 
 interface SlotData {
     day: string;
@@ -35,7 +35,7 @@ interface SlotData {
 
 export default function TimetableArchitecture() {
     const { toast } = useToast();
-    const [viewMode, setViewMode] = useState<ViewMode>('selection');
+    const viewMode = 'faculty';
     const [timetable, setTimetable] = useState<SlotData[]>([]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentSlot, setCurrentSlot] = useState<Partial<SlotData> | null>(null);
@@ -52,7 +52,6 @@ export default function TimetableArchitecture() {
     const [isCustomTeacher, setIsCustomTeacher] = useState(false);
     const [isCustomSection, setIsCustomSection] = useState(false);
 
-    const [selectedSection, setSelectedSection] = useState("");
     const [selectedTeacher, setSelectedTeacher] = useState(""); // This will now store the ID
     const [isLoading, setIsLoading] = useState(true);
     const [isDeploying, setIsDeploying] = useState(false);
@@ -96,7 +95,6 @@ export default function TimetableArchitecture() {
                 setSections(secData);
 
                 if (teacherObjects.length > 0) setSelectedTeacher(teacherObjects[0].id);
-                if (secData.length > 0) setSelectedSection(secData[0]);
             } catch (error) {
                 console.error("Resource Sync Error:", error);
             } finally {
@@ -109,8 +107,8 @@ export default function TimetableArchitecture() {
     // Existing Timetable Sync
     useEffect(() => {
         const fetchExisting = async () => {
-            const target = viewMode === 'faculty' ? `facultyId=${selectedTeacher}` : `section=${selectedSection}`;
-            if ((viewMode === 'faculty' && !selectedTeacher) || (viewMode === 'student' && !selectedSection)) return;
+            const target = `facultyId=${selectedTeacher}`;
+            if (!selectedTeacher) return;
 
             try {
                 const res = await fetch(`/api/timetable?${target}`);
@@ -123,13 +121,19 @@ export default function TimetableArchitecture() {
                     setTeachers(prev => mergeTeachers(prev, newIncoming));
 
                     const mapped: SlotData[] = data.map(s => {
-                        // Strip AM/PM for internal UI matching
-                        const cleanStart = s.startTime.replace(/ (AM|PM)/g, '');
-                        const cleanEnd = s.endTime.replace(/ (AM|PM)/g, '');
+                        // Normalize 12h (DB) to 24h (UI Grid)
+                        const formatTo24 = (timeStr: string) => {
+                            const [time, ampm] = timeStr.split(' ');
+                            if (!ampm) return timeStr; // Fallback for raw 24h
+                            let [h, m] = time.split(':').map(Number);
+                            if (ampm === 'PM' && h < 12) h += 12;
+                            if (ampm === 'AM' && h === 12) h = 0;
+                            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                        };
 
                         return {
                             day: s.day,
-                            time: `${cleanStart} - ${cleanEnd}`,
+                            time: `${formatTo24(s.startTime)} - ${formatTo24(s.endTime)}`,
                             subject: s.subject,
                             room: s.classroom,
                             teacher: s.facultyId,
@@ -143,19 +147,19 @@ export default function TimetableArchitecture() {
             }
         };
         fetchExisting();
-    }, [selectedTeacher, selectedSection, viewMode]);
+    }, [selectedTeacher, viewMode]);
 
     const handleSlotClick = (day: string, time: string) => {
         const existing = timetable.find(s =>
             s.day === day &&
             s.time === time &&
-            (viewMode === 'student' ? s.section === selectedSection : s.teacher === selectedTeacher)
+            s.teacher === selectedTeacher
         );
         setCurrentSlot(existing || {
             day,
             time,
-            section: viewMode === 'student' ? selectedSection : undefined,
-            teacher: viewMode === 'faculty' ? selectedTeacher : undefined
+            section: undefined,
+            teacher: selectedTeacher
         });
         setIsCustomSubject(false);
         setIsCustomRoom(false);
@@ -187,7 +191,7 @@ export default function TimetableArchitecture() {
             const filtered = prev.filter(s =>
                 !(s.day === currentSlot.day &&
                     s.time === currentSlot.time &&
-                    (viewMode === 'student' ? s.section === currentSlot.section : s.teacher === currentSlot.teacher))
+                    s.teacher === currentSlot.teacher)
             );
             return [...filtered, currentSlot as SlotData];
         });
@@ -198,21 +202,13 @@ export default function TimetableArchitecture() {
 
     const deploySync = async () => {
         const targetSlots = timetable.filter(s =>
-            viewMode === 'faculty' ? s.teacher === selectedTeacher : s.section === selectedSection
+            s.teacher === selectedTeacher
         );
 
-        if (targetSlots.length === 0) {
-            toast({
-                title: "Empty Matrix",
-                description: "No slots detected for deployment. Please add at least one period to the architecture.",
-                variant: "destructive"
-            });
-            return;
-        }
 
         setIsDeploying(true);
         try {
-            const currentTargetId = viewMode === 'faculty' ? selectedTeacher : selectedSection;
+            const currentTargetId = selectedTeacher;
 
             // Map slots and resolve faculty IDs
             const syncPayload = targetSlots.map(s => {
@@ -246,7 +242,7 @@ export default function TimetableArchitecture() {
 
             toast({
                 title: "Deployment Successful",
-                description: `Schedules for ${viewMode === 'faculty' ? teachers.find(t => t.id === selectedTeacher)?.name : selectedSection} have been synchronized with the live portal.`,
+                description: `Schedules for ${teachers.find(t => t.id === selectedTeacher)?.name} have been synchronized with the live portal.`,
             });
         } catch (error: any) {
             console.error("Deploy Error:", error);
@@ -262,7 +258,11 @@ export default function TimetableArchitecture() {
 
     const deleteSlot = () => {
         if (!currentSlot) return;
-        setTimetable(prev => prev.filter(s => !(s.day === currentSlot.day && s.time === currentSlot.time)));
+        setTimetable(prev => prev.filter(s =>
+            !(s.day === currentSlot.day &&
+                s.time === currentSlot.time &&
+                s.teacher === selectedTeacher)
+        ));
         setIsEditModalOpen(false);
     };
 
@@ -279,97 +279,27 @@ export default function TimetableArchitecture() {
         );
     }
 
-    if (viewMode === 'selection') {
-        return (
-            <div className="max-w-4xl mx-auto space-y-12 py-12 px-4 bg-white min-h-screen font-sans">
-                <div className="text-center space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em] flex items-center justify-center gap-2">
-                        <Sparkles className="h-3 w-3 text-indigo-400" />
-                        System Architecture
-                    </p>
-                    <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase">
-                        Protocol Selection
-                    </h1>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div
-                        onClick={() => setViewMode('faculty')}
-                        className="group relative bg-[#F8FAFC] border border-slate-100 rounded-[2.5rem] p-8 flex flex-col justify-between h-96 cursor-pointer transition-all hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-50 active:scale-95"
-                    >
-                        <div className="h-14 w-14 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-all z-10">
-                            <Box className="h-7 w-7" />
-                        </div>
-                        <div className="z-10">
-                            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Faculty Core</h2>
-                            <p className="text-slate-400 text-xs font-medium leading-relaxed group-hover:text-slate-600 transition-colors">
-                                Build schedules centered around instructor availability and departmental resources.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2 text-[10px] font-black text-slate-900 uppercase tracking-widest z-10">
-                            Initialize <ChevronLeft className="h-4 w-4 rotate-180 text-indigo-500" />
-                        </div>
-                    </div>
-
-                    <div
-                        onClick={() => setViewMode('student')}
-                        className="group relative bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 flex flex-col justify-between h-96 cursor-pointer transition-all hover:shadow-xl hover:shadow-indigo-900/20 active:scale-95"
-                    >
-                        <div className="h-14 w-14 bg-white/10 border border-white/10 rounded-2xl flex items-center justify-center text-white group-hover:bg-white group-hover:text-slate-900 transition-all z-10">
-                            <Users className="h-7 w-7" />
-                        </div>
-                        <div className="z-10">
-                            <h2 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">Student Matrix</h2>
-                            <p className="text-slate-500 text-xs font-medium leading-relaxed group-hover:text-slate-300 transition-colors">
-                                Define segment-based learning timelines for specific sections and year groups.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest z-10">
-                            Initialize <ChevronLeft className="h-4 w-4 rotate-180 text-indigo-400" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="max-w-full mx-auto space-y-10 pb-32 px-8 py-12 bg-white min-h-screen font-sans">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
                 <div className="space-y-1">
-                    <button
-                        onClick={() => setViewMode('selection')}
-                        className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors mb-2 group"
-                    >
-                        <ChevronLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" /> System Root
-                    </button>
                     <h1 className="text-4xl font-extrabold text-slate-900 tracking-tighter uppercase flex items-center gap-3">
-                        {viewMode === 'faculty' ? 'Faculty' : 'Student'} Architecture
+                        Faculty Architecture
                     </h1>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                     <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 p-2 rounded-2xl">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Target:</span>
-                        {viewMode === 'student' ? (
-                            <Select value={selectedSection} onValueChange={setSelectedSection}>
-                                <SelectTrigger className="h-9 w-32 border-none bg-white rounded-xl font-bold text-[10px] uppercase shadow-sm">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                                    {sections.map((s: string) => <SelectItem key={s} value={s}>SEC {s}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        ) : (
-                            <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
-                                <SelectTrigger className="h-9 w-44 border-none bg-white rounded-xl font-bold text-[10px] uppercase shadow-sm">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                                    {teachers.map((t) => <SelectItem key={t.id} value={t.id}>Prof. {t.name}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        )}
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Manage Faculty:</span>
+                        <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                            <SelectTrigger className="h-9 w-44 border-none bg-white rounded-xl font-bold text-[10px] uppercase shadow-sm">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                                {teachers.map((t) => <SelectItem key={t.id} value={t.id}>Prof. {t.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
                     </div>
                     <Button
                         onClick={deploySync}
@@ -415,7 +345,7 @@ export default function TimetableArchitecture() {
                                         const slot = timetable.find(s =>
                                             s.day === day &&
                                             s.time === time &&
-                                            (viewMode === 'student' ? s.section === selectedSection : s.teacher === selectedTeacher)
+                                            (s.teacher === selectedTeacher)
                                         );
                                         return (
                                             <td key={`${day}-${time}`}>
@@ -432,7 +362,7 @@ export default function TimetableArchitecture() {
                                                         <>
                                                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600" />
                                                             <div className="text-[9px] font-black uppercase text-slate-500 mb-0.5 leading-none tracking-widest">
-                                                                {viewMode === 'faculty' ? `SEC ${slot.section}` : (slot.teacher ? `Prof. ${teachers.find(t => t.id === slot.teacher)?.name || slot.teacher}` : 'Allocated')}
+                                                                {`SEC ${slot.section}`}
                                                             </div>
                                                             <div className="text-[11px] font-black uppercase tracking-tight text-slate-900 mb-1.5 leading-tight overflow-hidden text-ellipsis line-clamp-2">
                                                                 {slot.subject}
@@ -498,7 +428,7 @@ export default function TimetableArchitecture() {
                                         className="flex-shrink-0 px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-left hover:border-slate-900 transition-all group"
                                     >
                                         <div className="text-[8px] font-black text-slate-900 uppercase leading-none mb-1">{preset.subject}</div>
-                                        <div className="text-[7px] font-bold text-slate-400 uppercase leading-none">{preset.room} • {viewMode === 'faculty' ? preset.section : preset.teacher}</div>
+                                        <div className="text-[7px] font-bold text-slate-400 uppercase leading-none">{preset.room} • {preset.section}</div>
                                     </button>
                                 );
                             })}
@@ -562,59 +492,31 @@ export default function TimetableArchitecture() {
                                 )}
                             </div>
 
-                            {viewMode === 'student' ? (
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">Faculty</Label>
-                                    {isCustomTeacher ? (
-                                        <Input
-                                            className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900"
-                                            placeholder="Name..."
-                                            value={currentSlot?.teacher || ''}
-                                            onChange={(e) => setCurrentSlot(prev => ({ ...prev, teacher: e.target.value }))}
-                                            autoFocus
-                                        />
-                                    ) : (
-                                        <Select
-                                            value={currentSlot?.teacher}
-                                            onValueChange={(val) => val === 'CUSTOM' ? setIsCustomTeacher(true) : setCurrentSlot(prev => ({ ...prev, teacher: val }))}
-                                        >
-                                            <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900">
-                                                <SelectValue placeholder="Select Faculty" />
-                                            </SelectTrigger>
-                                            <SelectContent className="rounded-xl">
-                                                {teachers.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
-                                                <SelectItem value="CUSTOM" className="font-bold text-indigo-600">Custom...</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">Allocation (Section)</Label>
-                                    {isCustomSection ? (
-                                        <Input
-                                            className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900"
-                                            placeholder="Enter section..."
-                                            value={currentSlot?.section || ''}
-                                            onChange={(e) => setCurrentSlot(prev => ({ ...prev, section: e.target.value }))}
-                                            autoFocus
-                                        />
-                                    ) : (
-                                        <Select
-                                            value={currentSlot?.section}
-                                            onValueChange={(val) => val === 'CUSTOM' ? setIsCustomSection(true) : setCurrentSlot(prev => ({ ...prev, section: val }))}
-                                        >
-                                            <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900">
-                                                <SelectValue placeholder="Select Section" />
-                                            </SelectTrigger>
-                                            <SelectContent className="rounded-xl">
-                                                {sections.map((s: string) => <SelectItem key={s} value={s}>SEC {s}</SelectItem>)}
-                                                <SelectItem value="CUSTOM" className="font-bold text-indigo-600">Custom...</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                </div>
-                            )}
+                            <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">Allocation (Section)</Label>
+                                {isCustomSection ? (
+                                    <Input
+                                        className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900"
+                                        placeholder="Enter section..."
+                                        value={currentSlot?.section || ''}
+                                        onChange={(e) => setCurrentSlot(prev => ({ ...prev, section: e.target.value }))}
+                                        autoFocus
+                                    />
+                                ) : (
+                                    <Select
+                                        value={currentSlot?.section}
+                                        onValueChange={(val) => val === 'CUSTOM' ? setIsCustomSection(true) : setCurrentSlot(prev => ({ ...prev, section: val }))}
+                                    >
+                                        <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900">
+                                            <SelectValue placeholder="Select Section" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl">
+                                            {sections.map((s: string) => <SelectItem key={s} value={s}>SEC {s}</SelectItem>)}
+                                            <SelectItem value="CUSTOM" className="font-bold text-indigo-600">Custom...</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex gap-4 pt-4">
