@@ -80,8 +80,29 @@
     overflow-x: hidden;
     position: relative;
     width: 100%;
-    overscroll-behavior-y: none;
-    /* Optional: prevent pull-to-refresh if desired, but helps locking */
+    overscroll-behavior-y: auto;
+    overflow-y: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Universal touch feedback */
+  button:active,
+  a:active,
+  .clickable:active {
+    transform: scale(0.96);
+    transition: transform 0.1s;
+  }
+
+  /* Prevent sticky hover on mobile */
+  @media (hover: none) {
+
+    button:hover,
+    a:hover {
+      background-color: inherit !important;
+      color: inherit !important;
+    }
   }
 }
 

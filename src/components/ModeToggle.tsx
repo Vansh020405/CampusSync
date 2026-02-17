@@ -30,7 +30,7 @@ export function ModeToggle() {
             <button
                 onClick={() => handleModeSwitch('internships')}
                 className={cn(
-                    "relative w-20 md:w-32 py-1.5 md:py-2 rounded-full flex items-center justify-center transition-all duration-300 z-10",
+                    "relative w-20 md:w-32 py-2.5 md:py-2 rounded-full flex items-center justify-center transition-all duration-300 z-10",
                     mode === 'internships' ? "" : ""
                 )}
             >
@@ -44,7 +44,7 @@ export function ModeToggle() {
             <button
                 onClick={() => handleModeSwitch('campus')}
                 className={cn(
-                    "relative w-20 md:w-32 py-1.5 md:py-2 rounded-full flex items-center justify-center transition-all duration-300 z-10",
+                    "relative w-20 md:w-32 py-2.5 md:py-2 rounded-full flex items-center justify-center transition-all duration-300 z-10",
                     mode === 'campus' ? "" : ""
                 )}
             >

@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
     Briefcase, Users, BarChart2, CalendarDays,
     Megaphone, GraduationCap, ChevronRight,
-    Activity, Shield, Globe
+    Activity, Shield, Globe, FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,52 +38,44 @@ export default function AdminDashboardPage() {
     const tiles = [
         {
             href: "/admin/timetable",
-            label: "Timetable Architecture",
-            description: "Build and deploy academic schedules",
+            label: "Timetables",
+            description: "Build, deploy and manage academic schedules",
             icon: CalendarDays,
             stats: "128 Slots",
             color: "bg-indigo-50 text-indigo-500"
         },
         {
             href: "/admin/faculty",
-            label: "Faculty Directory",
-            description: "Manage institutional human resources",
+            label: "Faculty Details",
+            description: "Manage institutional human resources and profiles",
             icon: Users,
             stats: `${counts.faculty} Active`,
             color: "bg-emerald-50 text-emerald-500"
         },
         {
             href: "/admin/students",
-            label: "Student Registry",
-            description: "Global student data management",
+            label: "Student Details",
+            description: "Global student data registry and monitoring",
             icon: GraduationCap,
             stats: `${counts.students} Enrolled`,
             color: "bg-blue-50 text-blue-500"
         },
         {
-            href: "/admin/internships",
-            label: "Placement Hub",
-            description: "Corporate sync and internship posts",
-            icon: Briefcase,
-            stats: "12 New",
-            color: "bg-amber-50 text-amber-500"
-        },
-        {
-            href: "/admin/analytics",
-            label: "System Intelligence",
-            description: "Platform utilization and growth data",
-            icon: BarChart2,
-            stats: "+14.2% Growth",
+            href: "/admin/exams",
+            label: "Exam Planner",
+            description: "Coordinate examination schedules and invigilation",
+            icon: FileText,
+            stats: "Pending",
             color: "bg-rose-50 text-rose-500"
         },
         {
-            href: "/admin/notices",
-            label: "Command Center",
-            description: "Broadcast institutional announcements",
-            icon: Megaphone,
-            stats: "Active",
-            color: "bg-purple-50 text-purple-500"
-        },
+            href: "/admin/internships",
+            label: "Job & Internship Allocation",
+            description: "Corporate sync and student placement management",
+            icon: Briefcase,
+            stats: "12 New",
+            color: "bg-amber-50 text-amber-500"
+        }
     ];
 
     return (
@@ -112,37 +104,6 @@ export default function AdminDashboardPage() {
                 </div>
             </div>
 
-            {/* Metrics Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
-                <div className="p-6 bg-[#F8FAFC] border border-slate-100 rounded-[2.5rem] space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Live Traffic</p>
-                    <div className="flex items-end justify-between">
-                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">842</h3>
-                        <div className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-bold text-[10px]">+12%</div>
-                    </div>
-                </div>
-                <div className="p-6 bg-[#F8FAFC] border border-slate-100 rounded-[2.5rem] space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Server Load</p>
-                    <div className="flex items-end justify-between">
-                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">24%</h3>
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    </div>
-                </div>
-                <div className="p-6 bg-[#F8FAFC] border border-slate-100 rounded-[2.5rem] space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sync Rate</p>
-                    <div className="flex items-end justify-between">
-                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">99.9%</h3>
-                        <Shield className="h-4 w-4 text-indigo-500" />
-                    </div>
-                </div>
-                <div className="p-6 bg-[#F8FAFC] border border-slate-100 rounded-[2.5rem] space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Active Nodes</p>
-                    <div className="flex items-end justify-between">
-                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter">12</h3>
-                        <div className="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-bold text-[10px]">Stable</div>
-                    </div>
-                </div>
-            </div>
 
 
             {/* Module Grid */}
