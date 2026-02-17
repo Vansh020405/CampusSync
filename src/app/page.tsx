@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, GraduationCap, ShieldCheck, User, Mail, Lock, Hash, Book, Layers, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from 'next/link';
+import { BrandLogo } from "@/components/brand/Logo";
 
 type Role = 'student' | 'faculty';
 type Tab = 'login' | 'signup';
@@ -126,17 +127,9 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 font-sans selection:bg-indigo-100">
       <div className="w-full max-w-[440px]">
-        {/* Branding */}
-        <div className="mb-12 text-center">
-          <div className="mx-auto w-14 h-14 bg-slate-900 rounded-[1.5rem] flex items-center justify-center shadow-xl mb-6 transition-transform hover:scale-110 duration-500">
-            <GraduationCap className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tighter">
-            CampusSync
-          </h1>
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">
-            Institutional Intelligence Platform
-          </p>
+        <div className="mb-12 flex flex-col items-center">
+          <BrandLogo size={64} withText className="mb-2" />
+          <div className="h-0.5 w-12 bg-slate-100 mt-4 rounded-full" />
         </div>
 
         <div className="space-y-6">

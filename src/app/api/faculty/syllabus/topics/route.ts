@@ -22,10 +22,22 @@ export async function GET(req: Request) {
 
     try {
         // Find the SyllabusSubject
-        const syllabus = await prisma.syllabusSubject.findUnique({
+        let syllabus = await prisma.syllabusSubject.findUnique({
             where: { subjectName: subject },
             include: { topics: { orderBy: { order: 'asc' } } }
         });
+
+        // Fallback: If not found, try a case-insensitive search or partial match
+        if (!syllabus) {
+            const allSyllabus = await prisma.syllabusSubject.findMany({
+                include: { topics: { orderBy: { order: 'asc' } } }
+            });
+            syllabus = allSyllabus.find(s =>
+                s.subjectName.toLowerCase() === subject.toLowerCase() ||
+                s.subjectName.toLowerCase().includes(subject.toLowerCase()) ||
+                subject.toLowerCase().includes(s.subjectName.toLowerCase())
+            ) || null;
+        }
 
         if (!syllabus) {
             return NextResponse.json({ topics: [] }); // No syllabus defined
@@ -60,5 +72,50 @@ export async function GET(req: Request) {
     } catch (error) {
         console.error("Fetch topics error:", error);
         return NextResponse.json({ error: "Failed to fetch topics" }, { status: 500 });
+    }
+}
+
+export async function POST(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== 'FACULTY') {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    try {
+        const body = await req.json();
+        const { subjectName, title, totalLectures, order } = body;
+
+        if (!subjectName || !title) {
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        }
+
+        // Find or create the subject
+        let syllabusSubject = await prisma.syllabusSubject.findUnique({
+            where: { subjectName: subjectName }
+        });
+
+        if (!syllabusSubject) {
+            syllabusSubject = await prisma.syllabusSubject.create({
+                data: {
+                    subjectName: subjectName,
+                    department: 'General', // Default or fetch from faculty
+                }
+            });
+        }
+
+        const newTopic = await prisma.syllabusTopic.create({
+            data: {
+                subjectId: syllabusSubject.id,
+                title: title,
+                totalLectures: totalLectures || 1,
+                order: order || 0
+            }
+        });
+
+        return NextResponse.json(newTopic);
+
+    } catch (error) {
+        console.error("Create topic error:", error);
+        return NextResponse.json({ error: "Failed to create topic" }, { status: 500 });
     }
 }

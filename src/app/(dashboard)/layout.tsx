@@ -19,6 +19,7 @@ import {
 
 import { BottomNav } from "@/components/BottomNav"
 import { Clock } from "@/components/Clock"
+import { BrandLogo } from "@/components/brand/Logo"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { data: session, status } = useSession()
@@ -49,9 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="flex h-16 md:h-20 items-center justify-between px-4 md:px-6">
                     {/* Left: CS Logo Tag */}
                     <div className="flex items-center">
-                        <div className="h-9 w-9 md:h-10 md:w-10 bg-[#0D9488] rounded-xl flex items-center justify-center font-bold text-white shadow-sm ring-1 ring-emerald-600/10 text-sm md:text-base">
-                            CS
-                        </div>
+                        <BrandLogo size={42} withText />
                     </div>
 
                     {/* Center: Mode Switcher Pill */}

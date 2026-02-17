@@ -21,36 +21,55 @@ export async function GET() {
             return NextResponse.json({ error: "Student not found" }, { status: 404 });
         }
 
-        // Fetch subjects from Timetable for this student's section/semester
+        const section = student.section.trim();
+
+        // Fetch subjects from Timetable for this student's section
+        // We relax the filter to only section because department/semester names might have inconsistencies (e.g. "CSE" vs "Computer Science")
         const timetableEntries = await prisma.timetable.findMany({
             where: {
-                department: student.department,
-                semester: student.semester,
-                section: student.section
+                section: section
             },
             select: { subject: true },
             distinct: ['subject']
         });
         const subjects = timetableEntries.map(t => t.subject.trim());
-        const section = student.section.trim();
-        const semester = student.semester.trim();
 
-        console.log(`[SyllabusAPI] Student: ${student.name}, Section: "${section}", Sem: "${semester}", Subjects: [${subjects.join(', ')}]`);
+        console.log(`[SyllabusAPI] Student: ${student.name}, Section: "${section}", Subjects in Timetable: [${subjects.join(', ')}]`);
 
         const syllabusProgress = [];
+        const seenSyllabusIds = new Set<string>();
 
         for (const subject of subjects) {
-            const syllabus = await prisma.syllabusSubject.findUnique({
+            // Try to find the SyllabusSubject - case insensitive-ish or just try direct first
+            let syllabus = await prisma.syllabusSubject.findUnique({
                 where: { subjectName: subject },
                 include: { topics: { orderBy: { order: 'asc' } } }
             });
+
+            // Fallback: If not found, try a case-insensitive search or alias
+            if (!syllabus) {
+                const allSyllabus = await prisma.syllabusSubject.findMany({
+                    include: { topics: { orderBy: { order: 'asc' } } }
+                });
+                syllabus = allSyllabus.find(s =>
+                    s.subjectName.toLowerCase() === subject.toLowerCase() ||
+                    s.subjectName.toLowerCase().includes(subject.toLowerCase()) ||
+                    subject.toLowerCase().includes(s.subjectName.toLowerCase())
+                ) || null;
+            }
 
             if (!syllabus) {
                 console.log(`[SyllabusAPI] No SyllabusSubject found for name: "${subject}"`);
                 continue;
             }
 
-            // Fetch progress strictly for this section - Trim matched
+            if (seenSyllabusIds.has(syllabus.id)) {
+                console.log(`[SyllabusAPI] Skipping duplicate syllabus matching for: "${subject}" (already added via another entry)`);
+                continue;
+            }
+            seenSyllabusIds.add(syllabus.id);
+
+            // Fetch progress strictly for this section
             const progress = await prisma.topicProgress.findMany({
                 where: {
                     section: section,
@@ -60,7 +79,7 @@ export async function GET() {
                 include: { faculty: true }
             });
 
-            console.log(`[SyllabusAPI] Subject "${subject}": ${syllabus.topics.length} topics, ${progress.length} progress records found.`);
+            console.log(`[SyllabusAPI] Subject "${subject}" matched with "${syllabus.subjectName}": ${syllabus.topics.length} topics, ${progress.length} progress records found.`);
 
             const targetProgress = progress;
 

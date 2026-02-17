@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { ShieldCheck, Loader2, ArrowRight, Lock } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/components/brand/Logo";
 
 export default function AdminLoginPage() {
     const [username, setUsername] = useState('');
@@ -61,17 +62,10 @@ export default function AdminLoginPage() {
             <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-slate-50 rounded-full blur-3xl opacity-50"></div>
 
             <div className="w-full max-w-md px-6 z-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                {/* Branding Block */}
-                <div className="flex flex-col items-center mb-10 space-y-3">
-                    <div className="h-12 w-12 bg-slate-900 rounded-xl flex items-center justify-center shadow-2xl rotate-3 transform transition-transform hover:rotate-0 duration-500">
-                        <ShieldCheck className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="text-center">
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic">
-                            System<span className="text-slate-400 font-light not-italic text-lg ml-0.5">Admin</span>
-                        </h1>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-1">Core Operations Portal</p>
-                    </div>
+                <div className="flex flex-col items-center mb-10 space-y-4">
+                    <BrandLogo size={48} withText />
+                    <div className="h-0.5 w-8 bg-slate-900/5 rounded-full" />
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] text-center">Administrative Secure Core</p>
                 </div>
 
                 <Card className="border-[0.5px] border-slate-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] bg-white/80 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
