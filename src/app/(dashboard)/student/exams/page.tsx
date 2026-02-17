@@ -99,7 +99,7 @@ export default function StudentExamsPage() {
                         <div className="flex items-center gap-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">
                             <Monitor className="h-3 w-3" /> Examination Hub
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic">
+                        <h1 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-tight">
                             Exam <span className="text-indigo-600 not-italic">Schedule</span>
                         </h1>
                         <p className="text-slate-500 font-medium max-w-lg">
@@ -107,13 +107,13 @@ export default function StudentExamsPage() {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-4 bg-white p-2 rounded-3xl border border-slate-100 shadow-sm">
-                        <div className="h-12 w-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-                            <LayoutDashboard className="h-6 w-6" />
+                    <div className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+                            <LayoutDashboard className="h-5 w-5" />
                         </div>
-                        <div className="pr-6">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Exams</p>
-                            <p className="text-xl font-black text-slate-900 leading-none">{exams.length}</p>
+                        <div>
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Exams</p>
+                            <p className="text-lg font-black text-slate-900 leading-none">{exams.length}</p>
                         </div>
                     </div>
                 </div>
@@ -145,7 +145,7 @@ export default function StudentExamsPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="group bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
+                                    className="group bg-white border border-slate-100 rounded-[1.5rem] p-4 md:p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
                                 >
                                     {/* Glass Decor */}
                                     <div className="absolute -right-8 -top-8 h-24 w-24 bg-indigo-50 rounded-full blur-3xl group-hover:bg-indigo-100 transition-colors" />
@@ -158,13 +158,13 @@ export default function StudentExamsPage() {
                                             )}>
                                                 {status}
                                             </div>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                                 {exam.type}
                                             </span>
                                         </div>
 
                                         <div className="space-y-1">
-                                            <h3 className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 uppercase">
+                                            <h3 className="text-lg md:text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 uppercase tracking-tight">
                                                 {exam.subject}
                                             </h3>
                                             <div className="flex items-center gap-2 text-slate-500">
@@ -204,7 +204,7 @@ export default function StudentExamsPage() {
                                                 <div>
                                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Venue</p>
                                                     <p className="text-[11px] font-bold text-slate-900 uppercase tracking-tight">
-                                                        {exam.room} • {exam.hall || 'Main Hall'}
+                                                        {exam.room} <span className="text-indigo-200 mx-1">/</span> {exam.hall || 'Main'}
                                                     </p>
                                                 </div>
                                             </div>
@@ -216,7 +216,7 @@ export default function StudentExamsPage() {
 
                                         <button
                                             onClick={() => openSeatingPlan(exam)}
-                                            className="w-full py-4 bg-slate-50 hover:bg-slate-900 text-slate-400 hover:text-white rounded-[1.25rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
+                                            className="w-full py-3 md:py-4 bg-slate-50 hover:bg-slate-900 text-slate-500 hover:text-white rounded-xl md:rounded-[1.25rem] text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
                                         >
                                             View Seating Plan
                                             <ChevronRight className="h-3 w-3 group-hover/btn:translate-x-1 transition-transform" />
@@ -244,13 +244,13 @@ export default function StudentExamsPage() {
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+                            className="relative w-full max-w-lg bg-white rounded-3xl md:rounded-[3rem] shadow-2xl overflow-hidden"
                         >
-                            <div className="p-10">
+                            <div className="p-6 md:p-10">
                                 <header className="flex items-center justify-between mb-8">
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Seating Asset #104</p>
-                                        <h3 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter">
+                                        <h3 className="text-xl md:text-3xl font-black text-slate-900 uppercase italic tracking-tighter">
                                             Venue <span className="text-indigo-600 not-italic">Intelligence</span>
                                         </h3>
                                     </div>
@@ -262,8 +262,8 @@ export default function StudentExamsPage() {
                                     </button>
                                 </header>
 
-                                <div className="space-y-6">
-                                    <div className="bg-slate-50 rounded-[2rem] p-6 grid grid-cols-2 gap-6">
+                                <div className="space-y-4 md:space-y-6">
+                                    <div className="bg-slate-50 rounded-2xl md:rounded-[2rem] p-4 md:p-6 grid grid-cols-2 gap-4 md:gap-6">
                                         <div className="space-y-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-indigo-500">
@@ -306,21 +306,21 @@ export default function StudentExamsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="bg-indigo-600 rounded-[2rem] p-8 text-white relative overflow-hidden">
+                                    <div className="bg-indigo-600 rounded-2xl md:rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden">
                                         <div className="absolute top-0 right-0 h-32 w-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
                                         <div className="relative flex items-center justify-between">
                                             <div>
-                                                <h4 className="text-lg font-black uppercase tracking-tight leading-none mb-1">{selectedExam.subject}</h4>
-                                                <p className="text-[10px] font-bold text-indigo-100 uppercase tracking-widest opacity-80">Final Verification Complete</p>
+                                                <h4 className="text-base md:text-lg font-black uppercase tracking-tight leading-none mb-1">{selectedExam.subject}</h4>
+                                                <p className="text-[8px] md:text-[10px] font-bold text-indigo-100 uppercase tracking-widest opacity-80">Final Verification Complete</p>
                                             </div>
-                                            <CheckCircle2 className="h-10 w-10 text-white opacity-40" />
+                                            <CheckCircle2 className="h-8 w-8 md:h-10 md:w-10 text-white opacity-40" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <button
                                     onClick={() => setIsModalOpen(false)}
-                                    className="w-full mt-10 py-5 bg-slate-900 text-white rounded-[1.5rem] text-xs font-black uppercase tracking-[0.3em] shadow-2xl shadow-slate-200 hover:scale-[0.98] transition-all"
+                                    className="w-full mt-6 md:mt-10 py-4 md:py-5 bg-slate-900 text-white rounded-2xl md:rounded-[1.5rem] text-[10px] md:text-xs font-black uppercase tracking-[0.3em] shadow-2xl shadow-slate-200 hover:scale-[0.98] transition-all"
                                 >
                                     Dismiss Portal
                                 </button>

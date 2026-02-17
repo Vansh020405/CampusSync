@@ -40,6 +40,7 @@ export default function FacultyDashboardPage() {
     const [broadcastMessage, setBroadcastMessage] = useState("");
     const [isSent, setIsSent] = useState(false);
     const [todaySchedule, setTodaySchedule] = useState<any[]>([]);
+    const [examDatesheet, setExamDatesheet] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // Leave State
@@ -183,7 +184,20 @@ export default function FacultyDashboardPage() {
                 setIsLoading(false);
             }
         };
+        const fetchExams = async () => {
+            try {
+                const res = await fetch("/api/faculty/exams");
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setExamDatesheet(data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch exam datesheet:", err);
+            }
+        };
+
         fetchTimetable();
+        fetchExams();
     }, [facultyId]);
 
     return (
@@ -277,6 +291,57 @@ export default function FacultyDashboardPage() {
                     <div className="py-20 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200">
                         <Calendar className="h-10 w-10 text-slate-200 mx-auto mb-4" />
                         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">No scheduled sessions for today</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Examination Datesheet Section */}
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="h-4 w-4 bg-rose-600 rounded-full" />
+                        <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Departmental Examination Schedule</h2>
+                    </div>
+                </div>
+
+                {examDatesheet.length > 0 ? (
+                    <div className="bg-slate-50 rounded-[2.5rem] border border-slate-100 p-8 shadow-sm overflow-hidden">
+                        <div className="grid grid-cols-1 gap-4">
+                            {examDatesheet.slice(0, 3).map((exam) => (
+                                <div key={exam.id} className="flex items-center justify-between bg-white p-6 rounded-3xl border border-slate-50 group hover:border-rose-200 transition-all">
+                                    <div className="flex items-center gap-6">
+                                        <div className="flex flex-col items-center justify-center h-14 w-14 bg-rose-50 rounded-2xl text-rose-600 border border-rose-100 group-hover:bg-rose-600 group-hover:text-white transition-all">
+                                            <span className="text-[10px] font-black leading-none">{new Date(exam.date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</span>
+                                            <span className="text-xl font-black leading-none mt-1">{new Date(exam.date).getDate()}</span>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight group-hover:text-rose-600 transition-colors">{exam.subject}</h4>
+                                            <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                <span>{exam.type}</span>
+                                                <span>•</span>
+                                                <span>{exam.startTime} - {exam.endTime}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <Badge variant="outline" className="text-[9px] font-black border-slate-200 text-slate-400 uppercase tracking-widest rounded-lg">
+                                            Room {exam.room}
+                                        </Badge>
+                                        <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">Duty: Internal</span>
+                                    </div>
+                                </div>
+                            ))}
+                            {examDatesheet.length > 3 && (
+                                <Button variant="ghost" className="w-full mt-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-slate-900 group">
+                                    View Full Datesheet <ChevronRight className="h-3 w-3 ml-2 group-hover:translate-x-1 transition-transform" />
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="py-12 text-center bg-slate-50/50 rounded-[2.5rem] border-2 border-dashed border-slate-100">
+                        <Activity className="h-8 w-8 text-slate-200 mx-auto mb-3" />
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No examinations scheduled in registry</p>
                     </div>
                 )}
             </div>

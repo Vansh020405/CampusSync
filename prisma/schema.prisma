@@ -232,7 +232,11 @@ model TopicProgress {
 
 model Exam {
   id          String        @id @default(uuid())
+  name        String        @default("Examination")
   subject     String
+  department  String?       // Added for datesheet support
+  semester    String?       // Added for datesheet support
+  section     String?       // Added for datesheet support
   date        DateTime
   startTime   String
   endTime     String

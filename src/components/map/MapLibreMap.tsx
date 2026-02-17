@@ -56,7 +56,9 @@ export default function MapLibreMap() {
     const [mapError, setMapError] = useState<string | null>(null)
     const [initStatus, setInitStatus] = useState<string>('Initializing...')
     const [currentStyle, setCurrentStyle] = useState('https://tiles.openfreemap.org/styles/positron')
+    const [routeInfo, setRouteInfo] = useState<{ distance: string, duration: string } | null>(null)
     const isReadyRef = useRef(false)
+    const startMarkerRef = useRef<maplibregl.Marker | null>(null)
 
     // Default starting point (main entrance)
     const startPoint: [number, number] = [76.65919385345458, 30.51794484908655]
@@ -87,7 +89,11 @@ export default function MapLibreMap() {
                         type: 'line',
                         source: 'route',
                         layout: { 'line-join': 'round', 'line-cap': 'round' },
-                        paint: { 'line-color': '#10b981', 'line-width': 6, 'line-opacity': 0.8 }
+                        paint: {
+                            'line-color': '#10b981',
+                            'line-width': 6,
+                            'line-opacity': 0.8
+                        }
                     })
                 }
 
@@ -97,7 +103,12 @@ export default function MapLibreMap() {
                         type: 'line',
                         source: 'route',
                         layout: { 'line-join': 'round', 'line-cap': 'round' },
-                        paint: { 'line-color': '#10b981', 'line-width': 12, 'line-opacity': 0.3, 'line-blur': 4 }
+                        paint: {
+                            'line-color': '#10b981',
+                            'line-width': 12,
+                            'line-opacity': 0.3,
+                            'line-blur': 4
+                        }
                     }, 'route-line')
                 }
             } catch (error) {
@@ -112,6 +123,14 @@ export default function MapLibreMap() {
             setIsLoaded(true)
             setInitStatus('Grid Ready')
             setupRouteLayers()
+
+            // Add starting point identity
+            startMarkerRef.current = new maplibregl.Marker({ color: '#6366f1', scale: 0.9 })
+                .setLngLat(startPoint)
+                .setPopup(new maplibregl.Popup({ offset: 25, closeButton: false })
+                    .setHTML('<div style="padding: 4px 8px; font-weight: 800; font-size: 10px; color: #1e293b; text-transform: uppercase;">You are here</div>'))
+                .addTo(map.current)
+
             LOCATIONS.forEach(loc => {
                 if (!map.current) return
                 const marker = new maplibregl.Marker({ color: '#10b981', scale: 0.8 })
@@ -138,14 +157,14 @@ export default function MapLibreMap() {
                 container: mapContainer.current,
                 style: currentStyle,
                 center: [76.65919385345458, 30.51794484908655],
-                zoom: 16,
+                zoom: 16.5,
                 pitch: 45,
                 bearing: -15,
                 trackResize: true,
                 attributionControl: false,
                 maxBounds: [
-                    [76.654, 30.511], // Southwest corner of the campus bounding box
-                    [76.664, 30.523]  // Northeast corner of the campus bounding box
+                    [76.650, 30.508], // Southwest corner expanded slightly
+                    [76.670, 30.528]  // Northeast corner expanded slightly
                 ],
                 minZoom: 15.5 // Prevent zooming out too far
             })
@@ -186,26 +205,53 @@ export default function MapLibreMap() {
         })
     }
 
-    const startNavigation = (destination: CampusLocation) => {
+    const startNavigation = async (destination: CampusLocation) => {
         if (!map.current) return
 
         setIsNavigating(true)
+        setInitStatus('Calculating Paths...')
 
-        // Create a simple straight-line route (in production, you'd use a routing service)
-        const route: [number, number][] = [startPoint, destination.coords]
+        try {
+            // Fetch route from OSRM using walking profile
+            const response = await fetch(
+                `https://router.project-osrm.org/route/v1/walking/${startPoint[0]},${startPoint[1]};${destination.coords[0]},${destination.coords[1]}?overview=full&geometries=geojson&steps=true`
+            )
 
-        // Animate the route drawing
-        animateRoute(route)
+            if (!response.ok) throw new Error('OSRM service unavailable')
 
-        // Fly to show the full route
-        const bounds = new maplibregl.LngLatBounds()
-        route.forEach(coord => bounds.extend(coord))
+            const data = await response.json()
+            if (!data.routes || data.routes.length === 0) throw new Error('No walkways found between points')
 
-        map.current.fitBounds(bounds, {
-            padding: { top: 100, bottom: 100, left: 100, right: 100 },
-            pitch: 50,
-            duration: 2000
-        })
+            const route = data.routes[0]
+            const fullRoute = route.geometry.coordinates as [number, number][]
+
+            // Calculate distance and time
+            const distInKm = (route.distance / 1000).toFixed(2)
+            const timeInMin = Math.ceil(route.duration / 60)
+            setRouteInfo({ distance: `${distInKm} km`, duration: `${timeInMin} min` })
+
+            // Frame the full route
+            const bounds = new maplibregl.LngLatBounds()
+            fullRoute.forEach(coord => bounds.extend(coord))
+            map.current.fitBounds(bounds, {
+                padding: { top: 120, bottom: 120, left: 120, right: 120 },
+                pitch: 45,
+                duration: 2500,
+                essential: true
+            })
+
+            // Animate drawing
+            animateRoute(fullRoute)
+            setInitStatus('Road Navigation Ready')
+        } catch (error) {
+            console.error('Routing Error:', error)
+            setMapError('OSRM API Error - Path following unavailable.')
+
+            // Fallback
+            const fallbackRoute: [number, number][] = [startPoint, destination.coords]
+            animateRoute(fallbackRoute)
+            setRouteInfo(null)
+        }
     }
 
     const animateRoute = (fullRoute: [number, number][]) => {
@@ -213,6 +259,7 @@ export default function MapLibreMap() {
 
         let step = 0
         const animatedRoute: [number, number][] = []
+        const interval = Math.max(8, Math.min(40, 1500 / fullRoute.length))
 
         const animate = () => {
             if (step < fullRoute.length) {
@@ -223,15 +270,12 @@ export default function MapLibreMap() {
                     source.setData({
                         type: 'Feature',
                         properties: {},
-                        geometry: {
-                            type: 'LineString',
-                            coordinates: animatedRoute
-                        }
+                        geometry: { type: 'LineString', coordinates: animatedRoute }
                     })
                 }
 
                 step++
-                setTimeout(animate, 50)
+                setTimeout(animate, interval)
             }
         }
 
@@ -246,14 +290,13 @@ export default function MapLibreMap() {
             source.setData({
                 type: 'Feature',
                 properties: {},
-                geometry: {
-                    type: 'LineString',
-                    coordinates: []
-                }
+                geometry: { type: 'LineString', coordinates: [] }
             })
         }
 
         setIsNavigating(false)
+        setRouteInfo(null)
+        setInitStatus('Grid Ready')
     }
 
     return (
@@ -295,13 +338,27 @@ export default function MapLibreMap() {
                 />
 
                 {/* Status Badge */}
-                <div className="absolute top-4 left-4 md:top-10 md:left-10 z-10">
-                    <div className="px-3 py-2 md:px-5 md:py-3 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-xl md:rounded-2xl shadow-xl flex items-center gap-2 md:gap-3">
+                <div className="absolute top-4 left-4 md:top-10 md:left-10 z-10 flex flex-col gap-2">
+                    <div className="px-3 py-2 md:px-5 md:py-3 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-xl md:rounded-2xl shadow-xl flex items-center gap-2 md:gap-3 w-fit">
                         <div className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-emerald-500 animate-pulse" />
                         <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-700">
-                            Live Navigation
+                            {initStatus}
                         </p>
                     </div>
+
+                    {routeInfo && (
+                        <div className="px-3 py-2 md:px-5 md:py-3 bg-indigo-600/90 backdrop-blur-xl border border-indigo-400 rounded-xl md:rounded-2xl shadow-xl flex items-center gap-4 text-white animate-in slide-in-from-left-4 duration-500">
+                            <div className="flex flex-col">
+                                <span className="text-[7px] font-bold uppercase opacity-70">Distance</span>
+                                <span className="text-xs font-black">{routeInfo.distance}</span>
+                            </div>
+                            <div className="w-px h-6 bg-white/20" />
+                            <div className="flex flex-col">
+                                <span className="text-[7px] font-bold uppercase opacity-70">Walking Time</span>
+                                <span className="text-xs font-black">{routeInfo.duration}</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Map Controls */}
