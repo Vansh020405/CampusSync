@@ -47,22 +47,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
             {/* Top Navbar - Optimized for Mobile */}
             <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
-                <div className="flex h-16 md:h-20 items-center justify-between px-4 md:px-6">
-                    {/* Left: CS Logo Tag */}
-                    <div className="flex items-center">
-                        <BrandLogo size={42} withText />
+                <div className="relative flex h-16 md:h-20 items-center justify-between px-4 md:px-6">
+                    {/* Left: Logo Tag */}
+                    <div className="flex items-center shrink-0">
+                        <BrandLogo size={34} className="md:size-[42px]" withText={false} />
+                        <div className="hidden md:block ml-2">
+                            <span className="text-xl font-black tracking-tighter leading-none italic text-slate-900 leading-none">
+                                Campus<span className="text-teal-600 not-italic">Sync</span>
+                            </span>
+                        </div>
                     </div>
 
                     {/* Center: Mode Switcher Pill */}
                     {!isAdmin && session?.user?.role !== 'FACULTY' && (
-                        <div className="flex-1 flex justify-center">
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                             <ModeToggle />
                         </div>
                     )}
 
                     {/* Right: User Profile Circle */}
-                    <div className="flex items-center">
-                        <Clock />
+                    <div className="flex items-center gap-2 shrink-0">
+                        <div className="hidden sm:block">
+                            <Clock />
+                        </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-all">

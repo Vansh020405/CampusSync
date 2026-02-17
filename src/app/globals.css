@@ -71,11 +71,17 @@
     @apply border-border;
   }
 
+  html,
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+    overscroll-behavior-y: none;
+    /* Optional: prevent pull-to-refresh if desired, but helps locking */
   }
 }
 

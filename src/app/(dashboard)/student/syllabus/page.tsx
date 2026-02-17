@@ -10,6 +10,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
+import { BrandLogo } from "@/components/brand/Logo";
+import dynamic from 'next/dynamic';
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+import loadingAnimation from "../../../../../public/loading.json";
 
 export default function StudentSyllabusPage() {
     const { toast } = useToast();
@@ -76,7 +80,20 @@ export default function StudentSyllabusPage() {
                 ))}
             </div>
 
-            {selectedSubject ? (
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-1000">
+                    <div className="w-64 h-64 md:w-80 md:h-80">
+                        <Lottie
+                            animationData={loadingAnimation}
+                            loop={true}
+                        />
+                    </div>
+                    <div className="mt-4 space-y-2 text-center">
+                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.3em] animate-pulse">Syncing Curriculum</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest opacity-60">Connecting to institutional node...</p>
+                    </div>
+                </div>
+            ) : selectedSubject ? (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
                     {/* Left Panel: Stats & Context */}
@@ -220,7 +237,7 @@ export default function StudentSyllabusPage() {
             ) : (
                 <div className="py-32 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100 shadow-sm animate-in fade-in zoom-in duration-700">
                     <Info className="h-12 w-12 text-slate-200 mx-auto mb-4" />
-                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">No Data Found. please wait</h3>
+                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">No Data Found</h3>
                     <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest opacity-60">No curriculum data detected for your current credentials.</p>
                 </div>
             )}
