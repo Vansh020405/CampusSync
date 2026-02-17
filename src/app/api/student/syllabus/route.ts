@@ -27,7 +27,9 @@ export async function GET() {
         // We relax the filter to only section because department/semester names might have inconsistencies (e.g. "CSE" vs "Computer Science")
         const timetableEntries = await prisma.timetable.findMany({
             where: {
-                section: section
+                department: student.department || undefined,
+                section: section,
+                semester: student.semester.toString()
             },
             select: { subject: true },
             distinct: ['subject']
