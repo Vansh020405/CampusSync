@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
 
                     {/* Center: Mode Switcher Pill */}
-                    {!isAdmin && session?.user?.role !== 'FACULTY' && (
+                    {!isAdmin && session?.user?.role !== 'FACULTY' && !pathname.startsWith('/admin') && (
                         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                             <ModeToggle />
                         </div>
@@ -103,13 +103,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Main Content */}
             <main className={cn(
                 "flex-1 p-3 md:p-6 lg:p-8 space-y-4",
-                !isAdmin && "pb-24" // Extra padding for bottom nav
+                !isAdmin && !pathname.startsWith('/admin') && "pb-24" // Extra padding for bottom nav
             )}>
                 {children}
             </main>
 
             {/* Bottom Navigation - Managed by BottomNav component */}
-            <BottomNav />
+            {!pathname.startsWith('/admin') && <BottomNav />}
         </div>
     )
 }

@@ -17,7 +17,8 @@ import {
     Home,
     Search,
     Bell,
-    Clock
+    Clock,
+    LayoutGrid
 } from "lucide-react"
 
 export function BottomNav() {
@@ -32,16 +33,16 @@ export function BottomNav() {
     const internshipsLinks = [
         { href: "/home", label: "Home", icon: Home },
         { href: "/student/internships", label: "Jobs", icon: Briefcase },
+        { href: "/student/menu", label: "Apps", icon: LayoutGrid },
         { href: "/student/resume", label: "Resume", icon: FileText },
-        { href: "/student/research", label: "Research", icon: Search },
         { href: "/student/applications", label: "Track", icon: CheckCircle },
     ]
 
     // Campus Mode Links
     const campusLinks = [
         { href: "/home", label: "Home", icon: Home },
-        { href: "/student/faculty", label: "Faculty", icon: Users },
         { href: "/student/classes", label: "Classes", icon: Calendar },
+        { href: "/student/menu", label: "Apps", icon: LayoutGrid },
         { href: "/student/syllabus", label: "Syllabus", icon: BookOpen },
         { href: "/student/attendance", label: "Attendance", icon: Clock },
     ]

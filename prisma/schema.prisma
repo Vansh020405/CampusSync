@@ -21,6 +21,8 @@ model Student {
   applications Application[]
   bookings     Booking[]
   attendance   StudentAttendance[]
+  examSeating  ExamSeating[]
+  grades       Grade[]
 }
 
 model Faculty {
@@ -226,4 +228,50 @@ model TopicProgress {
   topic             SyllabusTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   @@unique([topicId, facultyId, section])
+}
+
+model Exam {
+  id          String        @id @default(uuid())
+  subject     String
+  date        DateTime
+  startTime   String
+  endTime     String
+  duration    String
+  type        String        // Mid-Sem, End-Sem, Practical
+  room        String
+  hall        String?
+  block       String?
+  floor       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  seating     ExamSeating[]
+}
+
+model ExamSeating {
+  id        String   @id @default(uuid())
+  examId    String
+  studentId String
+  seatNo    String
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([examId, studentId])
+}
+
+model Grade {
+  id            String   @id @default(uuid())
+  studentId     String
+  semester      String
+  subjectName   String
+  subjectCode   String
+  internalMarks Int
+  externalMarks Int
+  totalMarks    Int
+  grade         String   // A, B, C, etc.
+  credits       Int      @default(3)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, semester])
 }

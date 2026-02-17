@@ -152,78 +152,30 @@ export default function CampusDashboard() {
     return (
         <div className="w-full max-w-4xl mx-auto pb-32 px-4 md:px-8 py-6 md:py-10 space-y-8 animate-in fade-in duration-700">
             {/* Premium Header Card */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-teal-500 via-emerald-600 to-green-700 p-8 shadow-2xl shadow-emerald-500/20">
+            <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-teal-500 via-emerald-600 to-green-700 p-5 md:p-8 shadow-2xl shadow-emerald-500/20">
                 <div className="absolute top-0 right-0 -m-8 h-64 w-64 rounded-full bg-white/10 blur-[80px]"></div>
                 <div className="absolute bottom-0 left-0 -m-8 h-48 w-48 rounded-full bg-black/10 blur-[60px]"></div>
 
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="space-y-4">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-2 md:space-y-4">
                         <div className="flex items-center gap-2">
-                            <div className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse"></div>
+                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-pulse"></div>
                             <span className="text-[10px] font-black text-emerald-100 uppercase tracking-[0.3em]">Live</span>
                         </div>
                         <div>
-                            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-none mb-3">
+                            <h1 className="text-2xl md:text-5xl font-black text-white tracking-tight leading-none mb-2 md:mb-3">
                                 {studentData.name}
                             </h1>
                             <div className="flex items-center gap-3 text-emerald-50/80">
-                                <Badge variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-md px-3 py-1 text-[11px] font-bold">
+                                <Badge variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-md px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-[11px] font-bold">
                                     {studentData.section}
                                 </Badge>
-                                <span className="text-[11px] font-bold tracking-tight opacity-80">{studentData.rollNo}</span>
+                                <span className="text-[10px] md:text-[11px] font-bold tracking-tight opacity-80">{studentData.rollNo}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            {/* Live Notice / Broadcast Section */}
-            {(liveMessage || (parseFloat(overallAttendance) < 75)) && (
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between px-2">
-                        <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <MessageSquare className="h-4 w-4 text-emerald-500" />
-                            Alerts
-                        </h2>
-                    </div>
-                    {attendanceStats.some(s => s.percentage < 75) && (
-                        <div className="bg-rose-50 border border-rose-100 rounded-[2.5rem] p-6 flex flex-col md:flex-row items-center gap-6 animate-in slide-in-from-top-4 duration-500 shadow-sm">
-                            <div className="h-16 w-16 rounded-[1.5rem] bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-200 shrink-0">
-                                <AlertTriangle className="h-8 w-8" />
-                            </div>
-                            <div className="flex-1 text-center md:text-left">
-                                <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                                    <Sparkles className="h-3 w-3 text-rose-400" />
-                                    <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em]">Priority Protocol • AI Analysis</p>
-                                </div>
-                                <h3 className="text-lg font-black text-rose-900 leading-tight">
-                                    Attendance Deficit Detected
-                                </h3>
-                                <p className="text-sm font-bold text-rose-700/80 mt-1">
-                                    <span className="text-rose-900">{attendanceStats.filter(s => s.percentage < 75).length} subjects</span> are currently below the 75% threshold. AI Recovery Protocol is now available.
-                                </p>
-                            </div>
-                            <Link href="/student/attendance" className="w-full md:w-auto">
-                                <Button size="lg" className="w-full md:w-auto rounded-2xl bg-rose-900 text-white hover:bg-rose-800 px-8 font-black text-[10px] uppercase tracking-widest h-14 shadow-xl shadow-rose-100">
-                                    View Recovery Strategy
-                                </Button>
-                            </Link>
-                        </div>
-                    )}
-                    {liveMessage && (
-                        <div className="bg-indigo-50 border border-indigo-100 rounded-3xl p-5 flex items-center gap-4 animate-in slide-in-from-top-4 duration-500">
-                            <div className="h-12 w-12 rounded-2xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
-                                <Zap className="h-6 w-6" />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-0.5">Live from {liveMessage.sender}</p>
-                                <p className="text-sm font-bold text-indigo-900 line-clamp-2">{liveMessage.message}</p>
-                            </div>
-                            <div className="text-[10px] font-black text-indigo-300 uppercase shrink-0">{liveMessage.time}</div>
-                        </div>
-                    )}
-                </div>
-            )}
 
             {/* Timeline Section */}
             <div className="space-y-6">
@@ -345,6 +297,90 @@ export default function CampusDashboard() {
                     </Card>
                 )}
             </div>
+
+            {/* Live Notice / Broadcast Section */}
+            {(liveMessage || (parseFloat(overallAttendance) < 75)) && (
+                <div className="space-y-2 md:space-y-4">
+                    <div className="flex items-center justify-between px-2">
+                        <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <MessageSquare className="h-3.5 w-3.5 text-emerald-500" />
+                            Alerts
+                        </h2>
+                    </div>
+                    {attendanceStats.some(s => s.percentage < 75) && (
+                        <div className="bg-rose-50 border border-rose-100 rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 flex flex-col md:flex-row items-center gap-4 md:gap-6 animate-in slide-in-from-top-4 duration-500 shadow-sm">
+                            <div className="h-12 w-12 md:h-16 md:w-16 rounded-[1rem] md:rounded-[1.5rem] bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-200 shrink-0">
+                                <AlertTriangle className="h-6 w-6 md:h-8 md:w-8" />
+                            </div>
+                            <div className="flex-1 text-center md:text-left">
+                                <div className="flex items-center justify-center md:justify-start gap-2 mb-0.5">
+                                    <Sparkles className="h-3 w-3 text-rose-400" />
+                                    <p className="text-[9px] font-black text-rose-400 uppercase tracking-[0.2em]">Priority Protocol • AI Analysis</p>
+                                </div>
+                                <h3 className="text-base md:text-lg font-black text-rose-900 leading-tight">
+                                    Attendance Deficit Detected
+                                </h3>
+                                <p className="text-xs md:text-sm font-bold text-rose-700/80 mt-1">
+                                    <span className="text-rose-900">{attendanceStats.filter(s => s.percentage < 75).length} subjects</span> are below 75%.
+                                </p>
+                            </div>
+                            <Link href="/student/attendance" className="w-full md:w-auto">
+                                <Button size="sm" className="w-full md:w-auto rounded-xl md:rounded-2xl bg-rose-900 text-white hover:bg-rose-800 px-6 font-black text-[9px] uppercase tracking-widest h-10 md:h-14 shadow-xl shadow-rose-100">
+                                    Recovery Strategy
+                                </Button>
+                            </Link>
+                        </div>
+                    )}
+                    {liveMessage && (
+                        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl md:rounded-3xl p-4 md:p-5 flex items-center gap-4 animate-in slide-in-from-top-4 duration-500">
+                            <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-200 shrink-0">
+                                <Zap className="h-5 w-5 md:h-6 md:w-6" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-0.5">Live from {liveMessage.sender}</p>
+                                <p className="text-xs md:text-sm font-bold text-indigo-900 line-clamp-1 md:line-clamp-2">{liveMessage.message}</p>
+                            </div>
+                            <div className="text-[9px] font-black text-indigo-300 uppercase shrink-0">{liveMessage.time}</div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Exam Alert Section */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between px-2">
+                    <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <Calendar className="h-3.5 w-3.5 text-sky-500" />
+                        Academic Milestones
+                    </h2>
+                    <Link href="/student/exams" className="text-[9px] font-black text-indigo-500 uppercase tracking-widest hover:underline decoration-2 underline-offset-4">
+                        Schedule
+                    </Link>
+                </div>
+                <div className="bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 shadow-sm overflow-hidden relative group">
+                    <div className="absolute top-0 right-0 h-32 w-32 bg-sky-50 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-sky-100 transition-colors" />
+                    <div className="relative flex flex-col md:flex-row items-center gap-4 md:gap-6">
+                        <div className="h-12 w-12 md:h-16 md:w-16 rounded-[1rem] md:rounded-[1.5rem] bg-sky-100 text-sky-600 flex items-center justify-center shadow-inner shrink-0">
+                            <Clock className="h-6 w-6 md:h-8 md:w-8" />
+                        </div>
+                        <div className="flex-1 text-center md:text-left">
+                            <h3 className="text-base md:text-lg font-black text-slate-900 leading-tight uppercase">
+                                Season of Knowledge
+                            </h3>
+                            <p className="text-xs md:text-sm font-bold text-slate-500 mt-1">
+                                End-Sem exams are approaching.
+                            </p>
+                        </div>
+                        <Link href="/student/exams" className="w-full md:w-auto">
+                            <Button size="sm" className="w-full md:w-auto rounded-xl md:rounded-2xl bg-sky-600 text-white hover:bg-sky-700 px-6 font-black text-[9px] uppercase tracking-widest h-10 md:h-14 shadow-xl shadow-sky-100">
+                                Open Portal
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+
 
             {/* Broadcast Hub - Messages from Teachers */}
             <div className="space-y-4">
