@@ -16,6 +16,9 @@ import {
     Percent
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { useSession } from 'next-auth/react'
 
 interface Grade {
     id: string
@@ -65,6 +68,163 @@ export default function StudentGradesPage() {
     const [loading, setLoading] = useState(false) // Start with false so UI is visible immediately
     const [selectedSemester, setSelectedSemester] = useState<string>('all')
     const [error, setError] = useState<string | null>(null)
+    const { data: session } = useSession()
+
+    const downloadMarksheet = (sem?: string) => {
+        const doc = new jsPDF()
+        const studentInfo = session?.user as any
+        const date = new Date().toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        })
+
+        const gradesToProcess = sem && sem !== 'all'
+            ? grades.filter(g => g.semester === sem)
+            : grades
+
+        const currentSemesters = Array.from(new Set(gradesToProcess.map(g => g.semester))).sort()
+
+        // --- PDF Generation Logic ---
+
+        // Page border
+        doc.setDrawColor(226, 232, 240)
+        doc.rect(5, 5, 200, 287)
+
+        // University Header
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(24)
+        doc.setTextColor(15, 23, 42)
+        doc.text('CHITKARA UNIVERSITY', 105, 25, { align: 'center' })
+
+        doc.setFontSize(9)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100, 116, 139)
+        doc.text('NH-64, Chandigarh-Patiala National Highway, Punjab 140401', 105, 31, { align: 'center' })
+        doc.text('OFFICE OF THE CONTROLLER OF EXAMINATIONS', 105, 36, { align: 'center' })
+
+        doc.setDrawColor(15, 23, 42)
+        doc.setLineWidth(0.5)
+        doc.line(15, 42, 195, 42)
+
+        // Marksheet Title
+        doc.setFontSize(16)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(15, 23, 42)
+        const title = sem && sem !== 'all' ? `SEMESTER ${sem} GRADE SHEET` : 'OFFICIAL ACADEMIC TRANSCRIPT'
+        doc.text(title, 105, 52, { align: 'center' })
+
+        // Student Details Grid
+        doc.setFontSize(10)
+        doc.setFont('helvetica', 'bold')
+        doc.text('STUDENT NAME:', 20, 65)
+        doc.text('ROLL NUMBER:', 20, 72)
+        doc.text('DEPARTMENT:', 20, 79)
+
+        doc.text('ACADEMIC YEAR:', 120, 65)
+        doc.text('SECTION:', 120, 72)
+        doc.text('DATE OF ISSUE:', 120, 79)
+
+        doc.setFont('helvetica', 'normal')
+        doc.text(studentInfo?.name || 'N/A', 60, 65)
+        doc.text(studentInfo?.rollNo || 'N/A', 60, 72)
+        doc.text(studentInfo?.department || 'Computer Science Engineering', 60, 79)
+
+        doc.text('2025-2026', 160, 65)
+        doc.text(studentInfo?.section || 'N/A', 160, 72)
+        doc.text(date, 160, 79)
+
+        let currentY = 90
+
+        currentSemesters.forEach((s, index) => {
+            const semData = gradesToProcess.filter(g => g.semester === s)
+
+            if (index > 0) {
+                // Check if we need a new page or just some space
+                if (currentY > 200) {
+                    doc.addPage()
+                    currentY = 20
+                } else {
+                    currentY += 10
+                }
+            }
+
+            doc.setFont('helvetica', 'bold')
+            doc.setFontSize(12)
+            doc.text(`SEMESTER ${s} PERFORMANCE`, 20, currentY)
+            currentY += 5
+
+            autoTable(doc, {
+                startY: currentY,
+                head: [['Subject Code', 'Subject Name', 'Credits', 'Int', 'Ext', 'Total', 'Grade']],
+                body: semData.map(g => [
+                    g.subjectCode,
+                    g.subjectName,
+                    g.credits,
+                    g.internalMarks,
+                    g.externalMarks,
+                    g.totalMarks,
+                    g.grade
+                ]),
+                theme: 'grid',
+                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontSize: 9, fontStyle: 'bold' },
+                bodyStyles: { fontSize: 8, textColor: [51, 65, 85] },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                margin: { left: 20, right: 20 },
+                didDrawPage: (data) => {
+                    currentY = data.cursor ? data.cursor.y : currentY
+                }
+            })
+
+            currentY += 10
+            doc.setFontSize(10)
+            doc.setFont('helvetica', 'bold')
+            doc.text(`Semester ${s} SGPA: ${calculateSGPA(semData)}`, 150, currentY)
+            currentY += 5
+        })
+
+        // Final Summary
+        if (currentY > 240) {
+            doc.addPage()
+            currentY = 30
+        } else {
+            currentY += 15
+        }
+
+        doc.setDrawColor(226, 232, 240)
+        doc.line(20, currentY, 190, currentY)
+        currentY += 10
+
+        doc.setFontSize(12)
+        doc.setFont('helvetica', 'bold')
+        doc.text('FINAL PERFORMANCE SUMMARY', 20, currentY)
+
+        currentY += 10
+        doc.setFontSize(10)
+        doc.text(`Total Credits Earned: ${calculateTotalCredits()}`, 20, currentY)
+        doc.text(`Cumulative GPA (CGPA): ${calculateCGPA()}`, 130, currentY)
+
+        // Signatures
+        currentY = 260
+        doc.setDrawColor(15, 23, 42)
+        doc.line(20, currentY, 70, currentY)
+        doc.line(140, currentY, 190, currentY)
+
+        doc.setFontSize(8)
+        doc.text('Registrar / Controller Signature', 25, currentY + 5)
+        doc.text('Student Signature', 155, currentY + 5)
+
+        // Footer Disclaimer
+        doc.setFontSize(7)
+        doc.setTextColor(148, 163, 184)
+        doc.text('This is a computer-generated document and does not require a physical signature if verified online.', 105, 280, { align: 'center' })
+
+        const fileName = sem && sem !== 'all'
+            ? `Marksheet_Sem${sem}_${studentInfo?.rollNo || 'Student'}.pdf`
+            : `Transcript_${studentInfo?.rollNo || 'Student'}.pdf`
+
+        doc.save(fileName)
+    }
 
     useEffect(() => {
         // Still attempt to fetch live data, but keep fallback
@@ -145,9 +305,12 @@ export default function StudentGradesPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                    <button className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm">
+                    <button
+                        onClick={() => downloadMarksheet(selectedSemester)}
+                        className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm"
+                    >
                         <Download className="h-4 w-4" />
-                        TRANSCRIPT
+                        {selectedSemester === 'all' ? 'TRANSCRIPT' : 'DOWNLOAD PDF'}
                     </button>
                     <button className="h-10 px-4 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg shadow-emerald-100">
                         <TrendingUp className="h-4 w-4" />
@@ -257,9 +420,19 @@ export default function StudentGradesPage() {
                                                 Semester {sem} Results
                                             </h3>
                                         </div>
-                                        <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">SGPA:</span>
-                                            <span className="text-sm font-black text-emerald-600 leading-none">{calculateSGPA(semGrades)}</span>
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm">
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">SGPA:</span>
+                                                <span className="text-sm font-black text-emerald-600 leading-none">{calculateSGPA(semGrades)}</span>
+                                            </div>
+                                            <button
+                                                onClick={() => downloadMarksheet(sem)}
+                                                className="h-9 px-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-500 hover:text-emerald-600 hover:border-emerald-100 transition-all flex items-center gap-2"
+                                                title="Download Semester Marksheet"
+                                            >
+                                                <Download className="h-3.5 w-3.5" />
+                                                <span className="text-[10px] font-bold uppercase">PDF</span>
+                                            </button>
                                         </div>
                                     </div>
 
