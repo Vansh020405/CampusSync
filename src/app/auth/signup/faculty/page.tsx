@@ -183,15 +183,23 @@ export default function FacultySignupPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-slate-400">Office Location</Label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-                                            <Input
-                                                placeholder="e.g. Block A, Room 301"
-                                                className="pl-10 h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
-                                                value={formData.office}
-                                                onChange={(e) => setFormData({ ...formData, office: e.target.value })}
-                                            />
+                                        <Label className="text-[10px] font-black uppercase text-slate-400">BATCH</Label>
+                                        <div className="flex bg-slate-50 p-1 rounded-xl">
+                                            {["Morning", "Evening"].map((batch) => (
+                                                <button
+                                                    key={batch}
+                                                    type="button"
+                                                    onClick={() => setFormData({ ...formData, office: batch })}
+                                                    className={cn(
+                                                        "flex-1 h-8 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                                                        formData.office === batch
+                                                            ? "bg-white text-emerald-600 shadow-sm"
+                                                            : "text-slate-400 hover:text-slate-600"
+                                                    )}
+                                                >
+                                                    {batch}
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>

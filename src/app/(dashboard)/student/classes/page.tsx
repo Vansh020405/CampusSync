@@ -69,19 +69,22 @@ export default function StudentClassesPage() {
         const period = PERIODS.find(p => p.id === periodId);
         if (!period) return undefined;
 
-        const startTime = period.time.split(' - ')[0]; // "14:00"
+        const normalizeTime = (timeStr: string) => {
+            if (!timeStr) return "";
+            // Handle "09:00 AM" or "14:00"
+            const [time, ampm] = timeStr.trim().split(/\s+/);
+            const [hStr, mStr] = time.split(':');
+            let h = parseInt(hStr);
+            if (ampm === 'PM' && h < 12) h += 12;
+            if (ampm === 'AM' && h === 12) h = 0;
+            return `${h.toString().padStart(2, '0')}:${mStr.padStart(2, '0')}`;
+        };
 
-        // Robust matching against multiple formats
-        const h = parseInt(startTime.split(':')[0]);
-        const displayH = h > 12 ? h - 12 : h;
-        const formatted12 = `${displayH.toString().padStart(2, '0')}:${startTime.split(':')[1]} ${h >= 12 ? 'PM' : 'AM'}`; // "02:00 PM"
+        const targetTime24 = normalizeTime(period.time.split(' - ')[0]);
 
         return timetable.find(c => {
-            if (c.day !== day) return false;
-            // Match against accurate 24h, 12h, or formatted variations
-            return c.startTime === period.time.split(' - ')[0] ||
-                c.startTime === formatted12 ||
-                c.startTime.startsWith(formatted12.split(' ')[0]); // looser match "02:00"
+            if (c.day.toUpperCase() !== day.toUpperCase()) return false;
+            return normalizeTime(c.startTime) === targetTime24;
         });
     };
 

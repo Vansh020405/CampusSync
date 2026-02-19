@@ -1,0 +1,10 @@
+src/app/(dashboard)/admin/timetable/page.tsx(4,24): error TS2307: Cannot find module '@/components/ui/button' or its corresponding type declarations.
+src/app/(dashboard)/admin/timetable/page.tsx(5,23): error TS2307: Cannot find module '@/components/ui/input' or its corresponding type declarations.
+src/app/(dashboard)/admin/timetable/page.tsx(6,23): error TS2307: Cannot find module '@/components/ui/label' or its corresponding type declarations.
+src/app/(dashboard)/admin/timetable/page.tsx(7,79): error TS2307: Cannot find module '@/components/ui/select' or its corresponding type declarations.
+src/app/(dashboard)/admin/timetable/page.tsx(8,39): error TS2307: Cannot find module '@/components/ui/dialog' or its corresponding type declarations.
+src/app/(dashboard)/admin/timetable/page.tsx(9,26): error TS2307: Cannot find module '@/components/ui/use-toast' or its corresponding type declarations.
+src/app/(dashboard)/admin/timetable/page.tsx(10,23): error TS2307: Cannot find module '@/components/ui/badge' or its corresponding type declarations.
+src/app/(dashboard)/admin/timetable/page.tsx(15,20): error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations.
+src/app/(dashboard)/admin/timetable/page.tsx(16,93): error TS2307: Cannot find module '@/components/ui/command' or its corresponding type declarations.
+src/app/(dashboard)/admin/timetable/page.tsx(17,57): error TS2307: Cannot find module '@/components/ui/popover' or its corresponding type declarations.

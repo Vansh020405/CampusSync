@@ -171,11 +171,14 @@ export default function FacultyDashboardPage() {
                 const data = await res.json();
                 if (Array.isArray(data)) {
                     const timeToMinutes = (timeStr: string) => {
-                        const [time, modifier] = timeStr.split(' ');
+                        if (!timeStr) return 0;
+                        const [time, ampm] = timeStr.trim().split(/\s+/);
                         let [hours, minutes] = time.split(':').map(Number);
-                        if (hours === 12) hours = 0;
-                        if (modifier === 'PM') hours += 12;
-                        return hours * 60 + minutes;
+
+                        if (ampm === 'PM' && hours < 12) hours += 12;
+                        if (ampm === 'AM' && hours === 12) hours = 0;
+
+                        return hours * 60 + (minutes || 0);
                     };
 
                     const sorted = data

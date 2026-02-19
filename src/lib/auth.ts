@@ -135,7 +135,10 @@ export const authOptions: NextAuthOptions = {
                         name: admin.name,
                         email: null,
                         role: "ADMIN",
-                        username: admin.username
+                        username: admin.username,
+                        position: admin.position,
+                        department: admin.department,
+                        subjects: admin.subjects
                     };
                 } catch (error) {
                     console.error("ADMIN LOGIN ERROR:", error);

@@ -70,20 +70,22 @@ export default function FacultySchedulePage() {
         const period = PERIODS.find(p => p.id === periodId);
         if (!period) return undefined;
 
-        // Normalize time format matching
-        // The API returns times (e.g., "09:00 AM" or "14:00")
-        // We need to match robustly
+        const normalizeTime = (timeStr: string) => {
+            if (!timeStr) return "";
+            const [time, ampm] = timeStr.trim().split(/\s+/);
+            const [hStr, mStr] = time.split(':');
+            let h = parseInt(hStr);
+            if (ampm === 'PM' && h < 12) h += 12;
+            if (ampm === 'AM' && h === 12) h = 0;
+            return `${h.toString().padStart(2, '0')}:${mStr.padStart(2, '0')}`;
+        };
 
-        const startTime = period.time.split(' - ')[0]; // "09:00"
+        const targetTime24 = normalizeTime(period.time.split(' - ')[0]);
 
         return timetable.find(c => {
-            if (c.day !== day) return false;
-
-            // Try matching exact string or various formats
-            if (c.startTime === startTime) return true;
-
-            // Handle AM/PM conversion check if needed (though API 24h update helps)
-            return c.startTime.startsWith(startTime);
+            if (!c.day || !c.startTime) return false;
+            return c.day.trim().toUpperCase() === day.trim().toUpperCase() &&
+                normalizeTime(c.startTime) === targetTime24;
         });
     };
 

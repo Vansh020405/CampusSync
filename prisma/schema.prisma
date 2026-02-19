@@ -23,7 +23,8 @@ model Student {
   bookings     Booking[]
   attendance   StudentAttendance[]
   examSeating  ExamSeating[]
-  grades       Grade[]
+  grades           Grade[]
+  acknowledgements AnnouncementAcknowledgement[]
 }
 
 model Faculty {
@@ -51,11 +52,14 @@ model Faculty {
 }
 
 model Admin {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String
-  name      String?
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid())
+  username   String   @unique
+  password   String
+  name       String?
+  position   String?
+  department String?
+  subjects   String?
+  createdAt  DateTime @default(now())
 }
 
 model Timetable {
@@ -63,6 +67,7 @@ model Timetable {
   department String
   section    String
   semester   String
+  batch      String   @default("Morning")
   subject    String
   facultyId  String
   classroom  String
@@ -74,7 +79,7 @@ model Timetable {
   updatedAt  DateTime @updatedAt
   faculty    Faculty  @relation("FacultyClasses", fields: [facultyId], references: [id])
 
-  @@index([department, section, semester])
+  @@index([department, section, semester, batch])
   @@index([facultyId, day])
 }
 
@@ -301,13 +306,25 @@ model Grade {
 }
 
 model Announcement {
-  id          String   @id @default(uuid())
-  content     String
-  department  String   @default("ALL")
-  semester    String   @default("ALL")
-  batch       String   @default("ALL")
-  senderId    String
-  createdAt   DateTime @default(now())
+  id               String                      @id @default(uuid())
+  content          String
+  department       String                      @default("ALL")
+  semester         String                      @default("ALL")
+  batch            String                      @default("ALL")
+  senderId         String
+  createdAt        DateTime                    @default(now())
+  acknowledgements AnnouncementAcknowledgement[]
 
   @@index([department, semester, batch])
+}
+
+model AnnouncementAcknowledgement {
+  id             String       @id @default(uuid())
+  announcementId String
+  studentId      String
+  createdAt      DateTime     @default(now())
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  student        Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, studentId])
 }

@@ -16,10 +16,37 @@ export async function GET(req: Request) {
         const role = session.user.role;
         const section = searchParams.get('section');
         const facultyId = searchParams.get('facultyId');
+        const department = searchParams.get('department');
+        const semester = searchParams.get('semester');
+        const batch = searchParams.get('batch');
 
         let timetable: any[] = [];
 
-        if ((role === 'STUDENT' || role === 'ADMIN') && section) {
+        if (department && semester && batch) {
+            // Global departmental view for Admin
+            try {
+                timetable = await (prisma.timetable as any).findMany({
+                    where: { department, semester, batch },
+                    include: {
+                        faculty: {
+                            select: { name: true }
+                        }
+                    },
+                    orderBy: { day: 'asc' }
+                });
+            } catch (e) {
+                console.error("Departmental fetch failed (batch filter), falling back:", e);
+                timetable = await prisma.timetable.findMany({
+                    where: { department, semester },
+                    include: {
+                        faculty: {
+                            select: { name: true }
+                        }
+                    },
+                    orderBy: { day: 'asc' }
+                });
+            }
+        } else if ((role === 'STUDENT' || role === 'ADMIN') && section) {
             timetable = await prisma.timetable.findMany({
                 where: { section },
                 include: {
@@ -48,97 +75,104 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
 export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions);
         const user = session?.user as any;
 
-        console.log("Timetable Authorization Audit:", {
-            active: !!session,
-            identity: user?.name || user?.username || 'Unknown',
-            role: user?.role
-        });
-
-        // Strict Admin Gate: Allow if role is 'ADMIN' or if identity is 'admin'
         const isAuthorized = session && (user?.role === 'ADMIN' || user?.username === 'admin');
 
         if (!isAuthorized) {
-            return NextResponse.json({
-                error: "Unauthorized: Administrator Access Required",
-                details: "Your session does not carry the necessary level of authority. Please exit and re-authenticate."
-            }, { status: 401 });
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { timetable, viewMode, targetId } = await req.json();
-        console.log("Timetable Deployment Payload:", { viewMode, targetId, slotCount: timetable?.length });
+        const { timetable, viewMode, targetId, filters } = await req.json();
+        console.log("Timetable POST Payload:", { viewMode, targetId, filters, count: timetable?.length });
 
-        if (!timetable || !viewMode || !targetId) {
-            console.error("Missing fields:", { timetable: !!timetable, viewMode, targetId });
+        if (!timetable || !viewMode) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // Transactions: Clear old and insert new
         await prisma.$transaction(async (tx) => {
-            const isFacultyMode = viewMode === 'faculty';
+            const table = (tx as any).timetable;
 
-            if (isFacultyMode) {
-                console.log(`[Matrix Sync] Clearing faculty ${targetId}`);
-                await tx.timetable.deleteMany({ where: { facultyId: targetId } });
-
-                // Verify Faculty Existence once
-                const facultyExists = await tx.faculty.findUnique({ where: { id: targetId } });
-                if (!facultyExists) {
-                    throw new Error(`Faculty Identity ${targetId} not verified in system core.`);
-                }
-            } else {
-                console.log(`[Matrix Sync] Clearing section ${targetId}`);
-                await tx.timetable.deleteMany({ where: { section: targetId } });
+            // Delete existing slots in view
+            if (viewMode === 'faculty') {
+                await table.deleteMany({ where: { facultyId: targetId } });
+            } else if (viewMode === 'student') {
+                await table.deleteMany({ where: { section: targetId } });
+            } else if (viewMode === 'department' && filters) {
+                console.log("Clearing departmental matrix for:", filters);
+                await table.deleteMany({
+                    where: {
+                        department: String(filters.department),
+                        semester: String(filters.semester),
+                        batch: String(filters.batch)
+                    }
+                });
             }
 
             if (!timetable || timetable.length === 0) return;
 
-            // Prepare for bulk insert
             const formatTime = (time: string) => {
-                const parts = time.split(':');
+                if (!time) return "09:00 AM";
+
+                // Handle existing "HH:MM AM/PM" format directly
+                if (/[0-9]{1,2}:[0-9]{2}\s*[AP]M/i.test(time)) return time;
+
+                const cleanTime = time.trim().replace(/\s*[AP]M$/i, '');
+                const parts = cleanTime.split(':');
                 if (parts.length < 2) return time;
+
                 let h = parseInt(parts[0]);
                 const m = parseInt(parts[1]);
+                if (isNaN(h) || isNaN(m)) return time;
+
+                const isPM = /PM$/i.test(time.trim());
+
+                // Fix Logic: 12:00 - 12:59 is NOON (PM), so it stays 12.
+                // 13:00+ is definitely PM.
+                // Input like "12:00" without AM/PM is usually noon in this context.
+
+                if (isPM && h < 12) h += 12;
+                if (!isPM && h === 12) {
+                    // It's 12:xx without PM tag. Default to NOON (12 PM) if it's the start of the range P4/P5
+                    // BUT if specifically labeled AM, then 0. 
+                    if (/AM$/i.test(time.trim())) h = 0;
+                }
+
                 const hh = h % 12 || 12;
-                const ampm = h < 12 ? 'AM' : 'PM';
+                const ampm = (h >= 12 && h < 24) ? 'PM' : 'AM';
                 return `${hh.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
             };
 
             const dataToInsert = timetable.map((slot: any) => {
-                const parts = slot.time.split(' - ');
-                const [start, end] = parts;
-                const fId = isFacultyMode ? targetId : (slot.facultyId || null);
-
                 return {
-                    day: slot.day,
-                    startTime: formatTime(start),
-                    endTime: formatTime(end),
-                    subject: slot.subject || "No Subject",
-                    classroom: slot.classroom || slot.room || "TBA",
-                    section: slot.section || (viewMode === 'student' ? targetId : "TBA"),
-                    facultyId: fId,
-                    department: "CSE",
-                    semester: "4",
-                    floor: "1"
+                    day: String(slot.day),
+                    startTime: formatTime(slot.time?.split(' - ')[0] || slot.startTime),
+                    endTime: formatTime(slot.time?.split(' - ')[1] || slot.endTime || slot.startTime),
+                    subject: String(slot.subject || "No Subject"),
+                    classroom: String(slot.classroom || slot.room || "TBA"),
+                    section: String(slot.section || "TBA"),
+                    facultyId: String(slot.facultyId || slot.teacher),
+                    department: String(slot.department || filters?.department || "CSE"),
+                    semester: String(slot.semester || filters?.semester || "4"),
+                    batch: String(slot.batch || filters?.batch || "Morning"),
+                    floor: String(slot.floor || "1")
                 };
-            }).filter((s: any) => s.facultyId);
+            }).filter((s: any) => s.facultyId && s.section && s.facultyId !== "undefined");
 
-            // Use createMany for high performance (supported by Postgres/MySQL/MongoDB)
-            // If using SQLite, createMany is supported since Prisma 4.x
-            await tx.timetable.createMany({
-                data: dataToInsert
-            });
+            console.log(`Inserting ${dataToInsert.length} slots into database`);
 
-            console.log(`[Matrix Sync] Reconstruction complete: Generated ${dataToInsert.length} entries for ${targetId}`);
-        }, {
-            timeout: 15000 // 15s absolute timeout for large matrices
+            if (dataToInsert.length > 0) {
+                await table.createMany({
+                    data: dataToInsert
+                });
+            }
         });
 
-        return NextResponse.json({ success: true, message: "Matrix Synchronized with Foundation" });
+        return NextResponse.json({ success: true, message: "Matrix Synchronized" });
     } catch (error: any) {
         console.error("Timetable Sync Error:", error);
         return NextResponse.json({

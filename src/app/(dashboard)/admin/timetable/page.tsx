@@ -1,491 +1,661 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 import {
     Plus, Save, Trash2, Clock,
-    MapPin, Box, Sparkles
+    MapPin, Box, Sparkles, User, GraduationCap, ChevronRight, Loader2, Search, Info, Check, ChevronsUpDown
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
 const TIME_SLOTS = [
-    "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00",
-    "12:00 - 13:00", "13:00 - 14:00", "14:00 - 15:00",
-    "15:00 - 16:00"
+    { label: "P1", time: "09:00 - 10:00" },
+    { label: "P2", time: "10:00 - 11:00" },
+    { label: "P3", time: "11:00 - 12:00" },
+    { label: "P4", time: "12:00 - 13:00" },
+    { label: "P5", time: "13:00 - 14:00" }, // Lunch
+    { label: "P6", time: "14:00 - 15:00" },
+    { label: "P7", time: "15:00 - 16:00" }
 ];
 
-type ViewMode = 'faculty' | 'student';
+const DEPARTMENTS = ["CSE", "ECE", "ME", "CE", "AIML", "DS", "IOT"];
+const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"];
+const BATCHES = ["Morning", "Evening"];
 
-interface SlotData {
+interface TimetableSlot {
+    id?: string;
     day: string;
-    time: string;
-    subject?: string;
-    room?: string;
-    teacher?: string;
-    period?: string;
-    section?: string;
+    startTime: string;
+    endTime: string;
+    subject: string;
+    classroom: string;
+    section: string;
+    facultyId: string;
+    faculty?: { name: string };
+    batch: string;
+    department: string;
+    semester: string;
+    floor: string;
 }
 
-const formatDisplayTime = (time24: string) => {
-    if (!time24) return "";
-    return time24.split(' - ').map(t => {
-        let [h, m] = t.split(':').map(Number);
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        const hh = h % 12 || 12;
-        return `${hh.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
-    }).join(' - ');
-};
-
-export default function TimetableArchitecture() {
+export default function AdminTimetableManagement() {
     const { toast } = useToast();
-    const [timetable, setTimetable] = useState<SlotData[]>([]);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [currentSlot, setCurrentSlot] = useState<Partial<SlotData> | null>(null);
+    const [department, setDepartment] = useState("CSE");
+    const [semester, setSemester] = useState("4");
+    const [batch, setBatch] = useState("Morning");
 
-    // Dynamic Lists State
-    const [subjects, setSubjects] = useState(["Java", "DBMS", "OS", "Maths", "CN", "AI", "S&UL", "OT"]);
-    const [rooms, setRooms] = useState(["LH-101", "LH-102", "LH-103", "LAB-1", "LAB-2", "LAB-3", "AUD-1"]);
-    const [allTeachers, setAllTeachers] = useState<any[]>([]);
-    const [filteredTeachers, setFilteredTeachers] = useState<{ id: string; name: string }[]>([]);
-    const [sections, setSections] = useState<string[]>([]);
+    const [timetable, setTimetable] = useState<TimetableSlot[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
 
-    // Selection State
+    // Context / Focus State (Global Selection)
     const [selectedSubject, setSelectedSubject] = useState("");
     const [selectedTeacher, setSelectedTeacher] = useState("");
+    const [selectedRoom, setSelectedRoom] = useState("");
+    const [selectedSection, setSelectedSection] = useState("");
 
-    // Custom fields trackers
-    const [isCustomSubject, setIsCustomSubject] = useState(false);
-    const [isCustomRoom, setIsCustomRoom] = useState(false);
-    const [isCustomTeacher, setIsCustomTeacher] = useState(false);
-    const [isCustomSection, setIsCustomSection] = useState(false);
+    // Resources for selection
+    const [subjects, setSubjects] = useState<string[]>([]);
+    const [rooms, setRooms] = useState<string[]>([]);
+    const [teachers, setTeachers] = useState<{ id: string, name: string, subjects?: string[] }[]>([]);
+    const [sections, setSections] = useState<string[]>([]);
+    const [filteredTeachers, setFilteredTeachers] = useState<{ id: string, name: string }[]>([]);
 
-    const [isLoading, setIsLoading] = useState(true);
-    const [isDeploying, setIsDeploying] = useState(false);
-    const [draggedData, setDraggedData] = useState<string | SlotData | null>(null);
-    const [dropTarget, setDropTarget] = useState<{ day: string, time: string } | null>(null);
+    // Edit Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingSlot, setEditingSlot] = useState<{
+        day: string;
+        time: { label: string, time: string };
+        data?: Partial<TimetableSlot>;
+    } | null>(null);
 
-    // Helper to merge teachers uniquely
-    const mergeTeachers = (current: { id: string, name: string }[], incoming: { id: string, name: string }[]) => {
-        const map = new Map<string, string>();
-        current.forEach(t => map.set(t.id.toLowerCase(), t.name));
-        incoming.forEach(t => {
-            const id = t.id.toLowerCase();
-            const existingName = map.get(id);
-            if (!map.has(id) || (existingName === t.id && t.name !== t.id)) {
-                map.set(id, t.name);
-            }
-        });
-        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+    // Form State (Inside Modal)
+    const [formSubject, setFormSubject] = useState("");
+    const [formTeacher, setFormTeacher] = useState("");
+    const [formRoom, setFormRoom] = useState("");
+    const [formSection, setFormSection] = useState("");
+
+    // Drag and Drop Transition state
+    const [draggedData, setDraggedData] = useState<any>(null);
+    const [dropTarget, setDropTarget] = useState<{ day: string, time24: string } | null>(null);
+
+    const fetchResources = async () => {
+        try {
+            const [resRes, facRes] = await Promise.all([
+                fetch('/api/admin/resources'),
+                fetch('/api/faculty/list')
+            ]);
+            const resData = await resRes.json();
+            const facData = await facRes.json();
+
+            setSubjects(resData.subjects || []);
+            setRooms(resData.rooms || []);
+            setSections(resData.sections || []);
+            setTeachers(facData || []);
+
+            if (resData.subjects?.length > 0) setSelectedSubject(resData.subjects[0]);
+            if (resData.rooms?.length > 0) setSelectedRoom(resData.rooms[0]);
+            if (resData.sections?.length > 0) setSelectedSection(resData.sections[0]);
+        } catch (e) {
+            console.error("Resource fetch failed", e);
+        }
     };
 
-    // Initial Data Sync
-    useEffect(() => {
-        const fetchResources = async () => {
-            try {
-                const [facRes, resRes] = await Promise.all([
-                    fetch('/api/faculty/list'),
-                    fetch('/api/admin/resources')
-                ]);
-                const facData = await facRes.json();
-                const resData = await resRes.json();
-
-                setAllTeachers(facData || []);
-
-                if (resData.sections?.length > 0) setSections(resData.sections);
-                if (resData.subjects?.length > 0) setSubjects(resData.subjects);
-                if (resData.rooms?.length > 0) setRooms(resData.rooms);
-
-                // Default selection
-                if (resData.subjects?.length > 0) {
-                    const firstSub = resData.subjects[0];
-                    setSelectedSubject(firstSub);
-                }
-            } catch (error) {
-                console.error("Resource Sync Error:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchResources();
-    }, []);
-
-    // Subject -> Teacher filtering logic
+    // Filter teachers based on subject focus
     useEffect(() => {
         if (!selectedSubject) {
-            setFilteredTeachers([]);
+            setFilteredTeachers(teachers.map(t => ({ id: t.id, name: t.name })));
             return;
         }
-
-        const filtered = allTeachers.filter(f =>
-            f.subjects?.some((s: string) => s.toLowerCase() === selectedSubject.toLowerCase())
-        ).map(f => ({ id: f.id, name: f.name }));
+        const filtered = teachers.filter(t =>
+            !t.subjects || t.subjects.some(s => s.toLowerCase() === selectedSubject.toLowerCase())
+        ).map(t => ({ id: t.id, name: t.name }));
 
         setFilteredTeachers(filtered);
-
-        // Auto-select first teacher in filtered list if current selected is not in it
         if (filtered.length > 0 && !filtered.some(t => t.id === selectedTeacher)) {
             setSelectedTeacher(filtered[0].id);
         }
-    }, [selectedSubject, allTeachers]);
+    }, [selectedSubject, teachers]);
 
-    // Timetable Sync
-    useEffect(() => {
-        const fetchExisting = async () => {
-            if (!selectedTeacher) {
-                setTimetable([]);
-                return;
-            }
+    const [teacherSchedule, setTeacherSchedule] = useState<TimetableSlot[]>([]);
 
-            try {
-                const res = await fetch(`/api/timetable?facultyId=${selectedTeacher}`);
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    const mapped: SlotData[] = data.map(s => {
-                        const formatTo24 = (timeStr: string) => {
-                            const [time, ampm] = timeStr.split(' ');
-                            if (!ampm) return timeStr;
-                            let [h, m] = time.split(':').map(Number);
-                            if (ampm === 'PM' && h < 12) h += 12;
-                            if (ampm === 'AM' && h === 12) h = 0;
-                            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-                        };
-
-                        return {
-                            day: s.day,
-                            time: `${formatTo24(s.startTime)} - ${formatTo24(s.endTime)}`,
-                            subject: s.subject,
-                            room: s.classroom,
-                            teacher: s.facultyId,
-                            section: s.section
-                        };
-                    });
-                    setTimetable(mapped);
-                }
-            } catch (error) {
-                console.error("Failed to fetch existing matrix:", error);
-            }
+    const fetchTeacherSchedule = async (id: string) => {
+        if (!id) {
+            setTeacherSchedule([]);
+            return;
         };
-        fetchExisting();
-    }, [selectedTeacher]);
-
-    const handleSlotClick = (day: string, time: string, prefilledSubject?: string) => {
-        const existing = timetable.find(s =>
-            s.day === day &&
-            s.time === time &&
-            s.teacher === selectedTeacher
-        );
-        setCurrentSlot(existing || {
-            day,
-            time,
-            subject: prefilledSubject || selectedSubject,
-            teacher: selectedTeacher
-        });
-        setIsCustomSubject(false);
-        setIsCustomRoom(false);
-        setIsCustomTeacher(false);
-        setIsCustomSection(false);
-        setIsEditModalOpen(true);
+        try {
+            const res = await fetch(`/api/timetable?facultyId=${id}`);
+            const data = await res.json();
+            setTeacherSchedule(Array.isArray(data) ? data : []);
+        } catch (e) {
+            console.error("Teacher schedule fetch failed", e);
+        }
     };
 
-    const handleDragStart = (data: string | SlotData) => {
+    useEffect(() => {
+        if (selectedTeacher) {
+            fetchTeacherSchedule(selectedTeacher);
+        } else {
+            setTeacherSchedule([]);
+        }
+    }, [selectedTeacher]);
+
+    const fetchTimetable = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch(`/api/timetable?department=${department}&semester=${semester}&batch=${batch}`);
+            const data = await res.json();
+            setTimetable(Array.isArray(data) ? data : []);
+        } catch (e) {
+            console.error("Timetable fetch failed", e);
+            toast({ title: "Error", description: "Failed to load timetable", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchResources();
+    }, []);
+
+    useEffect(() => {
+        fetchTimetable();
+    }, [department, semester, batch]);
+
+    const normalizeTime = (timeStr: string) => {
+        if (!timeStr) return "";
+        const [time, ampm] = timeStr.trim().split(/\s+/);
+        const [hStr, mStr] = time.split(':');
+        let h = parseInt(hStr);
+        if (ampm === 'PM' && h < 12) h += 12;
+        if (ampm === 'AM' && h === 12) h = 0;
+        return `${h.toString().padStart(2, '0')}:${mStr.padStart(2, '0')}`;
+    };
+
+    // Organize timetable into a 2D map: [day][startTime] -> TimetableSlot[]
+    const gridData = useMemo(() => {
+        const map: Record<string, Record<string, TimetableSlot[]>> = {};
+        DAYS.forEach(d => {
+            map[d] = {};
+            TIME_SLOTS.forEach(slot => {
+                const startTime = slot.time.split(' - ')[0];
+                const normalizedStart = normalizeTime(startTime);
+
+                map[d][normalizedStart] = timetable.filter(t => {
+                    return t.day.toUpperCase() === d.toUpperCase() &&
+                        normalizeTime(t.startTime) === normalizedStart;
+                });
+            });
+        });
+        return map;
+    }, [timetable]);
+
+    const teacherGridData = useMemo(() => {
+        const map: Record<string, Record<string, TimetableSlot[]>> = {};
+        DAYS.forEach(d => {
+            map[d] = {};
+            TIME_SLOTS.forEach(slot => {
+                const startTime = slot.time.split(' - ')[0];
+                const normalizedStart = normalizeTime(startTime);
+
+                map[d][normalizedStart] = teacherSchedule.filter(t => {
+                    return t.day.toUpperCase() === d.toUpperCase() &&
+                        normalizeTime(t.startTime) === normalizedStart;
+                });
+            });
+        });
+        return map;
+    }, [teacherSchedule]);
+
+    const handleAddClick = (day: string, slot: { label: string, time: string }) => {
+        setEditingSlot({ day, time: slot });
+        // Auto-fill context from global selection
+        setFormSubject(selectedSubject);
+        setFormTeacher(selectedTeacher);
+        // Leave Room/Section for manual entry unless globally set
+        setFormRoom(selectedRoom);
+        setFormSection(selectedSection);
+        setIsModalOpen(true);
+    };
+
+    const handleEditClick = (day: string, slot: { label: string, time: string }, existingData: TimetableSlot) => {
+        setEditingSlot({ day, time: slot, data: existingData });
+        setFormSubject(existingData.subject);
+        setFormTeacher(existingData.facultyId);
+        setFormRoom(existingData.classroom);
+        setFormSection(existingData.section);
+        setIsModalOpen(true);
+    };
+
+    const handleDragStart = (data: any) => {
         setDraggedData(data);
     };
 
-    const handleDrop = (day: string, time: string) => {
+    const handleDrop = (day: string, slot: { label: string, time: string }) => {
+        setDropTarget(null);
         if (!draggedData) return;
 
-        const isObject = typeof draggedData !== 'string';
-        const subject = isObject ? (draggedData as SlotData).subject : (draggedData as string);
+        let payload: any = null;
 
-        const existing = timetable.find(s =>
-            s.day === day &&
-            s.time === time &&
-            s.teacher === selectedTeacher
+        if (draggedData.type === 'FOCUS') {
+            payload = {
+                subject: selectedSubject,
+                teacher: selectedTeacher,
+                room: selectedRoom,
+                section: selectedSection
+            };
+        } else if (draggedData.type === 'ENTRY') {
+            const d = draggedData.data;
+            payload = {
+                subject: d.subject,
+                teacher: d.facultyId,
+                room: d.classroom,
+                section: d.section
+            };
+        }
+
+        if (payload) {
+            // PURELY LOCAL UPDATE (NO API)
+            const startTime = slot.time.split(' - ')[0];
+            const endTime = slot.time.split(' - ')[1];
+
+            const newSlot: TimetableSlot = {
+                id: `temp-${Date.now()}`,
+                day,
+                startTime,
+                endTime,
+                subject: payload.subject,
+                facultyId: payload.teacher,
+                classroom: payload.room,
+                section: payload.section,
+                department,
+                semester,
+                batch,
+                floor: "1",
+                faculty: teachers.find(t => t.id === payload.teacher) as any
+            };
+
+            setTimetable(prev => [...prev, newSlot]);
+            toast({ title: "Draft Added", description: "Slot updated in local matrix" });
+        }
+    };
+
+    // Search states for Combobox
+    const [openSection, setOpenSection] = useState(false);
+    const [openRoom, setOpenRoom] = useState(false);
+    const [searchSection, setSearchSection] = useState("");
+    const [searchRoom, setSearchRoom] = useState("");
+
+    const handleSave = () => {
+        if (!formSubject || !formTeacher || !formRoom || !formSection || !editingSlot) {
+            toast({ title: "Validation Error", description: "Please fill all fields", variant: "destructive" });
+            return;
+        }
+
+        const startTime = editingSlot.time.time.split(' - ')[0];
+        const endTime = editingSlot.time.time.split(' - ')[1];
+
+        // CHECK FOR ROOM CONFLICTS
+        const isRoomOccupied = timetable.some(t =>
+            t.day === editingSlot.day &&
+            t.startTime === startTime &&
+            t.classroom === formRoom &&
+            t.id !== editingSlot.data?.id
         );
 
-        if (existing) {
-            // Update existing slot with new data
-            setTimetable(prev => prev.map(s =>
-                (s.day === day && s.time === time && s.teacher === selectedTeacher)
-                    ? {
-                        ...s,
-                        subject: subject,
-                        room: isObject ? (draggedData as SlotData).room : s.room,
-                        teacher: selectedTeacher,
-                        section: isObject ? (draggedData as SlotData).section : s.section
-                    }
-                    : s
-            ));
-            toast({ title: "Matrix Updated", description: `Replicated ${subject} to ${day} ${time}` });
-        } else {
-            // Create new slot
-            const newSlot: SlotData = {
-                day,
-                time,
-                subject: subject,
-                room: isObject ? (draggedData as SlotData).room : undefined,
-                teacher: selectedTeacher,
-                section: isObject ? (draggedData as SlotData).section : undefined,
-            };
-            setTimetable(prev => [...prev, newSlot]);
-            toast({ title: "Slot Created", description: `Cloned ${subject} to ${day} ${time}` });
+        if (isRoomOccupied) {
+            toast({
+                title: "Room Conflict",
+                description: `Room ${formRoom} is already occupied by another class at this time!`,
+                variant: "destructive"
+            });
+            return;
         }
 
-        setDraggedData(null);
-        setDropTarget(null);
-    };
+        // Ensure custom values are suggested next time
+        if (formRoom && !rooms.includes(formRoom)) setRooms(prev => [...prev, formRoom]);
+        if (formSection && !sections.includes(formSection)) setSections(prev => [...prev, formSection]);
 
-    const saveSlot = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!currentSlot) return;
+        const updatedSlot: TimetableSlot = {
+            id: editingSlot.data?.id || `temp-${Date.now()}`,
+            day: editingSlot.day,
+            startTime,
+            endTime,
+            subject: formSubject,
+            facultyId: formTeacher,
+            classroom: formRoom,
+            section: formSection,
+            department,
+            semester,
+            batch,
+            floor: "1",
+            faculty: teachers.find(t => t.id === formTeacher) as any
+        };
 
-        // Dynamic list enrichment
-        if (currentSlot.subject && !subjects.includes(currentSlot.subject)) {
-            setSubjects(prev => [...prev, currentSlot.subject!]);
-        }
-        if (currentSlot.room && !rooms.includes(currentSlot.room)) {
-            setRooms(prev => [...prev, currentSlot.room!]);
-        }
-        if (currentSlot.section && !sections.includes(currentSlot.section)) {
-            setSections(prev => [...prev, currentSlot.section!]);
-        }
-
+        // PURELY LOCAL UPDATE
         setTimetable(prev => {
-            const filtered = prev.filter(s =>
-                !(s.day === currentSlot.day &&
-                    s.time === currentSlot.time &&
-                    s.teacher === selectedTeacher)
-            );
-            return [...filtered, currentSlot as SlotData];
+            const filtered = prev.filter(t => t.id !== updatedSlot.id);
+            return [...filtered, updatedSlot];
         });
-
-        setIsEditModalOpen(false);
-        toast({ title: "Matrix Synchronized", description: "Slot updated." });
+        setIsModalOpen(false);
+        toast({ title: "Draft Saved", description: "Changes kept in local buffer" });
     };
 
-    const deploySync = async () => {
-        const targetSlots = timetable.filter(s => s.teacher === selectedTeacher);
-
-        setIsDeploying(true);
+    const deployArchitecture = async () => {
+        setIsSaving(true);
         try {
-            const syncPayload = targetSlots.map(s => ({
-                ...s,
-                facultyId: selectedTeacher
+            const payload = timetable.map(t => ({
+                day: t.day,
+                time: `${t.startTime} - ${t.endTime}`,
+                subject: t.subject,
+                facultyId: t.facultyId,
+                classroom: t.classroom,
+                section: t.section,
+                department: t.department,
+                semester: t.semester,
+                batch: t.batch,
+                floor: t.floor
             }));
 
             const res = await fetch('/api/timetable', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    timetable: syncPayload,
-                    viewMode: 'faculty',
-                    targetId: selectedTeacher
+                    timetable: payload,
+                    viewMode: 'department',
+                    filters: { department, semester, batch }
                 })
             });
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.details || data.error || "Deployment Failed");
-
-            toast({
-                title: "Deployment Successful",
-                description: `Schedule for Prof. ${allTeachers.find(t => t.id === selectedTeacher)?.name || selectedTeacher} synchronized.`,
-            });
-        } catch (error: any) {
-            console.error("Deploy Error:", error);
-            toast({
-                title: "Deployment Failed",
-                description: error.message || "Critical synchronization error.",
-                variant: "destructive"
-            });
+            if (res.ok) {
+                toast({ title: "Architecture Deployed", description: "Matrix synchronized with database" });
+                fetchTimetable();
+            } else {
+                const err = await res.json();
+                toast({
+                    title: "Sync Error",
+                    description: err.details || "Database rejected the matrix",
+                    variant: "destructive"
+                });
+            }
+        } catch (e: any) {
+            toast({ title: "Deployment Failed", description: e.message || "Connection error", variant: "destructive" });
         } finally {
-            setIsDeploying(false);
+            setIsSaving(false);
         }
     };
 
-    const deleteSlot = () => {
-        if (!currentSlot) return;
-        setTimetable(prev => prev.filter(s =>
-            !(s.day === currentSlot.day &&
-                s.time === currentSlot.time &&
-                s.teacher === selectedTeacher)
-        ));
-        setIsEditModalOpen(false);
+    const handleDelete = (targetId: string) => {
+        setTimetable(prev => prev.filter(t => t.id !== targetId));
+        setIsModalOpen(false);
+        toast({ title: "Removed", description: "Slot cleared from local matrix" });
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex h-screen w-full items-center justify-center bg-white">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="h-12 w-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-sm animate-pulse">
-                        <Box className="h-6 w-6" />
-                    </div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em]">Analyzing Matrix...</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="max-w-7xl mx-auto pb-32 px-8 py-12 bg-white min-h-screen font-sans">
-            {/* Centered Header */}
-            <div className="flex flex-col items-center gap-10 mb-16 text-center">
-                <div className="space-y-4">
-                    <div className="h-12 w-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg mx-auto mb-6">
-                        <Sparkles className="h-6 w-6" />
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-10 min-h-screen bg-[#FDFDFD] font-sans text-slate-900">
+            {/* Animated Header Section */}
+            <div className="flex flex-col gap-8 mb-8">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 bg-black rounded-xl flex items-center justify-center text-white shadow-xl">
+                            <GraduationCap className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                                Global Timetable
+                            </h1>
+                            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Metropolis Grid System</p>
+                        </div>
                     </div>
-                    <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase px-4">
-                        Faculty Architecture <span className="text-indigo-600">2026</span>
-                    </h1>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em]">Global Matrix Control</p>
+
+                    <div className="flex items-center gap-2">
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg mr-4">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase">Context:</span>
+                            <span className="text-xs font-bold text-slate-700">{department} • Sem {semester} • {batch}</span>
+                        </div>
+                        <Button
+                            onClick={deployArchitecture}
+                            disabled={isSaving}
+                            className="bg-black text-white rounded-lg font-bold text-xs px-5 h-9 shadow-lg shadow-black/20 hover:bg-slate-800 transition-all"
+                        >
+                            {isSaving ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <Sparkles className="h-3 w-3 mr-2" />}
+                            Deploy Grid
+                        </Button>
+                    </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-6 p-4 bg-slate-50/50 rounded-[3rem] border border-slate-100 shadow-sm">
-                    {/* Subject Selector */}
-                    <div className="flex items-center gap-3 bg-white p-2 pl-4 rounded-[2rem] shadow-sm border border-slate-100">
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Choose Subject:</span>
-                        <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                            <SelectTrigger className="h-10 w-44 border-none bg-slate-50 rounded-2xl font-black text-[10px] uppercase tracking-tight text-slate-900 shadow-inner">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
-                                {subjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
+                <div className="flex flex-col md:flex-row gap-4 items-start">
+                    {/* Global Context Controls */}
+                    <div className="flex-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-wrap gap-4 items-center">
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Dept</label>
+                            <Select value={department} onValueChange={setDepartment}>
+                                <SelectTrigger className="w-20 h-8 text-xs font-bold bg-slate-50 border-none"><SelectValue /></SelectTrigger>
+                                <SelectContent><div className="max-h-60">{DEPARTMENTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</div></SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Sem</label>
+                            <Select value={semester} onValueChange={setSemester}>
+                                <SelectTrigger className="w-16 h-8 text-xs font-bold bg-slate-50 border-none"><SelectValue /></SelectTrigger>
+                                <SelectContent>{SEMESTERS.map(s => <SelectItem key={s} value={s}>S{s}</SelectItem>)}</SelectContent>
+                            </Select>
+                        </div>
+                        <div className="w-px h-8 bg-slate-100 mx-1" />
+                        <div className="flex flex-col gap-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Batch</label>
+                            <Select value={batch} onValueChange={setBatch}>
+                                <SelectTrigger className="w-24 h-8 text-xs font-bold bg-slate-50 border-none"><SelectValue /></SelectTrigger>
+                                <SelectContent>{BATCHES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
+                            </Select>
+                        </div>
+                        <div className="w-px h-8 bg-slate-100 mx-2" />
 
-                        {/* Draggable Badge */}
-                        {selectedSubject && (
-                            <div
-                                draggable
-                                onDragStart={() => handleDragStart(selectedSubject)}
-                                className="h-10 px-6 bg-indigo-600 hover:bg-black rounded-2xl flex items-center gap-2 cursor-grab active:cursor-grabbing transition-all shadow-md group border border-indigo-400"
-                            >
-                                <Box className="h-3.5 w-3.5 text-indigo-200" />
-                                <span className="text-[10px] font-black text-white uppercase tracking-widest">{selectedSubject}</span>
-                                <Plus className="h-3 w-3 text-indigo-300 group-hover:scale-125 transition-transform" />
-                            </div>
-                        )}
+                        {/* Global Brush */}
+                        <div className="flex flex-col gap-1 flex-1 min-w-[140px]">
+                            <label className="text-[9px] font-bold text-teal-600 uppercase tracking-wider flex items-center gap-1">
+                                <Sparkles className="h-2 w-2" /> Active Subject
+                            </label>
+                            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                                <SelectTrigger className="h-8 text-xs font-bold bg-teal-50/50 border-teal-100 text-teal-900 border"><SelectValue placeholder="Select Subject" /></SelectTrigger>
+                                <SelectContent>{subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex flex-col gap-1 flex-1 min-w-[140px]">
+                            <label className="text-[9px] font-bold text-teal-600 uppercase tracking-wider">Active Faculty</label>
+                            <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                                <SelectTrigger className="h-8 text-xs font-bold bg-teal-50/50 border-teal-100 text-teal-900 border"><SelectValue placeholder="Select Faculty" /></SelectTrigger>
+                                <SelectContent>{filteredTeachers.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
+                            </Select>
+                        </div>
                     </div>
 
-                    <div className="w-px h-8 bg-slate-200 mx-2 hidden sm:block" />
-
-                    {/* Teacher Selector */}
-                    <div className="flex items-center gap-3 bg-white p-2 pl-4 rounded-[2rem] shadow-sm border border-slate-100">
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Target Instructor:</span>
-                        <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
-                            <SelectTrigger className="h-10 w-44 border-none bg-slate-50 rounded-2xl font-black text-[10px] uppercase tracking-tight text-slate-900 shadow-inner">
-                                <SelectValue placeholder="Select Faculty" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
-                                {filteredTeachers.length > 0 ? (
-                                    filteredTeachers.map((t) => <SelectItem key={t.id} value={t.id}>Prof. {t.name}</SelectItem>)
-                                ) : (
-                                    <div className="p-4 text-center">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase">No Matches found for this subject</p>
-                                    </div>
-                                )}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <Button
-                        onClick={deploySync}
-                        disabled={isDeploying || !selectedTeacher}
-                        className="h-12 px-8 rounded-[2rem] bg-slate-900 text-white font-black text-[10px] uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all flex items-center gap-3 shadow-xl hover:scale-105 active:scale-95"
+                    {/* Draggable Payload Card */}
+                    <div
+                        draggable
+                        onDragStart={() => handleDragStart({ type: 'FOCUS' })}
+                        className="bg-teal-600 text-white p-4 rounded-2xl shadow-xl shadow-teal-600/20 cursor-grab active:cursor-grabbing hover:scale-[1.02] transition-transform w-full md:w-auto min-w-[200px]"
                     >
-                        {isDeploying ? <Clock className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                        {isDeploying ? 'Deploying...' : 'Deploy Synchronization'}
-                    </Button>
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-[9px] font-black uppercase tracking-widest opacity-80">Drag Payload</span>
+                            <Box className="h-3 w-3 opacity-80" />
+                        </div>
+                        <div className="text-sm font-bold leading-tight">
+                            {selectedSubject || "Select Subject"}
+                        </div>
+                        <div className="text-[10px] font-medium opacity-80 mt-1">
+                            {teachers.find(t => t.id === selectedTeacher)?.name || "Select Faculty"}
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm p-4 w-full">
-                <div className="w-full overflow-hidden">
-                    <table className="w-full border-separate border-spacing-2 table-fixed">
+            {/* Timetable Grid Container */}
+            <div className="bg-white border border-slate-100 rounded-[3rem] shadow-2xl shadow-slate-200/50 p-6 md:p-8 relative overflow-hidden">
+                {isLoading && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-20 flex flex-col items-center justify-center gap-4">
+                        <div className="h-12 w-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                        <p className="text-[10px] font-black text-teal-600 uppercase tracking-widest animate-pulse">Reconfiguring Matrix...</p>
+                    </div>
+                )}
+
+                <div className="overflow-visible">
+                    <table className="w-full border-separate border-spacing-y-4 border-spacing-x-1 table-fixed">
                         <thead>
                             <tr>
-                                <th className="p-3 text-[11px] font-black text-slate-600 uppercase tracking-widest text-left w-24">Day</th>
-                                {TIME_SLOTS.map((time, idx) => (
-                                    <th key={time} className="p-3 bg-slate-100 rounded-xl border border-slate-200">
-                                        <div className="flex flex-col items-center gap-0.5">
-                                            <span className="text-[9px] font-black text-indigo-700 uppercase tracking-widest leading-none">P{idx + 1}</span>
-                                            <span className="text-[8px] font-black text-slate-900 uppercase tracking-tight leading-none whitespace-nowrap">
-                                                {formatDisplayTime(time.split(' - ')[0])}
-                                            </span>
-                                            <span className="text-[8px] font-black text-slate-900 uppercase tracking-tight leading-none whitespace-nowrap">
-                                                {formatDisplayTime(time.split(' - ')[1])}
-                                            </span>
+                                <th className="w-28 text-left py-4 px-2">
+                                    <div className="flex flex-col items-start gap-1">
+                                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Timeline</span>
+                                        <div className="h-1 w-8 bg-slate-100 rounded-full" />
+                                    </div>
+                                </th>
+                                {TIME_SLOTS.map((slot, idx) => (
+                                    <th key={idx} className="p-0 group">
+                                        <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-2 transition-all group-hover:bg-slate-50 group-hover:border-slate-200 relative mx-1">
+                                            <div className="absolute -top-2 -right-1 h-5 w-5 bg-white border border-slate-100 rounded-lg flex items-center justify-center shadow-sm z-10">
+                                                <span className="text-[8px] font-black text-teal-600">{slot.label}</span>
+                                            </div>
+                                            <div className="text-center group-hover:scale-105 transition-transform overflow-hidden">
+                                                <span className="text-[9px] font-black text-slate-900 uppercase tracking-tighter block truncate">
+                                                    {slot.time.split(' - ')[0]}
+                                                </span>
+                                            </div>
                                         </div>
                                     </th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
-                            {DAYS.map(day => (
+                            {DAYS.map((day) => (
                                 <tr key={day}>
-                                    <td className="p-3">
-                                        <div className="flex items-center gap-2 text-[11px] font-black text-slate-900 uppercase tracking-widest">
-                                            {day.slice(0, 3)}
+                                    <td className="w-28 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex-1 text-right">
+                                                <span className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">
+                                                    {day.slice(0, 3)}
+                                                </span>
+                                            </div>
+                                            <div className="h-10 w-1 bg-teal-600 rounded-full" />
                                         </div>
                                     </td>
-                                    {TIME_SLOTS.map(time => {
-                                        const slot = timetable.find(s =>
-                                            s.day === day &&
-                                            s.time === time &&
-                                            s.teacher === selectedTeacher
-                                        );
+                                    {TIME_SLOTS.map((slot, idx) => {
+                                        const normalizedTime = normalizeTime(slot.time.split(' - ')[0]);
+                                        const entries = gridData[day]?.[normalizedTime] || [];
+                                        const isOccupied = entries.length > 0;
+                                        const isLunch = slot.label === "P5";
+                                        const isDropTarget = dropTarget?.day === day && dropTarget?.time24 === normalizedTime;
+
+                                        if (isLunch) {
+                                            return (
+                                                <td key={idx} className="opacity-40 grayscale pointer-events-none">
+                                                    <div className="h-28 rounded-xl bg-slate-100/50 border border-dashed border-slate-200 flex items-center justify-center">
+                                                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.5em] rotate-[-90deg]">Lunch Phase</span>
+                                                    </div>
+                                                </td>
+                                            );
+                                        }
+
                                         return (
-                                            <td key={`${day}-${time}`}>
+                                            <td key={idx}>
                                                 <div
-                                                    onClick={() => handleSlotClick(day, time)}
-                                                    draggable={!!slot}
-                                                    onDragStart={() => {
-                                                        if (slot) handleDragStart(slot as SlotData);
-                                                    }}
-                                                    onDragOver={(e) => {
-                                                        e.preventDefault();
-                                                        setDropTarget({ day, time });
-                                                    }}
+                                                    onDragOver={(e) => { e.preventDefault(); setDropTarget({ day, time24: normalizedTime }); }}
                                                     onDragLeave={() => setDropTarget(null)}
-                                                    onDrop={() => handleDrop(day, time)}
+                                                    onDrop={() => handleDrop(day, slot)}
                                                     className={cn(
-                                                        "h-24 rounded-2xl p-3 flex flex-col justify-center border transition-all cursor-pointer relative group overflow-hidden",
-                                                        slot
-                                                            ? "bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-slate-900 cursor-grab active:cursor-grabbing"
-                                                            : "bg-[#F8FAFC] border-slate-50 hover:border-slate-200",
-                                                        dropTarget?.day === day && dropTarget?.time === time && "ring-2 ring-indigo-500 bg-indigo-50/50 border-indigo-200 border-dashed"
+                                                        "h-32 rounded-xl border-2 transition-all p-3 flex flex-col items-center justify-center relative overflow-hidden group",
+                                                        isOccupied
+                                                            ? "bg-white border-slate-100 shadow-xl shadow-slate-100 hover:border-teal-500 hover:shadow-teal-100 cursor-default"
+                                                            : "bg-[#F8FAFC] border-dashed border-slate-100 hover:bg-white hover:border-teal-600 hover:scale-[1.02] cursor-pointer",
+                                                        isDropTarget && "bg-teal-50 border-teal-500 border-solid scale-105 z-10"
                                                     )}
+                                                    onClick={(e) => {
+                                                        // If clicking the container background, trigger ADD
+                                                        if (e.target === e.currentTarget) {
+                                                            handleAddClick(day, slot);
+                                                        }
+                                                    }}
                                                 >
-                                                    {slot ? (
-                                                        <>
-                                                            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-600 rounded-l-full" />
-                                                            <div className="pl-2">
-                                                                <div className="text-[8px] font-black uppercase text-indigo-500/60 mb-1 leading-none tracking-[0.2em] truncate">
-                                                                    SEC {slot.section || '---'}
+                                                    {isOccupied ? (
+                                                        <div className="w-full h-full grid grid-cols-2 gap-1 content-start overflow-y-auto scrollbar-thin py-0.5">
+                                                            {entries.map((entry, eIdx) => (
+                                                                <button
+                                                                    key={eIdx}
+                                                                    draggable
+                                                                    onDragStart={() => handleDragStart({ type: 'ENTRY', data: entry })}
+                                                                    onClick={(e) => { e.stopPropagation(); handleEditClick(day, slot, entry); }}
+                                                                    className={cn(
+                                                                        "w-full text-left p-1.5 rounded-lg bg-white border shadow-sm transition-all group/sub cursor-grab active:cursor-grabbing flex flex-col justify-between min-h-[50px]",
+                                                                        selectedTeacher === entry.facultyId
+                                                                            ? "border-teal-500 bg-teal-50/30"
+                                                                            : "border-slate-200 hover:border-slate-400"
+                                                                    )}
+                                                                >
+                                                                    <div className="flex justify-between items-start gap-1">
+                                                                        <span className={cn(
+                                                                            "text-[8px] font-black px-1 py-0.5 rounded uppercase leading-none",
+                                                                            selectedTeacher === entry.facultyId ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-900"
+                                                                        )}>
+                                                                            {entry.section}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className={cn(
+                                                                        "text-[9px] font-bold truncate uppercase mt-1",
+                                                                        selectedTeacher === entry.facultyId ? "text-teal-900" : "text-slate-600"
+                                                                    )}>
+                                                                        {entry.subject}
+                                                                    </div>
+                                                                </button>
+                                                            ))}
+
+                                                            {/* Add Button in Empty Quadrant */}
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); handleAddClick(day, slot); }}
+                                                                className="w-full text-left p-1.5 rounded-lg border border-dashed border-slate-200 hover:border-teal-400 hover:bg-teal-50/50 flex items-center justify-center min-h-[50px] group/add transition-all"
+                                                            >
+                                                                <Plus className="h-4 w-4 text-slate-300 group-hover/add:text-teal-500" />
+                                                            </button>
+
+                                                            {/* Conflict Warning if Selected Teacher Busy */}
+                                                            {teacherGridData[day]?.[normalizedTime]?.some(t => !entries.some(e => e.id === t.id)) && (
+                                                                <div className="col-span-2 mt-1 p-1 bg-amber-50 rounded-lg border border-amber-100 flex items-center gap-2">
+                                                                    <div className="h-1.5 w-1.5 rounded-full bg-amber-600 animate-ping" />
+                                                                    <span className="text-[8px] font-black text-amber-700 uppercase">External Conflict</span>
                                                                 </div>
-                                                                <div className="text-[12px] font-black uppercase tracking-tighter text-slate-900 mb-2 leading-tight overflow-hidden text-ellipsis line-clamp-1">
-                                                                    {slot.subject}
-                                                                </div>
-                                                                <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100 w-fit">
-                                                                    <MapPin className="h-2.5 w-2.5 text-indigo-600" />
-                                                                    <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest leading-none">
-                                                                        {slot.room || 'TBA'}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-indigo-400/20 group-hover:bg-indigo-500/10 transition-colors" />
-                                                        </>
+                                                            )}
+                                                        </div>
                                                     ) : (
-                                                        <div className="flex flex-col items-center gap-1.5 group-hover:scale-110 transition-transform">
-                                                            <div className="h-8 w-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                                                                <Plus className="h-4 w-4" />
-                                                            </div>
-                                                            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 group-hover:text-indigo-600">Sync Slot</span>
+                                                        <div
+                                                            className="flex flex-col items-center justify-center h-full w-full group-hover:scale-105 transition-transform gap-1"
+                                                            onClick={() => handleAddClick(day, slot)}
+                                                        >
+                                                            {/* Teacher Allotment Overlay (Conflict/Busy View) */}
+                                                            {teacherGridData[day]?.[normalizedTime]?.length > 0 ? (
+                                                                <div className="w-full p-2 rounded-xl bg-amber-50/50 border border-dashed border-amber-200 flex flex-col items-start gap-1">
+                                                                    <div className="flex items-center gap-1">
+                                                                        <User className="h-2 w-2 text-amber-600" />
+                                                                        <span className="text-[8px] font-black text-amber-600 uppercase">Busy Elsewhere</span>
+                                                                    </div>
+                                                                    {teacherGridData[day][normalizedTime].map((tSlot, tsIdx) => (
+                                                                        <div key={tsIdx} className="text-[9px] font-bold text-amber-700 leading-none">
+                                                                            {tSlot.section} • {tSlot.subject}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="h-8 w-8 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center text-slate-300 group-hover:text-teal-600 group-hover:border-teal-100 transition-all">
+                                                                    <Plus className="h-4 w-4" />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>
@@ -497,111 +667,230 @@ export default function TimetableArchitecture() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Bottom Legend */}
+                <div className="mt-10 pt-8 border-t border-slate-50 flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-teal-500 shadow-lg shadow-teal-200" />
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Matrix</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-slate-100 border border-dashed border-slate-300" />
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Available Phase</span>
+                        </div>
+                        <div className="flex items-center gap-2 ml-4">
+                            <Box className="h-3 w-3 text-slate-300" />
+                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none">Drag Payload to Sync Slots</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-300">
+                        <Info className="h-3.5 w-3.5" />
+                        <span className="text-[9px] font-black uppercase tracking-widest italic">Global Synchronization Enabled</span>
+                    </div>
+                </div>
             </div>
 
-            <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                <DialogContent className="max-w-md rounded-[2.5rem] border border-slate-100 shadow-2xl p-0 overflow-hidden bg-white">
-                    <div className="bg-slate-900 p-8 text-white">
-                        <h2 className="text-2xl font-black uppercase tracking-tighter">Edit Slot</h2>
-                        <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest mt-1">
-                            {currentSlot?.day} • {formatDisplayTime(currentSlot?.time || "")}
-                        </p>
+            {/* Modal for Adding/Editing */}
+            {/* Modal for Adding/Editing */}
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent className="max-w-md bg-white border-none rounded-2xl shadow-2xl p-0 overflow-hidden outline-none">
+                    <div className="bg-slate-50 border-b border-slate-100 p-6 flex flex-col gap-1">
+                        <h2 className="text-xl font-bold tracking-tight text-slate-900">
+                            {editingSlot?.data ? "Modify Slot Matrix" : "New Entry"}
+                        </h2>
+                        <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                            <Clock className="h-3.5 w-3.5" />
+                            <span>{editingSlot?.day} • {editingSlot?.time.label} Phase</span>
+                        </div>
                     </div>
 
-                    <form onSubmit={saveSlot} className="p-8 pt-6 space-y-6">
-                        <div className="space-y-4">
+                    <div className="p-6 space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-[11px] font-black uppercase text-slate-600 tracking-widest px-1">Subject</Label>
-                                {isCustomSubject ? (
-                                    <Input
-                                        className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900"
-                                        placeholder="Enter custom subject..."
-                                        value={currentSlot?.subject || ''}
-                                        onChange={(e) => setCurrentSlot(prev => ({ ...prev, subject: e.target.value }))}
-                                        autoFocus
-                                    />
-                                ) : (
-                                    <Select
-                                        value={currentSlot?.subject}
-                                        onValueChange={(val) => val === 'CUSTOM' ? setIsCustomSubject(true) : setCurrentSlot(prev => ({ ...prev, subject: val }))}
-                                    >
-                                        <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900">
-                                            <SelectValue placeholder="Select Subject" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-xl">
-                                            {subjects.map((s: string) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                                            <SelectItem value="CUSTOM" className="font-bold text-indigo-600">Custom...</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                )}
+                                <Label className="text-xs font-bold text-slate-500 uppercase">Subject</Label>
+                                <Select value={formSubject} onValueChange={setFormSubject}>
+                                    <SelectTrigger className="h-10 text-xs font-bold bg-slate-50 border-slate-100">
+                                        <SelectValue placeholder="Select Subject" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">Room</Label>
-                                {isCustomRoom ? (
-                                    <Input
-                                        className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900"
-                                        placeholder="Enter custom room..."
-                                        value={currentSlot?.room || ''}
-                                        onChange={(e) => setCurrentSlot(prev => ({ ...prev, room: e.target.value }))}
-                                        autoFocus
-                                    />
-                                ) : (
-                                    <Select
-                                        value={currentSlot?.room}
-                                        onValueChange={(val) => val === 'CUSTOM' ? setIsCustomRoom(true) : setCurrentSlot(prev => ({ ...prev, room: val }))}
-                                    >
-                                        <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900">
-                                            <SelectValue placeholder="Select Room" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-xl">
-                                            {rooms.map((r: string) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                                            <SelectItem value="CUSTOM" className="font-bold text-indigo-600">Custom...</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">
-                                    Target Section
-                                </Label>
-                                {isCustomSection ? (
-                                    <Input
-                                        className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900"
-                                        placeholder="Enter section..."
-                                        value={currentSlot?.section || ''}
-                                        onChange={(e) => setCurrentSlot(prev => ({ ...prev, section: e.target.value }))}
-                                        autoFocus
-                                    />
-                                ) : (
-                                    <Select
-                                        value={currentSlot?.section}
-                                        onValueChange={(val) => val === 'CUSTOM' ? setIsCustomSection(true) : setCurrentSlot(prev => ({ ...prev, section: val }))}
-                                    >
-                                        <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900">
-                                            <SelectValue placeholder="Select Section" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-xl">
-                                            {sections.map((s: string) => <SelectItem key={s} value={s}>SEC {s}</SelectItem>)}
-                                            <SelectItem value="CUSTOM" className="font-bold text-indigo-600">Custom...</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                )}
+                                <Label className="text-xs font-bold text-slate-500 uppercase">Faculty</Label>
+                                <Select value={formTeacher} onValueChange={setFormTeacher}>
+                                    <SelectTrigger className="h-10 text-xs font-bold bg-slate-50 border-slate-100">
+                                        <SelectValue placeholder="Select Faculty" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {filteredTeachers.map(t => <SelectItem key={t.id} value={t.id}>Prof. {t.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
 
-                        <div className="flex gap-4 pt-4">
-                            <Button type="button" variant="outline" onClick={deleteSlot} className="h-12 w-12 rounded-xl border-slate-100 text-slate-300 hover:text-rose-500 p-0 transition-all">
-                                <Trash2 className="h-5 w-5" />
-                            </Button>
-                            <Button type="submit" className="flex-1 h-12 rounded-xl bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all">
-                                Save Matrix
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2 flex flex-col">
+                                <Label className="text-xs font-bold text-slate-500 uppercase">Target Section</Label>
+                                <Popover open={openSection} onOpenChange={setOpenSection}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={openSection}
+                                            className="h-10 justify-between text-xs font-bold bg-white border-slate-200"
+                                        >
+                                            {formSection || "Select or Type..."}
+                                            <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[200px] p-0">
+                                        <Command>
+                                            <CommandInput
+                                                placeholder="Search section..."
+                                                className="h-8 text-xs"
+                                                value={searchSection}
+                                                onValueChange={setSearchSection}
+                                            />
+                                            <CommandList>
+                                                <CommandEmpty>
+                                                    <div className="p-2">
+                                                        <p className="text-xs text-slate-500 mb-2">No section found.</p>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="w-full text-xs h-7 border-teal-200 text-teal-700 hover:bg-teal-50"
+                                                            onClick={() => {
+                                                                setFormSection(searchSection.toUpperCase());
+                                                                setOpenSection(false);
+                                                            }}
+                                                        >
+                                                            Use "{searchSection.toUpperCase()}"
+                                                        </Button>
+                                                    </div>
+                                                </CommandEmpty>
+                                                <CommandGroup heading="Existing Sections">
+                                                    {sections.map((section) => (
+                                                        <CommandItem
+                                                            key={section}
+                                                            value={section}
+                                                            onSelect={(currentValue) => {
+                                                                // cmdk returns value in lowercase, so utilize original section or uppercase it
+                                                                setFormSection(section);
+                                                                setOpenSection(false);
+                                                            }}
+                                                            className="text-xs"
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-3 w-3",
+                                                                    formSection === section ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {section}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+
+                            <div className="space-y-2 flex flex-col">
+                                <Label className="text-xs font-bold text-slate-500 uppercase">Room Node</Label>
+                                <Popover open={openRoom} onOpenChange={setOpenRoom}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={openRoom}
+                                            className="h-10 justify-between text-xs font-bold bg-white border-slate-200"
+                                        >
+                                            {formRoom || "Select or Type..."}
+                                            <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[200px] p-0">
+                                        <Command>
+                                            <CommandInput
+                                                placeholder="Search room..."
+                                                className="h-8 text-xs"
+                                                value={searchRoom}
+                                                onValueChange={setSearchRoom}
+                                            />
+                                            <CommandList>
+                                                <CommandEmpty>
+                                                    <div className="p-2">
+                                                        <p className="text-xs text-slate-500 mb-2">No room found.</p>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="w-full text-xs h-7 border-teal-200 text-teal-700 hover:bg-teal-50"
+                                                            onClick={() => {
+                                                                setFormRoom(searchRoom.toUpperCase());
+                                                                setOpenRoom(false);
+                                                            }}
+                                                        >
+                                                            Use "{searchRoom.toUpperCase()}"
+                                                        </Button>
+                                                    </div>
+                                                </CommandEmpty>
+                                                <CommandGroup heading="Existing Rooms">
+                                                    {rooms.map((room) => (
+                                                        <CommandItem
+                                                            key={room}
+                                                            value={room}
+                                                            onSelect={(currentValue) => {
+                                                                setFormRoom(room);
+                                                                setOpenRoom(false);
+                                                            }}
+                                                            className="text-xs"
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-3 w-3",
+                                                                    formRoom === room ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {room}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                            {editingSlot?.data && (
+                                <Button
+                                    onClick={() => handleDelete(editingSlot.data!.id!)}
+                                    disabled={isSaving}
+                                    variant="destructive"
+                                    className="h-10 w-10 p-0 rounded-lg aspect-square bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-100"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            )}
+                            <Button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="flex-1 h-10 bg-slate-900 text-white rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-800"
+                            >
+                                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                                {editingSlot?.data ? "Update Matrix" : "Confirm Entry"}
                             </Button>
                         </div>
-                    </form>
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>
     );
 }
+

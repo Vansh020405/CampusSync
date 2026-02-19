@@ -34,6 +34,8 @@ export async function GET(req: Request) {
     const semester = searchParams.get('semester') || "ALL";
     const batch = searchParams.get('batch') || "ALL";
 
+    const studentId = searchParams.get('studentId');
+
     try {
         const announcements = await (prisma as any).announcement.findMany({
             where: {
@@ -56,8 +58,16 @@ export async function GET(req: Request) {
                     }
                 ]
             },
+            include: {
+                _count: {
+                    select: { acknowledgements: true }
+                },
+                acknowledgements: studentId ? {
+                    where: { studentId: studentId }
+                } : false
+            },
             orderBy: { createdAt: 'desc' },
-            take: 5
+            take: 10
         });
 
         return NextResponse.json(announcements);

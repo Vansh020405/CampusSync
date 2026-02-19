@@ -77,6 +77,7 @@ interface Faculty {
     id: string;
     name: string;
     facultyId: string;
+    role?: string;
 }
 
 export default function AdminExamsPage() {
@@ -300,7 +301,7 @@ export default function AdminExamsPage() {
     );
 
     if (sessionStatus === 'loading') return null;
-    if (session?.user?.role !== 'ADMIN') {
+    if ((session?.user as any)?.role !== 'ADMIN') {
         return (
             <div className="max-w-7xl mx-auto py-32 px-4 text-center">
                 <div className="bg-white rounded-[3rem] border border-slate-200 p-20 shadow-2xl">
@@ -453,8 +454,8 @@ export default function AdminExamsPage() {
                                                     <SelectValue placeholder="Select faculty member..." />
                                                 </SelectTrigger>
                                                 <SelectContent className="rounded-xl border-slate-100">
-                                                    {facultyList.map(faculty => (
-                                                        <SelectItem key={faculty.id} value={faculty.id} className="text-xs font-bold">
+                                                    {facultyList.map((faculty, idx) => (
+                                                        <SelectItem key={faculty.id || idx} value={faculty.id} className="text-xs font-bold">
                                                             {faculty.name} ({faculty.role || 'Faculty'})
                                                         </SelectItem>
                                                     ))}

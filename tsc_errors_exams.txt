@@ -1,0 +1,12 @@
+src/app/(dashboard)/admin/exams/page.tsx(23,58): error TS2307: Cannot find module '@/components/ui/card' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(24,24): error TS2307: Cannot find module '@/components/ui/button' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(25,23): error TS2307: Cannot find module '@/components/ui/input' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(26,23): error TS2307: Cannot find module '@/components/ui/badge' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(34,8): error TS2307: Cannot find module '@/components/ui/dialog' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(35,23): error TS2307: Cannot find module '@/components/ui/label' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(42,8): error TS2307: Cannot find module '@/components/ui/select' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(43,26): error TS2307: Cannot find module '@/components/ui/use-toast' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(44,20): error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(50,8): error TS2307: Cannot find module '@/components/ui/tabs' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(51,30): error TS2307: Cannot find module '@/components/admin/exams/DatesheetManager' or its corresponding type declarations.
+src/app/(dashboard)/admin/exams/page.tsx(304,24): error TS2339: Property 'role' does not exist on type '{ name?: string; email?: string; image?: string; }'.

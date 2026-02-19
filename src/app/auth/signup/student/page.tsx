@@ -20,7 +20,8 @@ export default function StudentSignupPage() {
         year: "3",
         email: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        batch: "Morning"
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -164,6 +165,28 @@ export default function StudentSignupPage() {
                                     </div>
                                 </div>
 
+
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase text-slate-400">BATCH</Label>
+                                    <div className="flex bg-slate-100 p-1 rounded-xl">
+                                        {["Morning", "Evening"].map((batch) => (
+                                            <button
+                                                key={batch}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, batch })}
+                                                className={cn(
+                                                    "flex-1 h-8 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    formData.batch === batch
+                                                        ? "bg-white text-slate-900 shadow-sm"
+                                                        : "text-slate-400 hover:text-slate-600"
+                                                )}
+                                            >
+                                                {batch}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 <Button
                                     type="button"
                                     className="w-full h-12 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest mt-4"
@@ -234,7 +257,7 @@ export default function StudentSignupPage() {
                         </Link>
                     </div>
                 </CardContent>
-            </Card>
-        </div>
+            </Card >
+        </div >
     );
 }

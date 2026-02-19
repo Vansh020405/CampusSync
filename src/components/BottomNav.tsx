@@ -73,34 +73,39 @@ export function BottomNav() {
     }
 
     return (
-        <div className="fixed bottom-0 left-0 z-40 w-full bg-white/95 backdrop-blur-xl border-t border-slate-100 pt-2 pb-safe pb-6 md:pb-8 shadow-[0_-10px_40px_-12px_rgba(0,0,0,0.08)] safe-area-inset-bottom">
-            <div className="flex items-center justify-around px-2 md:px-4 max-w-screen-xl mx-auto">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-lg bg-white/80 backdrop-blur-2xl border border-white/50 rounded-[3rem] py-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-slate-200/50">
+            <div className="flex items-center justify-around px-2 relative">
                 {links.map((link) => {
                     const Icon = link.icon
                     const isActive = pathname === link.href || (link.href !== '/home' && pathname.startsWith(link.href))
-                    const isAttendance = link.label === 'Attendance'
 
                     return (
                         <Link
                             key={link.href}
                             href={link.href}
                             className={cn(
-                                "flex flex-col items-center justify-center transition-all duration-300 flex-1 min-w-0 px-1",
+                                "relative flex flex-col items-center justify-center transition-all duration-500 group py-1",
                                 isActive ? "text-[#0D9488]" : "text-slate-400"
                             )}
                         >
                             <div className={cn(
-                                "p-2 rounded-full transition-all duration-300",
-                                isActive && isAttendance ? "bg-[#0D9488] text-white" : ""
+                                "relative z-10 p-2 rounded-2xl transition-all duration-500",
+                                isActive ? "bg-[#0D9488]/10 scale-110" : "group-hover:bg-slate-50"
                             )}>
                                 <Icon className={cn(
-                                    "h-5 w-5 md:h-[22px] md:w-[22px] transition-all",
-                                    isActive && !isAttendance ? "stroke-[2.5]" : "stroke-[1.5]"
+                                    "h-5 w-5 transition-all duration-500",
+                                    isActive ? "stroke-[2.5]" : "stroke-[1.5]"
                                 )} />
+                                {isActive && (
+                                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0D9488] opacity-20"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0D9488]"></span>
+                                    </span>
+                                )}
                             </div>
                             <span className={cn(
-                                "text-[9px] md:text-[10px] font-bold mt-0.5 md:mt-1 tracking-tight transition-all duration-300 truncate max-w-full px-1 text-center",
-                                isActive ? "opacity-100 text-[#0D9488]" : "opacity-70 text-slate-400"
+                                "text-[9px] font-black mt-1.5 uppercase tracking-[0.15em] transition-all duration-500",
+                                isActive ? "opacity-100 translate-y-0" : "opacity-40 translate-y-0 text-slate-500"
                             )}>
                                 {link.label}
                             </span>
