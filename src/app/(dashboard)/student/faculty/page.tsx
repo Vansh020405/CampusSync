@@ -135,12 +135,12 @@ export default function FacultyDirectoryPage() {
         setIsDrawerOpen(true);
     };
 
-    const departments = ["All", ...Array.from(new Set(facultyList.map(f => f.department)))];
+    const departments = ["All", ...Array.from(new Set(facultyList.flatMap(f => f.departments || [])))];
 
     const filteredFaculty = facultyList.filter(faculty => {
         const matchesSearch = (faculty.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
             (faculty.subjects || []).some((s: string) => s.toLowerCase().includes(searchQuery.toLowerCase()));
-        const matchesDepartment = selectedDepartment === "All" || faculty.department === selectedDepartment;
+        const matchesDepartment = selectedDepartment === "All" || (faculty.departments || []).includes(selectedDepartment);
         return matchesSearch && matchesDepartment;
     });
 

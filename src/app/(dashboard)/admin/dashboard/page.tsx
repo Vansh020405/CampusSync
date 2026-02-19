@@ -14,26 +14,82 @@ import { useEffect, useState } from "react";
 export default function AdminDashboardPage() {
     const { data: session } = useSession();
     const [counts, setCounts] = useState({ students: 0, faculty: 0 });
+    const [availableDepartments, setAvailableDepartments] = useState<string[]>([]);
+    const [availableSections, setAvailableSections] = useState<string[]>([]);
+    const [message, setMessage] = useState("");
+    const [isSending, setIsSending] = useState(false);
+    const [broadcastFilters, setBroadcastFilters] = useState({
+        department: "ALL",
+        semester: "ALL",
+        batch: "ALL"
+    });
+
+    const fetchCounts = async () => {
+        try {
+            const [stdRes, facRes] = await Promise.all([
+                fetch('/api/admin/students/list'),
+                fetch('/api/faculty/list')
+            ]);
+            const stds = await stdRes.json();
+            const facs = await facRes.json();
+
+            // Extract unique departments and sections
+            const depts = new Set<string>(["CSE", "ECE", "ME", "CSE AI ML"]); // Include defaults and user requested
+            const sects = new Set<string>();
+
+            if (Array.isArray(stds)) {
+                stds.forEach((s: any) => {
+                    if (s.department) depts.add(s.department);
+                    if (s.section) sects.add(s.section);
+                });
+            }
+
+            if (Array.isArray(facs)) {
+                facs.forEach((f: any) => {
+                    if (f.departments && Array.isArray(f.departments)) {
+                        f.departments.forEach((d: string) => depts.add(d));
+                    }
+                });
+            }
+
+            setCounts({
+                students: Array.isArray(stds) ? stds.length : 0,
+                faculty: Array.isArray(facs) ? facs.length : 0
+            });
+            setAvailableDepartments(Array.from(depts).filter(Boolean).sort());
+            setAvailableSections(Array.from(sects).filter(Boolean).sort());
+        } catch (e) {
+            console.error("Dashboard stats error:", e);
+        }
+    };
 
     useEffect(() => {
-        const fetchCounts = async () => {
-            try {
-                const [stdRes, facRes] = await Promise.all([
-                    fetch('/api/admin/students/list'),
-                    fetch('/api/faculty/list')
-                ]);
-                const stds = await stdRes.json();
-                const facs = await facRes.json();
-                setCounts({
-                    students: Array.isArray(stds) ? stds.length : 0,
-                    faculty: Array.isArray(facs) ? facs.length : 0
-                });
-            } catch (e) {
-                console.error("Dashboard stats error:", e);
-            }
-        };
         fetchCounts();
     }, []);
+
+    const handleBroadcast = async () => {
+        if (!message.trim()) return;
+        setIsSending(true);
+        try {
+            const res = await fetch('/api/admin/broadcast', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message,
+                    filters: broadcastFilters,
+                    senderId: session?.user?.id || 'admin'
+                })
+            });
+            if (res.ok) {
+                setMessage("");
+                // Success feedback could be added here
+            }
+        } catch (e) {
+            console.error("Broadcast failed:", e);
+        } finally {
+            setIsSending(false);
+        }
+    };
 
     const tiles = [
         {
@@ -142,23 +198,89 @@ export default function AdminDashboardPage() {
 
             {/* Broadcast Terminal */}
             <div className="px-4">
-                <div className="bg-slate-900 rounded-[3rem] p-8 text-white relative overflow-hidden border border-slate-800">
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
-                        <div className="space-y-1">
-                            <h2 className="text-2xl font-extrabold uppercase tracking-tighter">System Notification Hub</h2>
-                            <p className="text-slate-400 text-xs font-medium max-w-sm">
-                                Execute network-wide broadcasts and institutional announcements from the central command.
-                            </p>
+                <div className="bg-slate-900 rounded-[3rem] p-10 text-white relative overflow-hidden border border-slate-800 shadow-2xl">
+                    <div className="relative z-10 flex flex-col gap-8">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/10 pb-6">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">Network Broadcast Terminal</span>
+                                </div>
+                                <h2 className="text-3xl font-extrabold uppercase tracking-tighter">Central Announcement Dispatch</h2>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-400">
+                                    <Megaphone className="h-5 w-5" />
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <button className="h-11 px-8 rounded-2xl bg-white text-slate-900 font-extrabold text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-95 shadow-sm">
-                                New Broadcast
-                            </button>
-                            <Link href="/admin/signup">
-                                <button className="h-11 px-8 rounded-2xl bg-slate-800 text-white font-extrabold text-[10px] uppercase tracking-widest hover:bg-slate-700 transition-all active:scale-95 border border-slate-700">
-                                    Provision New Admin
-                                </button>
-                            </Link>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Department</label>
+                                <select
+                                    className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    value={broadcastFilters.department}
+                                    onChange={(e) => setBroadcastFilters({ ...broadcastFilters, department: e.target.value })}
+                                >
+                                    <option className="bg-slate-900" value="ALL">All Departments</option>
+                                    {availableDepartments.map(dept => (
+                                        <option key={dept} className="bg-slate-900" value={dept}>{dept}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Semester</label>
+                                <select
+                                    className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    value={broadcastFilters.semester}
+                                    onChange={(e) => setBroadcastFilters({ ...broadcastFilters, semester: e.target.value })}
+                                >
+                                    <option className="bg-slate-900" value="ALL">All Semesters</option>
+                                    {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                                        <option key={s} className="bg-slate-900" value={s.toString()}>Semester {s}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Batch</label>
+                                <select
+                                    className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    value={broadcastFilters.batch}
+                                    onChange={(e) => setBroadcastFilters({ ...broadcastFilters, batch: e.target.value })}
+                                >
+                                    <option className="bg-slate-900" value="ALL">All Batches</option>
+                                    <option className="bg-slate-900" value="Morning">Morning Batch</option>
+                                    <option className="bg-slate-900" value="Evening">Evening Batch</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="relative group">
+                                <textarea
+                                    placeholder="Draft institutional directive or global announcement..."
+                                    className="w-full min-h-[160px] bg-white/5 border border-white/10 rounded-[2rem] p-6 text-sm font-medium placeholder:text-slate-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none leading-relaxed"
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                />
+                                <div className="absolute bottom-6 right-6 flex items-center gap-4">
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest hidden sm:block">
+                                        {message.length} Characters
+                                    </p>
+                                    <button
+                                        onClick={handleBroadcast}
+                                        disabled={isSending || !message.trim()}
+                                        className={cn(
+                                            "h-12 px-10 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl active:scale-95 flex items-center gap-2",
+                                            isSending ? "bg-slate-700 text-slate-400" : "bg-white text-slate-900 hover:bg-emerald-500 hover:text-white"
+                                        )}
+                                    >
+                                        <Megaphone className="h-4 w-4" />
+                                        {isSending ? "Transmitting..." : "Execute Broadcast"}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

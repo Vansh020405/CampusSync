@@ -12,6 +12,7 @@ model Student {
   name         String
   rollNo       String              @unique
   section      String
+  batch        String              @default("Morning")
   department   String
   semester     String
   email        String?
@@ -278,4 +279,16 @@ model Grade {
   student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId, semester])
+}
+
+model Announcement {
+  id          String   @id @default(uuid())
+  content     String
+  department  String   @default("ALL")
+  semester    String   @default("ALL")
+  batch       String   @default("ALL")
+  senderId    String
+  createdAt   DateTime @default(now())
+
+  @@index([department, semester, batch])
 }

@@ -6,9 +6,10 @@ import Link from "next/link"
 import {
     Briefcase, Users, FileText, BarChart, BookOpen,
     GraduationCap, Search, LayoutDashboard,
-    Clock, UserCheck
+    Clock, UserCheck, Megaphone, Bell
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
 
 export default function StudentDashboard() {
     const { data: session } = useSession()
@@ -17,9 +18,28 @@ export default function StudentDashboard() {
         name: session?.user?.name || "Student",
         rollNo: (session?.user as any)?.rollNo || "23-4G2-01",
         section: (session?.user as any)?.section || "4G2",
-        branch: "Computer Science",
-        year: "3"
+        batch: (session?.user as any)?.batch || "Morning",
+        branch: (session?.user as any)?.department || "Computer Science",
+        year: (session?.user as any)?.semester || "3",
+        department: (session?.user as any)?.department || "CSE"
     };
+
+    const [announcements, setAnnouncements] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchAnnouncements = async () => {
+            try {
+                const res = await fetch(`/api/admin/broadcast?department=${studentData.department}&semester=${studentData.year}&batch=${studentData.batch}`);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setAnnouncements(data);
+                }
+            } catch (e) {
+                console.error("Failed to fetch announcements:", e);
+            }
+        };
+        if (session) fetchAnnouncements();
+    }, [session]);
 
     const tabs = [
         { href: "/student/internships", label: "Internships", icon: Briefcase, color: "text-blue-600 bg-blue-100" },
@@ -66,6 +86,45 @@ export default function StudentDashboard() {
                     </div>
                 </div>
             </div>
+            {/* Notice Board */}
+            {announcements.length > 0 && (
+                <div className="space-y-4 pt-2">
+                    <div className="flex items-center justify-between px-1">
+                        <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 uppercase tracking-tight">
+                            <Megaphone className="h-5 w-5 text-rose-600" />
+                            Notice Board
+                        </h2>
+                        <span className="text-[10px] font-black text-rose-600 bg-rose-50 px-2 py-1 rounded-lg animate-pulse">
+                            {announcements.length} NEW
+                        </span>
+                    </div>
+                    <div className="space-y-3">
+                        {announcements.map((ann, idx) => (
+                            <Card key={ann.id} className={cn(
+                                "border-none shadow-sm rounded-2xl overflow-hidden transition-all",
+                                idx === 0 ? "bg-slate-900 text-white" : "bg-white text-slate-900"
+                            )}>
+                                <CardContent className="p-5 flex gap-4">
+                                    <div className={cn(
+                                        "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center",
+                                        idx === 0 ? "bg-white/10" : "bg-slate-50"
+                                    )}>
+                                        <Bell className={cn("h-5 w-5", idx === 0 ? "text-emerald-400" : "text-slate-400")} />
+                                    </div>
+                                    <div className="space-y-1 flex-1">
+                                        <div className="flex items-center justify-between">
+                                            <p className={cn("text-[9px] font-black uppercase tracking-widest opacity-60")}>
+                                                Institutional Directive • {new Date(ann.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                        <p className="text-sm font-bold leading-relaxed">{ann.content}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Quick Actions Grid */}
             <div className="space-y-4 pt-2">

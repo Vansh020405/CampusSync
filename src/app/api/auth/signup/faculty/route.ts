@@ -24,7 +24,7 @@ export async function POST(req: Request) {
             data: {
                 name,
                 facultyId,
-                department,
+                department: JSON.stringify(department || []),
                 subjects: JSON.stringify(subjects || []),
                 sectionsTeaching: JSON.stringify(sectionsTeaching || []),
                 cabinLocation,

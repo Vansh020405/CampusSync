@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, GraduationCap, ShieldCheck, User, Mail, Lock, Hash, Book, Layers, MapPin } from "lucide-react";
+import { Loader2, GraduationCap, ShieldCheck, User, Mail, Lock, Hash, Book, Layers, MapPin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from 'next/link';
 import { BrandLogo } from "@/components/brand/Logo";
@@ -31,11 +31,15 @@ export default function AuthPage() {
     password: "",
     semester: "",
     section: "",
-    department: "CSE",
-    subjects: "",
-    sectionsTeaching: "",
+    batch: "Morning",
+    department: "CSE", // Fallback for student
+    departments: [] as string[], // For faculty
+    subjects: [] as string[],
     cabin: ""
   });
+
+  const [subjectInput, setSubjectInput] = useState("");
+  const [departmentInput, setDepartmentInput] = useState("");
 
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
@@ -78,6 +82,7 @@ export default function AuthPage() {
           rollNo: formData.identifier,
           semester: formData.semester,
           section: formData.section,
+          batch: formData.batch,
           email: formData.email,
           password: formData.password,
           department: formData.department
@@ -87,9 +92,9 @@ export default function AuthPage() {
           facultyId: formData.identifier,
           email: formData.email,
           password: formData.password,
-          department: formData.department,
-          subjects: formData.subjects.split(',').map(s => s.trim()).filter(s => s !== ""),
-          sectionsTeaching: formData.sectionsTeaching.split(',').map(s => s.trim().toUpperCase()).filter(s => s !== ""),
+          department: formData.departments,
+          subjects: formData.subjects,
+          sectionsTeaching: [],
           cabinLocation: formData.cabin
         };
 
@@ -256,17 +261,32 @@ export default function AuthPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="space-y-1.5 group">
-                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Department</label>
-                      <div className="relative">
-                        <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
-                        <Input
-                          placeholder="e.g. BE-CSE"
-                          className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
-                          value={formData.department}
-                          onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5 group">
+                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Batch</label>
+                        <select
+                          className="w-full h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold px-4 text-sm outline-none transition-all"
+                          value={formData.batch}
+                          onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
                           required
-                        />
+                        >
+                          <option value="Morning">Morning Batch</option>
+                          <option value="Evening">Evening Batch</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1.5 group">
+                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Department</label>
+                        <div className="relative">
+                          <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
+                          <Input
+                            placeholder="e.g. BE-CSE"
+                            className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
+                            value={formData.department}
+                            onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                            required
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -274,47 +294,98 @@ export default function AuthPage() {
 
                 {activeTab === 'signup' && selectedRole === 'faculty' && (
                   <>
-                    <div className="space-y-1.5 group">
-                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Department</label>
-                      <div className="relative">
-                        <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
-                        <Input
-                          placeholder="e.g. Dept. of CSE"
-                          className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
-                          value={formData.department}
-                          onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                          required
-                        />
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Add Departments</label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
+                          <Input
+                            placeholder="e.g. Dept. of CSE"
+                            className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
+                            value={departmentInput}
+                            onChange={(e) => setDepartmentInput(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (departmentInput) {
+                                  setFormData(prev => ({ ...prev, departments: [...prev.departments, departmentInput] }));
+                                  setDepartmentInput("");
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            if (departmentInput) {
+                              setFormData(prev => ({ ...prev, departments: [...prev.departments, departmentInput] }));
+                              setDepartmentInput("");
+                            }
+                          }}
+                          className="h-14 px-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                        >
+                          Add
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 mt-2 min-h-[20px]">
+                        {formData.departments.map(d => (
+                          <div key={d} className="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase flex items-center gap-2">
+                            {d}
+                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, departments: prev.departments.filter(i => i !== d) }))} className="text-slate-400 hover:text-slate-900 transition-colors">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Add Subjects</label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Book className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
+                          <Input
+                            placeholder="Enter subject..."
+                            className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
+                            value={subjectInput}
+                            onChange={(e) => setSubjectInput(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (subjectInput) {
+                                  setFormData(prev => ({ ...prev, subjects: [...prev.subjects, subjectInput] }));
+                                  setSubjectInput("");
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            if (subjectInput) {
+                              setFormData(prev => ({ ...prev, subjects: [...prev.subjects, subjectInput] }));
+                              setSubjectInput("");
+                            }
+                          }}
+                          className="h-14 px-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                        >
+                          Add
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 mt-2 min-h-[20px]">
+                        {formData.subjects.map(s => (
+                          <div key={s} className="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase flex items-center gap-2">
+                            {s}
+                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, subjects: prev.subjects.filter(i => i !== s) }))} className="text-slate-400 hover:text-slate-900 transition-colors">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     </div>
                     <div className="space-y-1.5 group">
-                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Subjects (Comma Separated)</label>
-                      <div className="relative">
-                        <Book className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
-                        <Input
-                          placeholder="e.g. Java, DBMS, OS"
-                          className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
-                          value={formData.subjects}
-                          onChange={(e) => setFormData({ ...formData, subjects: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-1.5 group">
-                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Teaching Sections (e.g. 4G2, 4G3)</label>
-                      <div className="relative">
-                        <Layers className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
-                        <Input
-                          placeholder="e.g. 4G2, 4G1"
-                          className="pl-12 h-14 rounded-2xl bg-white border-slate-100 focus-visible:ring-slate-900 font-bold transition-all"
-                          value={formData.sectionsTeaching}
-                          onChange={(e) => setFormData({ ...formData, sectionsTeaching: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-1.5 group">
-                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Cabin Location</label>
+                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">Office / Cabin Location</label>
                       <div className="relative">
                         <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors" />
                         <Input
@@ -401,7 +472,7 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

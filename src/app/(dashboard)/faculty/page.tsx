@@ -17,9 +17,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Users, TrendingUp, ChevronRight, Send, CheckCircle2,
     BookOpen, FileText, LayoutGrid, Clock, MapPin, Calendar,
-    Plus, FileUp, Activity, Palmtree, AlertCircle
+    Plus, FileUp, Activity, Palmtree, AlertCircle, ShieldCheck, Fingerprint,
+    Users, TrendingUp, ChevronRight, Send
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -30,7 +30,12 @@ export default function FacultyDashboardPage() {
     const { toast } = useToast();
     const facultyId = (session?.user as any)?.id;
     const facultyName = session?.user?.name || "Faculty Member";
-    const facultyDept = (session?.user as any)?.department || "Academic Department";
+    const facultyDeptRaw = (session?.user as any)?.department;
+    const facultyIdDisplay = (session?.user as any)?.facultyId || "FAC-000";
+
+    const facultyDepts = facultyDeptRaw
+        ? (facultyDeptRaw.startsWith('[') ? JSON.parse(facultyDeptRaw) : [facultyDeptRaw])
+        : ["Academic Department"];
     const facultySubjectsString = (session?.user as any)?.subjects;
     const facultySubjects = facultySubjectsString
         ? (facultySubjectsString.startsWith('[') ? JSON.parse(facultySubjectsString) : facultySubjectsString.split(','))
@@ -203,29 +208,41 @@ export default function FacultyDashboardPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-12 pb-32 px-6 py-12 bg-white min-h-screen font-sans">
             {/* Minimal Faculty Hub Header */}
-            <div className="flex items-center justify-between border-b border-slate-50 pb-8">
-                <div className="space-y-1">
-                    <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-                        Faculty Dashboard
-                    </h1>
-                    <div className="flex items-center gap-3">
-                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                            {facultyName.toUpperCase()}
-                        </p>
-                        <div className="h-1 w-1 rounded-full bg-slate-200" />
-                        <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest">
-                            {facultyDept}
-                        </p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-50 pb-10 gap-6">
+                <div className="space-y-4">
+                    <div className="space-y-1">
+                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] ml-1">Institutional Profile</p>
+                        <h1 className="text-5xl font-black text-slate-900 tracking-tight leading-none">
+                            {facultyName}
+                        </h1>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-xl border border-slate-200/50">
+                            <Fingerprint className="h-3.5 w-3.5 text-slate-400" />
+                            <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest">
+                                {facultyIdDisplay}
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {facultyDepts.map((d: string, i: number) => (
+                                <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-xl border border-emerald-100/50">
+                                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                                    <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">
+                                        {d}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                    <div className="h-14 w-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
-                        <Users className="h-7 w-7" />
+                <div className="flex flex-col items-end gap-3">
+                    <div className="h-16 w-16 bg-slate-50 rounded-[1.5rem] flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 group hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-300">
+                        <Users className="h-8 w-8" />
                     </div>
                     {facultySubjects.length > 0 && (
-                        <div className="flex flex-wrap gap-1 justify-end max-w-[200px]">
+                        <div className="flex flex-wrap gap-1.5 justify-end max-w-[240px]">
                             {facultySubjects.map((s: string, i: number) => (
-                                <Badge key={i} variant="outline" className="text-[8px] font-black uppercase text-slate-400 border-slate-100 px-1.5 py-0 min-h-0 h-4">
+                                <Badge key={i} variant="outline" className="text-[8px] font-black uppercase text-slate-400 border-slate-100 bg-white px-2 py-0.5 shadow-sm">
                                     {s.trim()}
                                 </Badge>
                             ))}

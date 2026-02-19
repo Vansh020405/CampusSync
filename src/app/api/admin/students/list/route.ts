@@ -11,6 +11,7 @@ export async function GET() {
                 name: true,
                 rollNo: true,
                 section: true,
+                batch: true,
                 department: true,
                 email: true,
                 semester: true,

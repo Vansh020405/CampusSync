@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Users, ArrowRight, User, Fingerprint, MapPin, Mail, Lock, Plus, X } from "lucide-react";
+import { Users, ArrowRight, User, Fingerprint, MapPin, Mail, Lock, Plus, X, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -16,16 +16,16 @@ export default function FacultySignupPage() {
     const [formData, setFormData] = useState({
         name: "",
         facultyId: "",
-        department: "Computer Science",
-        cabin: "",
+        departments: [] as string[],
+        office: "",
         subjects: [] as string[],
-        sections: [] as string[],
         email: "",
         password: ""
     });
 
+    const [departmentInput, setDepartmentInput] = useState("");
+
     const [subjectInput, setSubjectInput] = useState("");
-    const [sectionInput, setSectionInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -42,9 +42,10 @@ export default function FacultySignupPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...formData,
+                    department: formData.departments,
                     subjects: formData.subjects,
-                    sectionsTeaching: formData.sections,
-                    cabinLocation: formData.cabin
+                    sectionsTeaching: [],
+                    cabinLocation: formData.office
                 })
             });
 
@@ -80,15 +81,15 @@ export default function FacultySignupPage() {
         }
     };
 
-    const addSection = () => {
-        if (sectionInput && !formData.sections.includes(sectionInput)) {
-            setFormData({ ...formData, sections: [...formData.sections, sectionInput] });
-            setSectionInput("");
+    const addDepartment = () => {
+        if (departmentInput && !formData.departments.includes(departmentInput)) {
+            setFormData({ ...formData, departments: [...formData.departments, departmentInput] });
+            setDepartmentInput("");
         }
     };
 
     const removeSubject = (s: string) => setFormData({ ...formData, subjects: formData.subjects.filter(i => i !== s) });
-    const removeSection = (s: string) => setFormData({ ...formData, sections: formData.sections.filter(i => i !== s) });
+    const removeDepartment = (d: string) => setFormData({ ...formData, departments: formData.departments.filter(i => i !== d) });
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -131,7 +132,44 @@ export default function FacultySignupPage() {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase text-slate-400">Add Departments</Label>
+                                    <div className="flex gap-2">
+                                        <div className="relative flex-1">
+                                            <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                                            <Input
+                                                placeholder="e.g. Computer Science"
+                                                className="pl-10 h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
+                                                value={departmentInput}
+                                                onChange={(e) => setDepartmentInput(e.target.value)}
+                                                onKeyPress={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        addDepartment();
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            onClick={addDepartment}
+                                            className="rounded-xl px-4 bg-slate-900 text-white hover:bg-black text-[10px] font-black uppercase tracking-widest shadow-lg shadow-black/5 transition-all"
+                                        >
+                                            Add
+                                        </Button>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5 mt-2 min-h-[20px]">
+                                        {formData.departments.length > 0 ? formData.departments.map(d => (
+                                            <Badge key={d} className="bg-slate-100 text-slate-700 border-none rounded-lg px-2 py-1 flex items-center gap-1 group transition-all">
+                                                <span className="text-[9px] font-black uppercase tracking-tight">{d}</span>
+                                                <X className="h-2.5 w-2.5 cursor-pointer opacity-50 group-hover:opacity-100" onClick={() => removeDepartment(d)} />
+                                            </Badge>
+                                        )) : (
+                                            <p className="text-[9px] font-bold text-slate-300 italic">No departments added yet</p>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 mt-4">
                                     <div className="space-y-2">
                                         <Label className="text-[10px] font-black uppercase text-slate-400">Faculty ID</Label>
                                         <div className="relative">
@@ -145,14 +183,14 @@ export default function FacultySignupPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-slate-400">Cabin Location</Label>
+                                        <Label className="text-[10px] font-black uppercase text-slate-400">Office Location</Label>
                                         <div className="relative">
                                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
                                             <Input
-                                                placeholder="e.g. Block A-301"
+                                                placeholder="e.g. Block A, Room 301"
                                                 className="pl-10 h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
-                                                value={formData.cabin}
-                                                onChange={(e) => setFormData({ ...formData, cabin: e.target.value })}
+                                                value={formData.office}
+                                                onChange={(e) => setFormData({ ...formData, office: e.target.value })}
                                             />
                                         </div>
                                     </div>
@@ -163,7 +201,7 @@ export default function FacultySignupPage() {
                                         <Label className="text-[10px] font-black uppercase text-slate-400">Add Subjects</Label>
                                         <div className="flex gap-2">
                                             <Input
-                                                placeholder="e.g. DBMS, OS (Separated by commas)"
+                                                placeholder="Enter subject name..."
                                                 className="h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
                                                 value={subjectInput}
                                                 onChange={(e) => setSubjectInput(e.target.value)}
@@ -174,16 +212,12 @@ export default function FacultySignupPage() {
                                                     }
                                                 }}
                                             />
-                                            <Button type="button" size="icon" onClick={() => {
-                                                if (subjectInput.includes(',')) {
-                                                    const newSubjects = subjectInput.split(',').map(s => s.trim()).filter(s => s !== "");
-                                                    setFormData(prev => ({ ...prev, subjects: Array.from(new Set([...prev.subjects, ...newSubjects])) }));
-                                                    setSubjectInput("");
-                                                } else {
-                                                    addSubject();
-                                                }
-                                            }} className="rounded-xl bg-emerald-100 text-emerald-700 hover:bg-emerald-200 shadow-sm border border-emerald-200/50 transition-all">
-                                                <Plus className="h-4 w-4" />
+                                            <Button
+                                                type="button"
+                                                onClick={addSubject}
+                                                className="rounded-xl px-4 bg-emerald-600 text-white hover:bg-emerald-700 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/10 transition-all"
+                                            >
+                                                Add
                                             </Button>
                                         </div>
                                         <div className="flex flex-wrap gap-1.5 mt-2 min-h-[20px]">
@@ -198,51 +232,13 @@ export default function FacultySignupPage() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-slate-400">Target Sections</Label>
-                                        <div className="flex gap-2">
-                                            <Input
-                                                placeholder="e.g. 4G2, 4G3"
-                                                className="h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-emerald-500"
-                                                value={sectionInput}
-                                                onChange={(e) => setSectionInput(e.target.value)}
-                                                onKeyPress={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        e.preventDefault();
-                                                        addSection();
-                                                    }
-                                                }}
-                                            />
-                                            <Button type="button" size="icon" onClick={() => {
-                                                if (sectionInput.includes(',')) {
-                                                    const newSections = sectionInput.split(',').map(s => s.trim().toUpperCase()).filter(s => s !== "");
-                                                    setFormData(prev => ({ ...prev, sections: Array.from(new Set([...prev.sections, ...newSections])) }));
-                                                    setSectionInput("");
-                                                } else {
-                                                    addSection();
-                                                }
-                                            }} className="rounded-xl bg-slate-900 text-white hover:bg-black shadow-lg shadow-black/5 transition-all">
-                                                <Plus className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                        <div className="flex flex-wrap gap-1.5 mt-2 min-h-[20px]">
-                                            {formData.sections.length > 0 ? formData.sections.map(s => (
-                                                <Badge key={s} className="bg-slate-900 text-white border-none rounded-lg px-2 py-1 flex items-center gap-1 group transition-all">
-                                                    <span className="text-[9px] font-black uppercase tracking-tight">{s}</span>
-                                                    <X className="h-2.5 w-2.5 cursor-pointer opacity-50 group-hover:opacity-100" onClick={() => removeSection(s)} />
-                                                </Badge>
-                                            )) : (
-                                                <p className="text-[9px] font-bold text-slate-300 italic">No sections assigned yet</p>
-                                            )}
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <Button
                                     type="button"
                                     className="w-full h-12 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest mt-6 shadow-xl shadow-emerald-600/10 hover:bg-emerald-700 transition-all active:scale-[0.98]"
                                     onClick={handleNext}
-                                    disabled={!formData.name || formData.subjects.length === 0 || formData.sections.length === 0}
+                                    disabled={!formData.name || formData.subjects.length === 0 || formData.departments.length === 0}
                                 >
                                     Verify Identities <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
@@ -279,7 +275,12 @@ export default function FacultySignupPage() {
 
                                 <div className="pt-4 p-4 rounded-2xl bg-slate-50 space-y-2 border border-slate-100">
                                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Onboarding Summary</p>
-                                    <p className="text-xs font-bold text-slate-700">Linking Profile to <span className="text-emerald-600">{formData.sections.join(', ')}</span></p>
+                                    <p className="text-xs font-bold text-slate-700">Linking Profile to Institutional Data</p>
+                                    {formData.departments.length > 0 && (
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                                            Depts: <span className="text-slate-600 font-black">{formData.departments.join(', ')}</span>
+                                        </p>
+                                    )}
                                     {formData.subjects.length > 0 && (
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
                                             Teaching: <span className="text-slate-600 font-black">{formData.subjects.join(', ')}</span>

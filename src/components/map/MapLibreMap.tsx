@@ -31,6 +31,7 @@ const LOCATIONS: CampusLocation[] = [
     { id: 'babbage', name: "Babbage Block", category: 'academic', coords: [76.66012323474585, 30.51744071725377], description: 'Applied Sciences Department' },
     { id: 'corbusier', name: "Le Corbusier", category: 'academic', coords: [76.66041793874132, 30.51712811618798], description: 'Architecture & Design' },
     { id: 'square-two', name: "Square Two", category: 'canteen', coords: [76.66070462358044, 30.517309459470138], description: 'Alternative Dining Area' },
+    { id: 'alpha-zone', name: "Alpha Zone", category: 'admin', coords: [76.65949044803615, 30.517175363054424], description: 'Digital Innovation Center' },
     { id: 'turing', name: "Turing Block", category: 'academic', coords: [76.66051462532121, 30.516426777056175], description: 'Computing Sciences' },
     { id: 'edison', name: "Edison Block", category: 'academic', coords: [76.65975681504716, 30.51641986868414], description: 'Electrical Engineering' },
     { id: 'newton', name: "Newton Block", category: 'academic', coords: [76.65947413978621, 30.516411233218385], description: 'Physics & Research' },
@@ -39,13 +40,23 @@ const LOCATIONS: CampusLocation[] = [
     { id: 'fleming', name: "Fleming Block", category: 'academic', coords: [76.66088130845091, 30.515670933962564], description: 'Biosciences Department' },
     { id: 'law', name: "Law Block", category: 'academic', coords: [76.66088130845091, 30.515670933962564], description: 'Institutional School of Law' },
     { id: 'chairman', name: "Chairman's Office", category: 'admin', coords: [76.66044827400862, 30.515734836877584], description: 'Global Leadership Office' },
+    { id: 'omega-zone', name: "Omega Zone", category: 'admin', coords: [76.66079321314245, 30.51508930798686], description: 'Administrative Hub' },
+    { id: 'beta-zone', name: "Beta Zone", category: 'admin', coords: [76.65979734807206, 30.515712481381915], description: 'Student Support Services' },
+    { id: 'galelio', name: "Galileo Block", category: 'academic', coords: [76.65906902878997, 30.51566553013159], description: 'Aerospace Engineering' },
     { id: 'explore-hub', name: "Explore Hub", category: 'admin', coords: [76.65941580762274, 30.515365235650147], description: 'Innovation & Incubation' },
     { id: 'pythagoras', name: "Pythagoras Block", category: 'academic', coords: [76.65909504136917, 30.515106168533364], description: 'Mathematics Department' },
     { id: 'hospitality', name: "School of Hospitality", category: 'academic', coords: [76.6594779560854, 30.514790105710357], description: 'Culinary & Hotel Management' },
     { id: 'blue-tokai', name: "Blue Tokai", category: 'canteen', coords: [76.65974459303366, 30.514790105710357], description: 'Premium Coffee Shop' },
     { id: 'moon-hall', name: "Moon Hall", category: 'hostel', coords: [76.66003127787278, 30.514788378588307], description: 'Student Assembly Hall' },
     { id: 'rockefeller', name: "Rockefeller Block", category: 'academic', coords: [76.65977466488067, 30.514004261995613], description: 'Economics Department' },
+    { id: 'martin-luther', name: "Martin Luther Block", category: 'academic', coords: [76.66058459967093, 30.513933449394226], description: 'Humanities & Social Sciences' },
+    { id: 'sportorium', name: "Sportorium", category: 'academic', coords: [76.65804343640403, 30.515819188785123], description: 'Indoor Sports Complex' },
+    { id: 'explotorium', name: "Explotorium", category: 'academic', coords: [76.65699802580777, 30.515819188785123], description: 'Science & Discovery Center' },
+    { id: 'tesla', name: "Tesla Block", category: 'academic', coords: [76.65644807047038, 30.515819188785123], description: 'Advanced Robotics Lab' },
+    { id: 'explore-stars', name: "Explore Stars", category: 'admin', coords: [76.65894346942487, 30.516426072799995], description: 'Astrophysics & Space Center' },
+    { id: 'control-room', name: "Control Room", category: 'admin', coords: [76.660544878004, 30.516016983599542], description: 'Campus Security & Systems' },
 ]
+
 
 export default function MapLibreMap() {
     const mapContainer = useRef<HTMLDivElement>(null)
@@ -59,6 +70,7 @@ export default function MapLibreMap() {
     const [routeInfo, setRouteInfo] = useState<{ distance: string, duration: string } | null>(null)
     const isReadyRef = useRef(false)
     const startMarkerRef = useRef<maplibregl.Marker | null>(null)
+    const animationTimerRef = useRef<NodeJS.Timeout | null>(null)
 
     // Default starting point (main entrance)
     const startPoint: [number, number] = [76.65919385345458, 30.51794484908655]
@@ -112,7 +124,7 @@ export default function MapLibreMap() {
                     }, 'route-line')
                 }
             } catch (error) {
-                console.warn('Route layer initialization skipped:', error)
+                console.warn('Layer initialization skipped:', error)
             }
         }
 
@@ -203,69 +215,103 @@ export default function MapLibreMap() {
             curve: 1.5,
             essential: true
         })
+
+        // Automatically trigger navigation when a location is clicked
+        startNavigation(loc)
     }
 
     const startNavigation = async (destination: CampusLocation) => {
         if (!map.current) return
 
         setIsNavigating(true)
-        setInitStatus('Calculating Paths...')
+        setInitStatus('Finding Campus Path...')
+        setMapError(null)
 
         try {
-            // Fetch route from OSRM using walking profile
+            // Ensure we always start from the Main Gate
+            const mainGate = LOCATIONS.find(l => l.id === 'main')
+            const startCoords = mainGate ? mainGate.coords : startPoint
+
+            // Fetch proper pathway routing (foot profile for walkways)
+            // Using FOSSGIS OSRM which often has better pedestrian data
             const response = await fetch(
-                `https://router.project-osrm.org/route/v1/walking/${startPoint[0]},${startPoint[1]};${destination.coords[0]},${destination.coords[1]}?overview=full&geometries=geojson&steps=true`
+                `https://routing.openstreetmap.de/routed-foot/route/v1/foot/${startCoords[0]},${startCoords[1]};${destination.coords[0]},${destination.coords[1]}?overview=full&geometries=geojson&steps=true`
             )
 
-            if (!response.ok) throw new Error('OSRM service unavailable')
+            let data
+            if (!response.ok) {
+                console.warn('Primary routing failed, trying fallback...')
+                const fallbackResponse = await fetch(
+                    `https://router.project-osrm.org/route/v1/walking/${startCoords[0]},${startCoords[1]};${destination.coords[0]},${destination.coords[1]}?overview=full&geometries=geojson&steps=true`
+                )
+                if (!fallbackResponse.ok) throw new Error('Routing service unavailable')
+                data = await fallbackResponse.json()
+            } else {
+                data = await response.json()
+            }
 
-            const data = await response.json()
-            if (!data.routes || data.routes.length === 0) throw new Error('No walkways found between points')
+            if (!data.routes || data.routes.length === 0) {
+                throw new Error('No internal pathways detected')
+            }
 
             const route = data.routes[0]
             const fullRoute = route.geometry.coordinates as [number, number][]
 
-            // Calculate distance and time
+            // Set distance and duration from actual route data
             const distInKm = (route.distance / 1000).toFixed(2)
             const timeInMin = Math.ceil(route.duration / 60)
-            setRouteInfo({ distance: `${distInKm} km`, duration: `${timeInMin} min` })
 
-            // Frame the full route
+            setRouteInfo({
+                distance: `${distInKm} km`,
+                duration: `${timeInMin} min`
+            })
+
+            // Frame the full route with perspective
             const bounds = new maplibregl.LngLatBounds()
             fullRoute.forEach(coord => bounds.extend(coord))
             map.current.fitBounds(bounds, {
                 padding: { top: 120, bottom: 120, left: 120, right: 120 },
-                pitch: 45,
-                duration: 2500,
+                zoom: 17.5,
+                pitch: 50,
+                bearing: -15,
+                duration: 2000,
                 essential: true
             })
 
-            // Animate drawing
+            // Execute path animation
             animateRoute(fullRoute)
-            setInitStatus('Road Navigation Ready')
+            setInitStatus('Navigator Active')
         } catch (error) {
             console.error('Routing Error:', error)
-            setMapError('OSRM API Error - Path following unavailable.')
+            setInitStatus('Navigation Restricted')
 
-            // Fallback
+            // Fallback to direct line if OSRM fails to find a path
             const fallbackRoute: [number, number][] = [startPoint, destination.coords]
             animateRoute(fallbackRoute)
             setRouteInfo(null)
+            setMapError('No specific walkway data found for this section. Showing direct path.')
         }
     }
 
     const animateRoute = (fullRoute: [number, number][]) => {
         if (!map.current) return
 
+        // Clear any existing animation
+        if (animationTimerRef.current) {
+            clearTimeout(animationTimerRef.current)
+        }
+
         let step = 0
         const animatedRoute: [number, number][] = []
         const interval = Math.max(8, Math.min(40, 1500 / fullRoute.length))
 
         const animate = () => {
+            if (!map.current) return
+
             if (step < fullRoute.length) {
                 animatedRoute.push(fullRoute[step])
 
-                const source = map.current?.getSource('route') as maplibregl.GeoJSONSource
+                const source = map.current.getSource('route') as maplibregl.GeoJSONSource
                 if (source) {
                     source.setData({
                         type: 'Feature',
@@ -275,7 +321,7 @@ export default function MapLibreMap() {
                 }
 
                 step++
-                setTimeout(animate, interval)
+                animationTimerRef.current = setTimeout(animate, interval)
             }
         }
 
@@ -284,6 +330,11 @@ export default function MapLibreMap() {
 
     const clearRoute = () => {
         if (!map.current) return
+
+        // Clear any existing animation
+        if (animationTimerRef.current) {
+            clearTimeout(animationTimerRef.current)
+        }
 
         const source = map.current.getSource('route') as maplibregl.GeoJSONSource
         if (source) {
@@ -482,30 +533,16 @@ export default function MapLibreMap() {
                         </div>
 
                         {/* Navigation Controls */}
-                        <div className="pt-6 border-t border-slate-100 space-y-3">
-                            <button
-                                onClick={() => startNavigation(activeLocation)}
-                                disabled={isNavigating}
-                                className={cn(
-                                    "w-full h-14 rounded-[1.5rem] font-bold text-xs uppercase tracking-[0.2em] shadow-xl transition-all flex items-center justify-center gap-3",
-                                    isNavigating
-                                        ? "bg-slate-300 text-slate-500 cursor-not-allowed"
-                                        : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-100 active:scale-[0.98]"
-                                )}
-                            >
-                                <Navigation2 className="h-4 w-4 fill-current" />
-                                {isNavigating ? 'Navigating...' : 'Start Navigation'}
-                            </button>
-
-                            {isNavigating && (
+                        {isNavigating && (
+                            <div className="pt-6 border-t border-slate-100 space-y-3">
                                 <button
                                     onClick={clearRoute}
                                     className="w-full h-12 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-[1.5rem] font-bold text-xs uppercase tracking-[0.2em] transition-all active:scale-[0.98]"
                                 >
                                     Clear Route
                                 </button>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
