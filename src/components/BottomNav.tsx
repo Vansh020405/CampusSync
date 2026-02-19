@@ -48,9 +48,9 @@ export function BottomNav() {
     ]
 
     const facultyLinks = [
-        { href: "/faculty", label: "Dashboard", icon: Home },
+        { href: "/faculty", label: "Home", icon: Home },
         { href: "/faculty/availability", label: "Schedule", icon: Calendar },
-        { href: "/faculty/bookings", label: "Bookings", icon: CheckCircle },
+        { href: "/faculty/menu", label: "Apps", icon: LayoutGrid },
         { href: "/faculty/attendance", label: "Attendance", icon: Clock },
         { href: "/faculty/syllabus", label: "Syllabus", icon: BookOpen },
     ]

@@ -64,18 +64,31 @@ interface Exam {
     hall?: string;
     block?: string;
     floor?: string;
+    invigilatorId?: string;
+    invigilator?: {
+        name: string;
+    };
     _count?: {
         seating: number;
     };
 }
 
+interface Faculty {
+    id: string;
+    name: string;
+    facultyId: string;
+}
+
 export default function AdminExamsPage() {
     const [exams, setExams] = useState<Exam[]>([]);
+    const [facultyList, setFacultyList] = useState<Faculty[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
+    const [isDutyModalOpen, setIsDutyModalOpen] = useState(false);
     const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
+    const [selectedInvigilatorId, setSelectedInvigilatorId] = useState<string>('');
     const { toast } = useToast();
     const { data: session, status: sessionStatus } = useSession();
 
@@ -91,12 +104,23 @@ export default function AdminExamsPage() {
         room: '',
         hall: '',
         block: '',
-        floor: ''
+        floor: '',
+        invigilatorId: ''
     });
 
     useEffect(() => {
         fetchExams();
+        fetchFaculty();
     }, []);
+
+    const fetchFaculty = async () => {
+        try {
+            const res = await fetch('/api/faculty/list');
+            if (res.ok) setFacultyList(await res.json());
+        } catch (error) {
+            console.error("Failed to fetch faculty", error);
+        }
+    };
 
     const fetchExams = async () => {
         setLoading(true);
@@ -130,7 +154,8 @@ export default function AdminExamsPage() {
                 fetchExams();
                 setFormData({
                     name: '', subject: '', date: '', startTime: '', endTime: '',
-                    duration: '', type: 'End-Sem', room: '', hall: '', block: '', floor: ''
+                    duration: '', type: 'End-Sem', room: '', hall: '', block: '', floor: '',
+                    invigilatorId: ''
                 });
             }
         } catch (error) {
@@ -161,6 +186,32 @@ export default function AdminExamsPage() {
             toast({
                 title: "Error",
                 description: "Failed to delete exam",
+                variant: "destructive"
+            });
+        }
+    };
+
+    const handleUpdateDuty = async () => {
+        if (!selectedExam || !selectedInvigilatorId) return;
+        try {
+            const res = await fetch(`/api/admin/exams/${selectedExam.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ invigilatorId: selectedInvigilatorId })
+            });
+
+            if (res.ok) {
+                toast({
+                    title: "Duty Assigned",
+                    description: "Invigilator has been successfully allotted.",
+                });
+                fetchExams();
+                setIsDutyModalOpen(false);
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to assign duty",
                 variant: "destructive"
             });
         }
@@ -395,6 +446,21 @@ export default function AdminExamsPage() {
                                                 onChange={(e) => setFormData({ ...formData, room: e.target.value })}
                                             />
                                         </div>
+                                        <div className="space-y-2 col-span-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Assign Invigilator</Label>
+                                            <Select value={formData.invigilatorId} onValueChange={(v) => setFormData({ ...formData, invigilatorId: v })}>
+                                                <SelectTrigger className="rounded-xl border-slate-100 bg-slate-50/50 text-xs font-bold ring-offset-rose-50">
+                                                    <SelectValue placeholder="Select faculty member..." />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-xl border-slate-100">
+                                                    {facultyList.map(faculty => (
+                                                        <SelectItem key={faculty.id} value={faculty.id} className="text-xs font-bold">
+                                                            {faculty.name} ({faculty.role || 'Faculty'})
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
                                     <DialogFooter className="mt-8">
                                         <Button className="w-full h-12 bg-rose-600 hover:bg-rose-700 text-white font-black uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-rose-100" onClick={handleCreateExam}>
@@ -473,7 +539,7 @@ export default function AdminExamsPage() {
                                         <tr className="bg-slate-50/50 border-b border-slate-100">
                                             <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Exam Identification</th>
                                             <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Schedule</th>
-                                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Venue</th>
+                                            <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Venue & Duty</th>
                                             <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
                                             <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Operational Actions</th>
                                         </tr>
@@ -511,6 +577,12 @@ export default function AdminExamsPage() {
                                                             Room {exam.room}
                                                         </div>
                                                         <span className="text-[9px] font-bold text-slate-400 uppercase ml-5 opacity-60">{exam.block} • {exam.floor}</span>
+                                                        {exam.invigilator && (
+                                                            <div className="flex items-center gap-1.5 text-[9px] font-black text-rose-500 uppercase mt-2 ml-5 bg-rose-50 px-2 py-0.5 rounded-md w-fit">
+                                                                <Users className="h-2.5 w-2.5" />
+                                                                {exam.invigilator.name}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="px-8 py-6">
@@ -537,6 +609,17 @@ export default function AdminExamsPage() {
                                                             Allocate
                                                         </Button>
                                                         <Button
+                                                            className="h-9 px-3 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border-none text-[10px] font-black uppercase tracking-widest transition-all"
+                                                            onClick={() => {
+                                                                setSelectedExam(exam);
+                                                                setSelectedInvigilatorId(exam.invigilatorId || '');
+                                                                setIsDutyModalOpen(true);
+                                                            }}
+                                                        >
+                                                            <Plus className="h-3.5 w-3.5 mr-2" />
+                                                            Duty
+                                                        </Button>
+                                                        <Button
                                                             variant="ghost"
                                                             className="h-9 w-9 p-0 rounded-xl hover:bg-rose-50 hover:text-rose-600 transition-all"
                                                             onClick={() => handleDeleteExam(exam.id)}
@@ -552,6 +635,45 @@ export default function AdminExamsPage() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Duty Allotment Modal */}
+                    <Dialog open={isDutyModalOpen} onOpenChange={setIsDutyModalOpen}>
+                        <DialogContent className="max-w-md rounded-[2.5rem] p-8">
+                            <DialogHeader>
+                                <DialogTitle className="text-xl font-black text-slate-900 uppercase tracking-tight">Assign Invigilator</DialogTitle>
+                            </DialogHeader>
+                            <div className="py-6 space-y-4">
+                                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-4">
+                                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">{selectedExam?.subject}</h4>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{selectedExam?.room} | {selectedExam?.date}</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Faculty</Label>
+                                    <Select value={selectedInvigilatorId} onValueChange={setSelectedInvigilatorId}>
+                                        <SelectTrigger className="rounded-xl border-slate-100 bg-white text-xs font-bold h-12">
+                                            <SelectValue placeholder="Choose invigilator..." />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl border-slate-100">
+                                            {facultyList.map(faculty => (
+                                                <SelectItem key={faculty.id} value={faculty.id} className="text-xs font-bold">
+                                                    {faculty.name} ({faculty.facultyId})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <DialogFooter className="gap-2">
+                                <Button variant="ghost" className="flex-1 rounded-xl text-[10px] font-black uppercase tracking-widest" onClick={() => setIsDutyModalOpen(false)}>Cancel</Button>
+                                <Button
+                                    className="flex-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-100"
+                                    onClick={handleUpdateDuty}
+                                >
+                                    Confirm Duty
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
 
                     {/* Allocation Confirm Modal */}
                     <Dialog open={isAllocationModalOpen} onOpenChange={setIsAllocationModalOpen}>

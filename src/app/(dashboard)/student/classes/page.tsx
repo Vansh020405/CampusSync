@@ -18,6 +18,16 @@ const PERIODS = [
     { id: 7, time: "15:00 - 16:00" },
 ];
 
+const formatDisplayTime = (timeRange: string) => {
+    return timeRange.split(' - ').map(t => {
+        const [hStr, mStr] = t.split(':');
+        const h = parseInt(hStr);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const displayH = h % 12 || 12;
+        return `${displayH.toString().padStart(2, '0')}:${mStr} ${ampm}`;
+    }).join(' - ');
+};
+
 const getColorForSubject = (subject?: string) => {
     if (!subject) return 'slate';
     const s = subject.toLowerCase();
@@ -59,16 +69,19 @@ export default function StudentClassesPage() {
         const period = PERIODS.find(p => p.id === periodId);
         if (!period) return undefined;
 
-        const startTime = period.time.split(' - ')[0];
+        const startTime = period.time.split(' - ')[0]; // "14:00"
+
+        // Robust matching against multiple formats
         const h = parseInt(startTime.split(':')[0]);
         const displayH = h > 12 ? h - 12 : h;
-        const timeBase = `${displayH.toString().padStart(2, '0')}:${startTime.split(':')[1]}`;
-        const amPm = (h >= 9 && h <= 11) ? 'AM' : 'PM';
-        const formattedStart = `${timeBase} ${amPm}`;
+        const formatted12 = `${displayH.toString().padStart(2, '0')}:${startTime.split(':')[1]} ${h >= 12 ? 'PM' : 'AM'}`; // "02:00 PM"
 
         return timetable.find(c => {
             if (c.day !== day) return false;
-            return c.startTime === formattedStart || c.startTime === timeBase || c.startTime === startTime;
+            // Match against accurate 24h, 12h, or formatted variations
+            return c.startTime === period.time.split(' - ')[0] ||
+                c.startTime === formatted12 ||
+                c.startTime.startsWith(formatted12.split(' ')[0]); // looser match "02:00"
         });
     };
 
@@ -109,6 +122,7 @@ export default function StudentClassesPage() {
                             onClick={() => setSelectedDay(day)}
                             className={cn(
                                 "px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2",
+                                "focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-200", // Accessibility
                                 selectedDay === day
                                     ? "bg-slate-800 text-white border-slate-800 shadow-md scale-105"
                                     : "bg-white text-slate-500 border-slate-100"
@@ -130,7 +144,7 @@ export default function StudentClassesPage() {
                         {PERIODS.map(p => (
                             <div key={p.id} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col items-center justify-center">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">P{p.id}</span>
-                                <span className="text-xs font-bold text-slate-700">{p.time}</span>
+                                <span className="text-[10px] font-bold text-slate-700 whitespace-nowrap">{formatDisplayTime(p.time)}</span>
                             </div>
                         ))}
                     </div>
@@ -207,10 +221,13 @@ export default function StudentClassesPage() {
             <div className="md:hidden space-y-3">
                 {PERIODS.map(p => {
                     const entry = getEntryForSlot(selectedDay, p.id);
+                    const formattedTime = formatDisplayTime(p.time);
+                    const [start, end] = formattedTime.split(' - ');
+
                     if (p.id === 5) {
                         return (
                             <div key={p.id} className="flex gap-4 items-center px-2 py-4 opacity-50 border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/50">
-                                <div className="w-12 text-center">
+                                <div className="w-16 text-center">
                                     <span className="text-[10px] font-black text-slate-400">13:00</span>
                                 </div>
                                 <div className="flex-1 text-center">
@@ -224,10 +241,10 @@ export default function StudentClassesPage() {
                         const color = getColorForSubject(entry.subject);
                         return (
                             <div key={p.id} className="flex gap-3">
-                                <div className="w-12 pt-4 flex flex-col items-center gap-1">
-                                    <span className="text-[10px] font-black text-slate-800">{p.time.split(' - ')[0]}</span>
+                                <div className="w-16 pt-4 flex flex-col items-center gap-1">
+                                    <span className="text-[10px] font-black text-slate-800">{start}</span>
                                     <div className="w-px flex-1 bg-slate-200 my-1" />
-                                    <span className="text-[10px] font-bold text-slate-400">{p.time.split(' - ')[1]}</span>
+                                    <span className="text-[10px] font-bold text-slate-400">{end}</span>
                                 </div>
                                 <div className={cn(
                                     "flex-1 rounded-[1.5rem] p-4 shadow-sm border-2 relative overflow-hidden",
@@ -262,8 +279,8 @@ export default function StudentClassesPage() {
 
                     return (
                         <div key={p.id} className="flex gap-3">
-                            <div className="w-12 pt-4 flex flex-col items-center">
-                                <span className="text-[10px] font-black text-slate-200">{p.time.split(' - ')[0]}</span>
+                            <div className="w-16 pt-4 flex flex-col items-center">
+                                <span className="text-[10px] font-black text-slate-200">{start}</span>
                             </div>
                             <div className="flex-1 h-14 border border-slate-50 bg-slate-50/20 rounded-2xl flex items-center px-4">
                                 <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Free Period</span>

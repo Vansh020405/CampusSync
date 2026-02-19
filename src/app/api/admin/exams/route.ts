@@ -13,6 +13,9 @@ export async function GET() {
         const exams = await prisma.exam.findMany({
             orderBy: { date: 'asc' },
             include: {
+                invigilator: {
+                    select: { name: true, facultyId: true }
+                },
                 _count: {
                     select: { seating: true }
                 }
@@ -34,7 +37,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { name, subject, date, startTime, endTime, duration, type, room, hall, block, floor } = body;
+        const { name, subject, date, startTime, endTime, duration, type, room, hall, block, floor, invigilatorId } = body;
 
         const exam = await prisma.exam.create({
             data: {
@@ -48,7 +51,8 @@ export async function POST(req: Request) {
                 room,
                 hall,
                 block,
-                floor
+                floor,
+                invigilatorId: invigilatorId || null
             }
         });
 
@@ -58,3 +62,4 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+

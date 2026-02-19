@@ -47,6 +47,7 @@ model Faculty {
   markings         StudentAttendance[]
   assignedClasses  Timetable[]         @relation("FacultyClasses")
   topicProgress    TopicProgress[]
+  examDuties       Exam[]              @relation("InvigilatorDuty")
 }
 
 model Admin {
@@ -264,8 +265,10 @@ model Exam {
   block       String?
   floor       String?
   createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  seating     ExamSeating[]
+  updatedAt       DateTime      @updatedAt
+  invigilatorId   String?
+  invigilator     Faculty?      @relation("InvigilatorDuty", fields: [invigilatorId], references: [id])
+  seating         ExamSeating[]
 }
 
 model ExamSeating {

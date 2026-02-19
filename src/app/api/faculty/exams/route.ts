@@ -1,28 +1,27 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
-
-        if (!session || session.user.role !== "FACULTY") {
+        if (!session?.user || (session.user as any).role !== 'FACULTY') {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const facultyDept = (session.user as any).department;
+        const facultyId = (session.user as any).id;
 
-        // Fetch all exams in the faculty's department
         const exams = await prisma.exam.findMany({
             where: {
-                department: { contains: facultyDept || '', mode: 'insensitive' }
+                invigilatorId: facultyId
             },
-            orderBy: { date: 'asc' }
+            orderBy: {
+                date: 'asc'
+            }
         });
 
         return NextResponse.json(exams);
-
     } catch (error) {
         console.error("FACULTY_EXAMS_GET_ERROR:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

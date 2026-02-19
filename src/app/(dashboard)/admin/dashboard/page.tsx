@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
     Briefcase, Users, BarChart2, CalendarDays,
     Megaphone, GraduationCap, ChevronRight,
-    Activity, Shield, Globe, FileText, BookOpen
+    Activity, Shield, Globe, FileText, BookOpen, Palmtree
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -107,6 +107,14 @@ export default function AdminDashboardPage() {
             icon: Users,
             stats: `${counts.faculty} Active`,
             color: "bg-emerald-50 text-emerald-500"
+        },
+        {
+            href: "/admin/faculty/leaves",
+            label: "Teacher Leaves",
+            description: "Approve or reject faculty absence applications",
+            icon: Palmtree,
+            stats: "Review Desk",
+            color: "bg-orange-50 text-orange-500"
         },
         {
             href: "/admin/students",
