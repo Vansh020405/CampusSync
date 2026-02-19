@@ -1,0 +1,15 @@
+Vikram Seth | Sub: ["DBMS"] | Sec: ["4G3"]
+Aarchit | Sub: Java Lab, DBMS | Sec: 4G2
+Surender | Sub: S&UL | Sec: 4G2
+Deepali | Sub: DBMS | Sec: 4G2
+Trainer 1 | Sub: Explore | Sec: 4G2
+Divyanshi | Sub: S&UL | Sec: 4G2
+Harjeet | Sub: S&UL Lab | Sec: 4G2
+Reetu | Sub: ["Statistics"] | Sec: ["4G1","4G2","4G3"]
+Sumit Sharma | Sub: Java | Sec: ["4G2","4G3"]
+Harsh | Sub: DBMS | Sec: 4G2
+Dr. Neha Kapoor | Sub: ["Applied Probability"] | Sec: ["4G2"]
+Priyanka | Sub: OT | Sec: 4G2
+Manpreet | Sub: Applied Prob | Sec: 4G2
+Dr. Reetu | Sub: ["statistics"] | Sec: []
+Abha Sukheja | Sub: [] | Sec: []

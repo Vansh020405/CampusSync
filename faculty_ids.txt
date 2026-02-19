@@ -1,0 +1,16 @@
+[
+  {
+    "id": "397e3034-0af9-487a-bf52-478c3805c7e4",
+    "name": "Abha Sukheja",
+    "facultyId": "FAC-ABHA-02",
+    "department": "[]",
+    "subjects": "[]",
+    "sectionsTeaching": "[]",
+    "cabinLocation": "TURING BLOCK",
+    "status": "AVAILABLE",
+    "password": "$2b$10$ijh7TpE8zrwxqefUdqjmmuUKReuR3iMcjgOXkNPQg8aMScvOYeeaa",
+    "createdAt": "2026-02-19T07:29:08.569Z",
+    "updatedAt": "2026-02-19T07:29:08.569Z",
+    "email": "abha@gmail.com"
+  }
+]

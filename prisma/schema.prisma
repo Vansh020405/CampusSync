@@ -198,11 +198,12 @@ model Application {
 }
 
 model SyllabusSubject {
-  id          String          @id @default(uuid())
-  subjectName String          @unique
+  id          String              @id @default(uuid())
+  subjectName String              @unique
   subjectCode String?
   department  String
   topics      SyllabusTopic[]
+  assignments SubjectAssignment[]
 }
 
 model SyllabusTopic {
@@ -211,8 +212,23 @@ model SyllabusTopic {
   title         String
   totalLectures Int             @default(1)
   order         Int             @default(0)
+  examType      String?         // ST1, ST2, ST3, End Term, Practical
   subject       SyllabusSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   progress      TopicProgress[]
+}
+
+model SubjectAssignment {
+  id         String   @id @default(uuid())
+  subjectId  String
+  department String
+  semester   String
+  batch      String   // Morning, Evening, Both
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  subject SyllabusSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId, department, semester, batch])
 }
 
 model TopicProgress {

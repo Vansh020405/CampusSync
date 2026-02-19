@@ -1,0 +1,642 @@
+[
+  {
+    "id": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+    "subjectName": "Java",
+    "subjectCode": "CS201",
+    "department": "CSE AI ML",
+    "topics": [
+      {
+        "id": "ad1012ce-1686-48dc-a747-1450fb0cf9d8",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Introduction to Java",
+        "totalLectures": 1,
+        "order": 1,
+        "examType": null
+      },
+      {
+        "id": "85ad18b1-1992-405c-b9e7-55b248e6dcba",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "JVM Architecture",
+        "totalLectures": 1,
+        "order": 2,
+        "examType": null
+      },
+      {
+        "id": "ac46f909-239c-4f32-8382-4133a354912f",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Data Types & Variables",
+        "totalLectures": 1,
+        "order": 3,
+        "examType": null
+      },
+      {
+        "id": "6884342f-e6ab-4f84-a42b-56f62f843165",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Operators & Expressions",
+        "totalLectures": 1,
+        "order": 4,
+        "examType": null
+      },
+      {
+        "id": "3ff731c9-ede0-4bc0-85a1-e7cfa4b48591",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Control Flow (If/Else/Switch)",
+        "totalLectures": 2,
+        "order": 5,
+        "examType": null
+      },
+      {
+        "id": "bdb4530e-389f-417e-b4ca-da2b0d563d68",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Loops (For/While/Do-While)",
+        "totalLectures": 2,
+        "order": 6,
+        "examType": null
+      },
+      {
+        "id": "c669168d-ae7b-4430-af10-3fb52e6f32dc",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Object-Oriented Programming (OOP) Basics",
+        "totalLectures": 1,
+        "order": 7,
+        "examType": null
+      },
+      {
+        "id": "e7f81b53-dca8-4895-b0b1-8669b425d991",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Classes & Objects",
+        "totalLectures": 2,
+        "order": 8,
+        "examType": null
+      },
+      {
+        "id": "b7d82afb-db5a-4f16-adf5-06128679824d",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Constructors & This Keyword",
+        "totalLectures": 1,
+        "order": 9,
+        "examType": null
+      },
+      {
+        "id": "1b50d039-9c82-42b0-8548-382e6471801f",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Inheritance & Polymorphism",
+        "totalLectures": 2,
+        "order": 10,
+        "examType": null
+      },
+      {
+        "id": "da3aefd2-e36f-4324-97fc-71b8d3787244",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Encapsulation & Abstraction",
+        "totalLectures": 1,
+        "order": 11,
+        "examType": null
+      },
+      {
+        "id": "d7fdaeef-7961-4a98-87bd-a9a0e2920fff",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Interfaces & Abstract Classes",
+        "totalLectures": 2,
+        "order": 12,
+        "examType": null
+      },
+      {
+        "id": "b340895b-ba47-448a-8b61-dc30bc64b933",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Exception Handling",
+        "totalLectures": 2,
+        "order": 13,
+        "examType": null
+      },
+      {
+        "id": "04d82f11-70ab-4296-b4d5-78822e70b78e",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Input/Output (I/O) Streams",
+        "totalLectures": 2,
+        "order": 14,
+        "examType": null
+      },
+      {
+        "id": "e725a64d-3052-40e1-9908-1833c9c577e6",
+        "subjectId": "017a76eb-f052-4502-8d4e-ec18476ebdc8",
+        "title": "Collections Framework",
+        "totalLectures": 3,
+        "order": 15,
+        "examType": null
+      }
+    ]
+  },
+  {
+    "id": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+    "subjectName": "DBMS",
+    "subjectCode": "CS202",
+    "department": "CSE AI ML",
+    "topics": [
+      {
+        "id": "214be450-9170-438b-ac8e-f7b8a30072e0",
+        "subjectId": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+        "title": "Introduction to Databases",
+        "totalLectures": 1,
+        "order": 1,
+        "examType": null
+      },
+      {
+        "id": "f32435cd-496c-452d-9364-88b1d853ead9",
+        "subjectId": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+        "title": "ER Modeling",
+        "totalLectures": 2,
+        "order": 2,
+        "examType": null
+      },
+      {
+        "id": "530a5c14-5975-4f13-ae0b-f57a73b3093d",
+        "subjectId": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+        "title": "Relational Model",
+        "totalLectures": 2,
+        "order": 3,
+        "examType": null
+      },
+      {
+        "id": "c2b31dfb-c700-4817-9643-08fbdc17907f",
+        "subjectId": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+        "title": "SQL Basics (DDL, DML)",
+        "totalLectures": 2,
+        "order": 4,
+        "examType": null
+      },
+      {
+        "id": "90129a46-41f2-49a2-ab5f-17362bb90f4d",
+        "subjectId": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+        "title": "Advanced SQL (Joins, Subqueries)",
+        "totalLectures": 3,
+        "order": 5,
+        "examType": null
+      },
+      {
+        "id": "9e53472e-4d7e-47d8-a1a1-688d2d930f19",
+        "subjectId": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+        "title": "Normalization (1NF, 2NF, 3NF)",
+        "totalLectures": 3,
+        "order": 6,
+        "examType": null
+      },
+      {
+        "id": "9d6918dd-e134-4926-9bc0-fbbab891b980",
+        "subjectId": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+        "title": "Transactions & Concurrency",
+        "totalLectures": 2,
+        "order": 7,
+        "examType": null
+      },
+      {
+        "id": "9011fe1f-1130-4bbc-bdcd-1b7fbce3798c",
+        "subjectId": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+        "title": "Indexing & Hashing",
+        "totalLectures": 2,
+        "order": 8,
+        "examType": null
+      },
+      {
+        "id": "ecf4b73b-d4c0-4452-8b6a-a3c35896d240",
+        "subjectId": "1ec90b1a-263b-4dc3-967d-454d8d1615f9",
+        "title": "NoSQL Overview",
+        "totalLectures": 1,
+        "order": 9,
+        "examType": null
+      }
+    ]
+  },
+  {
+    "id": "6f3ac361-b761-4f4a-a90c-db82e213e77d",
+    "subjectName": "Applied Prob",
+    "subjectCode": "MA201",
+    "department": "CSE AI ML",
+    "topics": [
+      {
+        "id": "b2e1ab34-ce2b-4b3c-a013-04b64904f34b",
+        "subjectId": "6f3ac361-b761-4f4a-a90c-db82e213e77d",
+        "title": "Basic Probability",
+        "totalLectures": 2,
+        "order": 1,
+        "examType": null
+      },
+      {
+        "id": "22835e41-dade-493c-8ee9-806c8a9301dd",
+        "subjectId": "6f3ac361-b761-4f4a-a90c-db82e213e77d",
+        "title": "Random Variables",
+        "totalLectures": 3,
+        "order": 2,
+        "examType": null
+      },
+      {
+        "id": "ca45f175-eda3-4379-8cd2-252fb542398a",
+        "subjectId": "6f3ac361-b761-4f4a-a90c-db82e213e77d",
+        "title": "Distributions (Normal, Binomial)",
+        "totalLectures": 4,
+        "order": 3,
+        "examType": null
+      },
+      {
+        "id": "16c1258b-1fdc-48ce-bab2-50db7f1f24c9",
+        "subjectId": "6f3ac361-b761-4f4a-a90c-db82e213e77d",
+        "title": "Expected Value & Variance",
+        "totalLectures": 2,
+        "order": 4,
+        "examType": null
+      },
+      {
+        "id": "12909f86-3744-445c-a047-05df067de543",
+        "subjectId": "6f3ac361-b761-4f4a-a90c-db82e213e77d",
+        "title": "Correlation & Regression",
+        "totalLectures": 3,
+        "order": 5,
+        "examType": null
+      }
+    ]
+  },
+  {
+    "id": "e8842a4e-57a3-4be8-bcdd-5c091f984f98",
+    "subjectName": "OT",
+    "subjectCode": "CS413",
+    "department": "CSE AI ML",
+    "topics": [
+      {
+        "id": "14c3672f-c995-4731-a690-f41382621146",
+        "subjectId": "e8842a4e-57a3-4be8-bcdd-5c091f984f98",
+        "title": "Intro to Optimization",
+        "totalLectures": 1,
+        "order": 0,
+        "examType": null
+      },
+      {
+        "id": "c6be5351-577f-4d42-8fa2-f45cd2a82c48",
+        "subjectId": "e8842a4e-57a3-4be8-bcdd-5c091f984f98",
+        "title": "Linear Programming",
+        "totalLectures": 1,
+        "order": 1,
+        "examType": null
+      },
+      {
+        "id": "ee841f00-19fc-4c26-937c-cba69c583612",
+        "subjectId": "e8842a4e-57a3-4be8-bcdd-5c091f984f98",
+        "title": "Simplex Method",
+        "totalLectures": 1,
+        "order": 2,
+        "examType": null
+      },
+      {
+        "id": "7cc0f6a3-19d6-402b-92f8-af642934dc75",
+        "subjectId": "e8842a4e-57a3-4be8-bcdd-5c091f984f98",
+        "title": "Duality",
+        "totalLectures": 1,
+        "order": 3,
+        "examType": null
+      },
+      {
+        "id": "702fa6f6-69a9-4e5c-8465-45e8d12da905",
+        "subjectId": "e8842a4e-57a3-4be8-bcdd-5c091f984f98",
+        "title": "Transportation Problems",
+        "totalLectures": 1,
+        "order": 4,
+        "examType": null
+      }
+    ]
+  },
+  {
+    "id": "cc6cda88-1c8d-45cf-868f-67d8f837ff13",
+    "subjectName": "S&UL",
+    "subjectCode": "CS414",
+    "department": "CSE AI ML",
+    "topics": [
+      {
+        "id": "1535a660-161b-4f0c-adf1-166c218520c5",
+        "subjectId": "cc6cda88-1c8d-45cf-868f-67d8f837ff13",
+        "title": "Intro to Unix",
+        "totalLectures": 1,
+        "order": 0,
+        "examType": null
+      },
+      {
+        "id": "35a3a9d3-11a9-4be6-9c0c-7016433b110d",
+        "subjectId": "cc6cda88-1c8d-45cf-868f-67d8f837ff13",
+        "title": "Shell Scripting",
+        "totalLectures": 1,
+        "order": 1,
+        "examType": null
+      },
+      {
+        "id": "3ec9a1ea-fd53-48c8-851b-f4e4c3822dee",
+        "subjectId": "cc6cda88-1c8d-45cf-868f-67d8f837ff13",
+        "title": "Process Management",
+        "totalLectures": 1,
+        "order": 2,
+        "examType": null
+      },
+      {
+        "id": "516ed20c-5265-483b-a4db-dffd5f7f528b",
+        "subjectId": "cc6cda88-1c8d-45cf-868f-67d8f837ff13",
+        "title": "File Systems",
+        "totalLectures": 1,
+        "order": 3,
+        "examType": null
+      },
+      {
+        "id": "64970a07-1451-45b4-aed1-ff23cbd51083",
+        "subjectId": "cc6cda88-1c8d-45cf-868f-67d8f837ff13",
+        "title": "Security",
+        "totalLectures": 1,
+        "order": 4,
+        "examType": null
+      }
+    ]
+  },
+  {
+    "id": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+    "subjectName": "PROBABILITY",
+    "subjectCode": "AP123",
+    "department": "CSE AI ML",
+    "topics": [
+      {
+        "id": "50b5691c-e47f-4a5a-9cea-25093283bc38",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Sample Space and Events",
+        "totalLectures": 1,
+        "order": 1,
+        "examType": "ST1"
+      },
+      {
+        "id": "ceb9b778-0d4d-42f3-8b16-43db26df029e",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Axioms of Probability",
+        "totalLectures": 1,
+        "order": 2,
+        "examType": "ST1"
+      },
+      {
+        "id": "7f3c93cc-7f5c-4217-8e61-7ee10b47edd8",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Conditional Probability",
+        "totalLectures": 1,
+        "order": 3,
+        "examType": "ST1"
+      },
+      {
+        "id": "36ce50e6-3caf-423e-9744-9c7446371bcd",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Bayes' Theorem",
+        "totalLectures": 1,
+        "order": 4,
+        "examType": "ST1"
+      },
+      {
+        "id": "dfe09c7e-bb7d-4db9-abc1-aa9f4421e0e4",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Independence of Events",
+        "totalLectures": 1,
+        "order": 5,
+        "examType": "ST1"
+      },
+      {
+        "id": "e689ddbb-e081-427d-a122-316048c0bff2",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Random Variables (Discrete and Continuous)",
+        "totalLectures": 1,
+        "order": 6,
+        "examType": "ST1"
+      },
+      {
+        "id": "05aad395-5835-4416-a3d9-6a4757f464aa",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Probability Mass Function (PMF)",
+        "totalLectures": 1,
+        "order": 7,
+        "examType": "ST1"
+      },
+      {
+        "id": "39007486-2d40-4438-a835-6d82ba5ae628",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Probability Density Function (PDF)",
+        "totalLectures": 1,
+        "order": 8,
+        "examType": "ST1"
+      },
+      {
+        "id": "46125c00-e74c-4a34-b6aa-3d9960f85b23",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Cumulative Distribution Function (CDF)",
+        "totalLectures": 1,
+        "order": 9,
+        "examType": "ST1"
+      },
+      {
+        "id": "df0d3da8-d0d8-4526-827c-9194d571f532",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Expectation (Mean)",
+        "totalLectures": 1,
+        "order": 10,
+        "examType": "ST1"
+      },
+      {
+        "id": "319a0693-f7e7-4e04-949f-77dc64a6d40b",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Variance and Standard Deviation",
+        "totalLectures": 1,
+        "order": 11,
+        "examType": "ST1"
+      },
+      {
+        "id": "56280708-ebc9-4a25-9aa7-e97d81e03003",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Moment Generating Function (MGF)",
+        "totalLectures": 1,
+        "order": 12,
+        "examType": "ST1"
+      },
+      {
+        "id": "288f5cec-3a6b-4599-bb6c-8da3dd18a7b6",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Bernoulli Distribution",
+        "totalLectures": 1,
+        "order": 13,
+        "examType": "ST1"
+      },
+      {
+        "id": "e2b3d520-450a-4a26-a170-372ec340510c",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Binomial Distribution",
+        "totalLectures": 1,
+        "order": 14,
+        "examType": "ST1"
+      },
+      {
+        "id": "a605ff49-3f6c-47ee-b15e-c121b48e412c",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Geometric Distribution",
+        "totalLectures": 1,
+        "order": 15,
+        "examType": "ST1"
+      },
+      {
+        "id": "f0c6a6c0-7059-4a61-9330-2753097215ec",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Negative Binomial Distribution",
+        "totalLectures": 1,
+        "order": 16,
+        "examType": "ST1"
+      },
+      {
+        "id": "7c6abc54-8610-4d1d-b294-194f9ca6743f",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Poisson Distribution",
+        "totalLectures": 1,
+        "order": 17,
+        "examType": "ST1"
+      },
+      {
+        "id": "8ea76032-84bb-48af-a7ab-6ce41e1f0f68",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Uniform Distribution",
+        "totalLectures": 1,
+        "order": 18,
+        "examType": "ST1"
+      },
+      {
+        "id": "1a573918-2199-429c-92be-c31d46968f1d",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Exponential Distribution",
+        "totalLectures": 1,
+        "order": 19,
+        "examType": "ST1"
+      },
+      {
+        "id": "a215525a-c69e-4297-bfb7-98e9c6cbcf5e",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Normal Distribution",
+        "totalLectures": 1,
+        "order": 20,
+        "examType": "ST1"
+      },
+      {
+        "id": "39d4440d-1f5d-415a-a170-964f65a66b02",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Gamma Distribution",
+        "totalLectures": 1,
+        "order": 21,
+        "examType": "ST1"
+      },
+      {
+        "id": "ae78a421-d7cf-4e77-b662-5f130212b4c7",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Beta Distribution",
+        "totalLectures": 1,
+        "order": 22,
+        "examType": "ST1"
+      },
+      {
+        "id": "77d65f5d-3157-42e2-8b72-d1798f01bfd3",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Chi-Square Distribution",
+        "totalLectures": 1,
+        "order": 23,
+        "examType": "ST1"
+      },
+      {
+        "id": "9624389c-9d7f-4e6e-bff8-365301b38692",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Joint Probability Distributions",
+        "totalLectures": 1,
+        "order": 24,
+        "examType": "ST1"
+      },
+      {
+        "id": "2b37738b-c879-4093-b74b-a0236491ac1b",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Marginal Distributions",
+        "totalLectures": 1,
+        "order": 25,
+        "examType": "ST1"
+      },
+      {
+        "id": "f63d1286-9673-49b5-a10a-175ee9c741ed",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Conditional Distributions",
+        "totalLectures": 1,
+        "order": 26,
+        "examType": "ST1"
+      },
+      {
+        "id": "20b9baa7-fcc3-47e5-8fa2-f231059e0ebb",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Covariance",
+        "totalLectures": 1,
+        "order": 27,
+        "examType": "ST1"
+      },
+      {
+        "id": "c50437d1-ceed-4998-87d4-797079b5c06b",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Correlation Coefficient",
+        "totalLectures": 1,
+        "order": 28,
+        "examType": "ST1"
+      },
+      {
+        "id": "e6c105db-c1b2-489e-8ee2-9c903e964bc4",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Law of Large Numbers",
+        "totalLectures": 1,
+        "order": 29,
+        "examType": "ST1"
+      },
+      {
+        "id": "55c88214-88c6-4927-9caa-3784b6555e45",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Central Limit Theorem",
+        "totalLectures": 1,
+        "order": 30,
+        "examType": "ST1"
+      },
+      {
+        "id": "adf4031a-7989-4b72-b6c9-b0ce3ea043a4",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Markov Chains",
+        "totalLectures": 1,
+        "order": 31,
+        "examType": "ST1"
+      },
+      {
+        "id": "4c79408e-c371-4abf-a3fe-dcc0e76c10f8",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Poisson Process",
+        "totalLectures": 1,
+        "order": 32,
+        "examType": "ST1"
+      },
+      {
+        "id": "18b181b5-2c17-4b48-8b97-a66e5a4d3fc2",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Birth-Death Process",
+        "totalLectures": 1,
+        "order": 33,
+        "examType": "ST1"
+      },
+      {
+        "id": "400730ae-c01a-4378-9d0d-b043402e8394",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Queueing Theory",
+        "totalLectures": 1,
+        "order": 34,
+        "examType": "ST1"
+      },
+      {
+        "id": "a448fae0-02b2-4c5e-8da4-dde2a720ace7",
+        "subjectId": "e1319fdc-77d8-4e96-ad8c-64c0115c3bc7",
+        "title": "Monte Carlo Simulation",
+        "totalLectures": 1,
+        "order": 35,
+        "examType": "ST1"
+      }
+    ]
+  }
+]

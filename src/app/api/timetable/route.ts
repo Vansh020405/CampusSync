@@ -79,73 +79,63 @@ export async function POST(req: Request) {
 
         // Transactions: Clear old and insert new
         await prisma.$transaction(async (tx) => {
-            if (viewMode === 'student') {
-                console.log(`[Matrix Sync] Clearing section ${targetId}`);
-                const deleted = await tx.timetable.deleteMany({
-                    where: { section: targetId }
-                });
-                console.log(`[Matrix Sync] Purged ${deleted.count} legacy entries for section ${targetId}`);
-            } else {
+            const isFacultyMode = viewMode === 'faculty';
+
+            if (isFacultyMode) {
                 console.log(`[Matrix Sync] Clearing faculty ${targetId}`);
-                const deleted = await tx.timetable.deleteMany({
-                    where: { facultyId: targetId }
-                });
-                console.log(`[Matrix Sync] Purged ${deleted.count} legacy entries for faculty ${targetId}`);
+                await tx.timetable.deleteMany({ where: { facultyId: targetId } });
+
+                // Verify Faculty Existence once
+                const facultyExists = await tx.faculty.findUnique({ where: { id: targetId } });
+                if (!facultyExists) {
+                    throw new Error(`Faculty Identity ${targetId} not verified in system core.`);
+                }
+            } else {
+                console.log(`[Matrix Sync] Clearing section ${targetId}`);
+                await tx.timetable.deleteMany({ where: { section: targetId } });
             }
 
-            // If empty array, we just stop here (successful clear)
-            if (!timetable || timetable.length === 0) {
-                console.log(`[Matrix Sync] Deployment complete: Matrix cleared for ${targetId}`);
-                return;
-            }
+            if (!timetable || timetable.length === 0) return;
 
-            // Create new slots
-            let createdCount = 0;
-            for (const slot of timetable) {
+            // Prepare for bulk insert
+            const formatTime = (time: string) => {
+                const parts = time.split(':');
+                if (parts.length < 2) return time;
+                let h = parseInt(parts[0]);
+                const m = parseInt(parts[1]);
+                const hh = h % 12 || 12;
+                const ampm = h < 12 ? 'AM' : 'PM';
+                return `${hh.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
+            };
+
+            const dataToInsert = timetable.map((slot: any) => {
                 const parts = slot.time.split(' - ');
                 const [start, end] = parts;
-                if (!start || !end) continue;
+                const fId = isFacultyMode ? targetId : (slot.facultyId || null);
 
-                // Institutional Format: Proper 12-hour AM/PM
-                const formatTime = (time: string) => {
-                    const [hStr, mStr] = time.split(':');
-                    const h = parseInt(hStr);
-                    const m = parseInt(mStr);
-                    const hh = h % 12 || 12;
-                    const ampm = h < 12 ? 'AM' : 'PM';
-                    return `${hh.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
+                return {
+                    day: slot.day,
+                    startTime: formatTime(start),
+                    endTime: formatTime(end),
+                    subject: slot.subject || "No Subject",
+                    classroom: slot.classroom || slot.room || "TBA",
+                    section: slot.section || (viewMode === 'student' ? targetId : "TBA"),
+                    facultyId: fId,
+                    department: "CSE",
+                    semester: "4",
+                    floor: "1"
                 };
+            }).filter((s: any) => s.facultyId);
 
-                const fId = viewMode === 'faculty' ? targetId : (slot.facultyId || null);
-                if (!fId) {
-                    console.warn(`[Matrix Sync] Skipping slot: Missing faculty identity for section ${slot.section}`);
-                    continue;
-                }
+            // Use createMany for high performance (supported by Postgres/MySQL/MongoDB)
+            // If using SQLite, createMany is supported since Prisma 4.x
+            await tx.timetable.createMany({
+                data: dataToInsert
+            });
 
-                // Verify Faculty Existence
-                const facultyExists = await tx.faculty.findUnique({ where: { id: fId } });
-                if (!facultyExists) {
-                    console.error(`[Matrix Sync] Identity Breach: ${fId} not verified.`);
-                    throw new Error(`Faculty Identity ${fId} not verified in system core.`);
-                }
-
-                await tx.timetable.create({
-                    data: {
-                        day: slot.day,
-                        startTime: formatTime(start),
-                        endTime: formatTime(end),
-                        subject: slot.subject || "No Subject",
-                        classroom: slot.classroom || slot.room || "TBA",
-                        section: slot.section || (viewMode === 'student' ? targetId : "TBA"),
-                        facultyId: fId,
-                        department: "CSE",
-                        semester: "4",
-                        floor: "1"
-                    }
-                });
-                createdCount++;
-            }
-            console.log(`[Matrix Sync] Reconstruction complete: Generated ${createdCount} valid entries for ${targetId}`);
+            console.log(`[Matrix Sync] Reconstruction complete: Generated ${dataToInsert.length} entries for ${targetId}`);
+        }, {
+            timeout: 15000 // 15s absolute timeout for large matrices
         });
 
         return NextResponse.json({ success: true, message: "Matrix Synchronized with Foundation" });

@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
     Briefcase, Users, BarChart2, CalendarDays,
     Megaphone, GraduationCap, ChevronRight,
-    Activity, Shield, Globe, FileText
+    Activity, Shield, Globe, FileText, BookOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -115,6 +115,14 @@ export default function AdminDashboardPage() {
             icon: GraduationCap,
             stats: `${counts.students} Enrolled`,
             color: "bg-blue-50 text-blue-500"
+        },
+        {
+            href: "/admin/syllabus",
+            label: "Syllabus Master",
+            description: "Manage curriculum, allots subjects and exam mapping",
+            icon: BookOpen,
+            stats: "Authorized",
+            color: "bg-purple-50 text-purple-600"
         },
         {
             href: "/admin/exams",

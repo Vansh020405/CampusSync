@@ -58,9 +58,9 @@ export function BottomNav() {
     const adminLinks = [
         { href: "/admin/dashboard", label: "Home", icon: Home },
         { href: "/admin/timetable", label: "Schedule", icon: Calendar },
+        { href: "/admin/syllabus", label: "Syllabus", icon: BookOpen },
         { href: "/admin/users", label: "Users", icon: Users },
         { href: "/admin/internships", label: "Jobs", icon: Briefcase },
-        { href: "/admin/analytics", label: "Stats", icon: BarChart2 },
     ]
 
     let links: { href: string; label: string; icon: any }[] = []
@@ -73,7 +73,7 @@ export function BottomNav() {
     }
 
     return (
-        <div className="fixed bottom-0 left-0 z-50 w-full bg-white/95 backdrop-blur-xl border-t border-slate-100 pt-2 pb-safe pb-6 md:pb-8 shadow-[0_-10px_40px_-12px_rgba(0,0,0,0.08)] safe-area-inset-bottom">
+        <div className="fixed bottom-0 left-0 z-40 w-full bg-white/95 backdrop-blur-xl border-t border-slate-100 pt-2 pb-safe pb-6 md:pb-8 shadow-[0_-10px_40px_-12px_rgba(0,0,0,0.08)] safe-area-inset-bottom">
             <div className="flex items-center justify-around px-2 md:px-4 max-w-screen-xl mx-auto">
                 {links.map((link) => {
                     const Icon = link.icon

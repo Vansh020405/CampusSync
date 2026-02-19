@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     try {
-        const student = await prisma.student.findUnique({
+        const student = await (prisma.student as any).findUnique({
             where: { id: (session.user as any).id }
         });
 
@@ -21,89 +21,80 @@ export async function GET() {
             return NextResponse.json({ error: "Student not found" }, { status: 404 });
         }
 
-        const section = student.section.trim();
+        const section = (student.section || "").trim();
 
-        // Fetch subjects from Timetable for this student's section
-        // We relax the filter to only section because department/semester names might have inconsistencies (e.g. "CSE" vs "Computer Science")
-        const timetableEntries = await prisma.timetable.findMany({
+        const assignments = await (prisma.subjectAssignment as any).findMany({
             where: {
-                department: student.department || undefined,
-                section: section,
-                semester: student.semester.toString()
+                department: student.department,
+                semester: student.semester.toString(),
+                OR: [
+                    { batch: student.batch },
+                    { batch: 'Both' }
+                ]
             },
-            select: { subject: true },
-            distinct: ['subject']
-        });
-        const subjects = timetableEntries.map(t => t.subject.trim());
-
-        console.log(`[SyllabusAPI] Student: ${student.name}, Section: "${section}", Subjects in Timetable: [${subjects.join(', ')}]`);
+            include: {
+                subject: {
+                    include: {
+                        topics: {
+                            orderBy: { order: 'asc' }
+                        }
+                    }
+                }
+            }
+        }) || [];
 
         const syllabusProgress = [];
-        const seenSyllabusIds = new Set<string>();
 
-        for (const subject of subjects) {
-            // Try to find the SyllabusSubject - case insensitive-ish or just try direct first
-            let syllabus = await prisma.syllabusSubject.findUnique({
-                where: { subjectName: subject },
-                include: { topics: { orderBy: { order: 'asc' } } }
-            });
-
-            // Fallback: If not found, try a case-insensitive search or alias
-            if (!syllabus) {
-                const allSyllabus = await prisma.syllabusSubject.findMany({
-                    include: { topics: { orderBy: { order: 'asc' } } }
-                });
-                syllabus = allSyllabus.find(s =>
-                    s.subjectName.toLowerCase() === subject.toLowerCase() ||
-                    s.subjectName.toLowerCase().includes(subject.toLowerCase()) ||
-                    subject.toLowerCase().includes(s.subjectName.toLowerCase())
-                ) || null;
-            }
-
-            if (!syllabus) {
-                console.log(`[SyllabusAPI] No SyllabusSubject found for name: "${subject}"`);
-                continue;
-            }
-
-            if (seenSyllabusIds.has(syllabus.id)) {
-                console.log(`[SyllabusAPI] Skipping duplicate syllabus matching for: "${subject}" (already added via another entry)`);
-                continue;
-            }
-            seenSyllabusIds.add(syllabus.id);
+        for (const assignment of assignments) {
+            const syllabus = assignment.subject;
+            if (!syllabus) continue;
 
             // Fetch progress strictly for this section
-            const progress = await prisma.topicProgress.findMany({
+            const progress = await (prisma.topicProgress as any).findMany({
                 where: {
                     section: section,
                     topicId: { in: syllabus.topics.map((t: any) => t.id) }
                 },
-                orderBy: { updatedAt: 'desc' },
                 include: { faculty: true }
+            }) || [];
+
+            const completed = syllabus.topics.filter((t: any) =>
+                progress.some((p: any) => p.topicId === t.id && p.status === 'COMPLETED')
+            );
+
+            // Group topics by examType
+            const examMapping: Record<string, any[]> = {};
+            syllabus.topics.forEach((t: any) => {
+                const type = t.examType || 'End Term';
+                if (!examMapping[type]) examMapping[type] = [];
+
+                const p = progress.find((pg: any) => pg.topicId === t.id);
+                examMapping[type].push({
+                    id: t.id,
+                    title: t.title,
+                    status: p ? p.status : 'NOT_STARTED',
+                    completedDate: p ? p.completedDate : null,
+                    notes: p ? p.notes : null,
+                    examType: type
+                });
             });
-
-            console.log(`[SyllabusAPI] Subject "${subject}" matched with "${syllabus.subjectName}": ${syllabus.topics.length} topics, ${progress.length} progress records found.`);
-
-            const targetProgress = progress;
-
-            const completed = syllabus.topics.filter((t: any) => targetProgress.some((p: any) => p.topicId === t.id && p.status === 'COMPLETED'));
-            const lastUpdate = targetProgress[0] as any;
 
             syllabusProgress.push({
                 subjectName: syllabus.subjectName,
+                subjectCode: syllabus.subjectCode,
                 totalTopics: syllabus.topics.length,
                 completedTopics: completed.length,
-                percentage: Math.round((completed.length / syllabus.topics.length) * 100),
-                lastLecture: lastUpdate ? `Topic: ${syllabus.topics.find((t: any) => t.id === lastUpdate.topicId)?.title}` : "Not Started",
-                lastFaculty: lastUpdate ? lastUpdate.faculty.name : "N/A",
+                percentage: Math.round((completed.length / syllabus.topics.length) * 100) || 0,
+                examMapping,
                 topics: syllabus.topics.map((t: any) => {
-                    const p = targetProgress.find((pg: any) => pg.topicId === t.id);
+                    const p = progress.find((pg: any) => pg.topicId === t.id);
                     return {
                         id: t.id,
                         title: t.title,
                         status: p ? p.status : 'NOT_STARTED',
                         completedDate: p ? p.completedDate : null,
-                        completedLectures: p ? p.completedLectures : 0,
                         notes: p ? p.notes : null,
+                        examType: t.examType
                     };
                 })
             });
@@ -112,6 +103,6 @@ export async function GET() {
         return NextResponse.json(syllabusProgress);
     } catch (error) {
         console.error("Student syllabus error:", error);
-        return NextResponse.json({ error: "Failed to fetch student syllabus" }, { status: 500 });
+        return NextResponse.json([]);
     }
 }
