@@ -94,11 +94,28 @@ export default function FacultyStudentLeavesPage() {
                                                     <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{leave.student.rollNo}</span>
                                                     <span className="text-slate-400">{leave.student.department} | {leave.student.section}</span>
                                                 </div>
-                                                <div className="mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                                <div className="mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-3">
                                                     <p className="text-xs font-medium text-slate-700 leading-relaxed italic">"{leave.reason}"</p>
-                                                    <div className="flex items-center gap-2 mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                                        <Calendar className="h-3 w-3" />
-                                                        {new Date(leave.fromDate).toLocaleDateString()} - {new Date(leave.toDate).toLocaleDateString()}
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                                            <Calendar className="h-3 w-3" />
+                                                            {new Date(leave.fromDate).toLocaleDateString()} - {new Date(leave.toDate).toLocaleDateString()}
+                                                        </div>
+                                                        {leave.documentUrl && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="h-6 px-3 text-[9px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 border-indigo-100 hover:bg-indigo-100 hover:text-indigo-700"
+                                                                onClick={() => {
+                                                                    const a = document.createElement('a');
+                                                                    a.href = leave.documentUrl;
+                                                                    a.download = `Medical_Doc_${leave.student.rollNo}`;
+                                                                    a.click();
+                                                                }}
+                                                            >
+                                                                View Medical Doc
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -145,11 +162,28 @@ export default function FacultyStudentLeavesPage() {
                                             </p>
                                         </div>
                                     </div>
-                                    <Badge className={
-                                        leave.status === 'APPROVED' ? "bg-emerald-50 text-emerald-600 border-none" : "bg-rose-50 text-rose-600 border-none"
-                                    }>
-                                        {leave.status}
-                                    </Badge>
+                                    <div className="flex items-center gap-3">
+                                        {leave.documentUrl && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-6 px-2 text-[8px] font-black uppercase tracking-widest text-slate-500 bg-white border-slate-200 hover:bg-slate-50"
+                                                onClick={() => {
+                                                    const a = document.createElement('a');
+                                                    a.href = leave.documentUrl;
+                                                    a.download = `Medical_Doc_${leave.student.rollNo}`;
+                                                    a.click();
+                                                }}
+                                            >
+                                                Doc
+                                            </Button>
+                                        )}
+                                        <Badge className={
+                                            leave.status === 'APPROVED' ? "bg-emerald-50 text-emerald-600 border-none px-3 font-bold text-[10px] uppercase tracking-widest" : "bg-rose-50 text-rose-600 border-none px-3 font-bold text-[10px] uppercase tracking-widest"
+                                        }>
+                                            {leave.status}
+                                        </Badge>
+                                    </div>
                                 </div>
                             ))}
                         </div>

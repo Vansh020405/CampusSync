@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { fromDate, toDate, reason } = body;
+        const { fromDate, toDate, reason, documentUrl } = body;
 
         if (!fromDate || !toDate || !reason) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -48,6 +48,7 @@ export async function POST(request: Request) {
                 fromDate: new Date(fromDate),
                 toDate: new Date(toDate),
                 reason,
+                documentUrl: documentUrl || null,
                 status: 'PENDING'
             }
         });

@@ -19,8 +19,9 @@ export default function StudentAttendancePage() {
 
     // Leave State
     const [leaves, setLeaves] = useState<any[]>([]);
-    const [leaveForm, setLeaveForm] = useState({ fromDate: '', toDate: '', reason: '' });
+    const [leaveForm, setLeaveForm] = useState({ fromDate: '', toDate: '', reason: '', documentUrl: '' });
     const [isSubmittingLeave, setIsSubmittingLeave] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     const rollNo = (session?.user as any)?.rollNo || "23-4G2-01";
 
@@ -88,7 +89,7 @@ export default function StudentAttendancePage() {
 
             if (res.ok) {
                 toast.success("Leave application submitted successfully");
-                setLeaveForm({ fromDate: '', toDate: '', reason: '' });
+                setLeaveForm({ fromDate: '', toDate: '', reason: '', documentUrl: '' });
                 fetchLeaves();
             } else {
                 toast.error(data.error || "Failed to submit leave application");
@@ -98,6 +99,25 @@ export default function StudentAttendancePage() {
         } finally {
             setIsSubmittingLeave(false);
         }
+    };
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const content = event.target?.result as string;
+            setLeaveForm(prev => ({ ...prev, documentUrl: content }));
+            setIsUploading(false);
+            toast.success("Medical document attached successfully");
+        };
+        reader.onerror = () => {
+            setIsUploading(false);
+            toast.error("Failed to read document");
+        };
+        reader.readAsDataURL(file);
     };
 
     if (isLoading) {
@@ -122,7 +142,7 @@ export default function StudentAttendancePage() {
             <div className="px-1 py-6 flex items-start justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-800 tracking-tight">{(session?.user as any)?.name}</h1>
-                    <p className="text-[13px] text-slate-400 font-medium mt-1">Section {(session?.user as any)?.section || '4G2'} • Institutional Ledger</p>
+                    <p className="text-[13px] text-slate-400 font-medium mt-1">Section {(session?.user as any)?.section || '4G2'} • Attendence Portal</p>
                 </div>
                 <div className="pt-2">
                     <Clock className="h-6 w-6 text-slate-300 stroke-[1.5px]" />
@@ -265,7 +285,7 @@ export default function StudentAttendancePage() {
             <div className="space-y-6 pt-6">
                 <div>
                     <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
-                        <Palmtree className="h-5 w-5 text-amber-500" /> Authorized Absence Form
+                        <Palmtree className="h-5 w-5 text-amber-500" /> Medical Leave Form
                     </h2>
                     <p className="text-[13px] text-slate-400 font-medium mt-1">Submit formal requests to your designated mentor</p>
                 </div>
@@ -296,7 +316,7 @@ export default function StudentAttendancePage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Comprehensive Reason</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Reason</label>
                             <textarea
                                 required
                                 rows={3}
@@ -307,18 +327,46 @@ export default function StudentAttendancePage() {
                             />
                         </div>
 
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1 flex items-center justify-between">
+                                <span>Medical Certificate (Optional)</span>
+                                {leaveForm.documentUrl && <span className="text-emerald-500 flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Attached</span>}
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept=".jpg,.jpeg,.png,.pdf"
+                                    onChange={handleFileUpload}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    disabled={isUploading}
+                                />
+                                <div className={cn(
+                                    "w-full bg-slate-50 border border-slate-200 border-dashed rounded-xl px-4 py-3 text-sm font-bold text-slate-500 flex items-center justify-center gap-2 transition-all",
+                                    isUploading ? "opacity-50" : "hover:bg-slate-100 hover:border-slate-300"
+                                )}>
+                                    {isUploading ? (
+                                        <><Loader2 className="h-4 w-4 animate-spin text-amber-500" /> Processing file...</>
+                                    ) : leaveForm.documentUrl ? (
+                                        <><CheckCircle className="h-4 w-4 text-emerald-500" /> Document Ready</>
+                                    ) : (
+                                        <>Upload Document (.PDF, .JPG)</>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
                         <Button
                             type="submit"
                             disabled={isSubmittingLeave}
                             className="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-12 font-black tracking-widest uppercase text-xs shadow-[0_4px_14px_0_rgba(245,158,11,0.39)] transition-all active:scale-[0.98]"
                         >
-                            {isSubmittingLeave ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Transmit Request"}
+                            {isSubmittingLeave ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "SUBMIT"}
                         </Button>
                     </form>
 
                     {leaves.length > 0 && (
                         <div className="border-t border-slate-100 bg-slate-50/50 p-6 space-y-4">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Historical Applications</h3>
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Leave History</h3>
                             {leaves.map((leave, idx) => (
                                 <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-slate-100">
                                     <div>
@@ -332,7 +380,7 @@ export default function StudentAttendancePage() {
                                     </div>
                                     <div className="shrink-0 flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
                                         <div className="text-right">
-                                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Assessor</p>
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">mentor</p>
                                             <p className="text-xs font-bold text-slate-600">{leave.faculty?.name || 'Mentor'}</p>
                                         </div>
                                         <Badge className={cn(
