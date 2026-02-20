@@ -62,6 +62,7 @@ export default function FacultyDashboardPage() {
         pendingCount: 0,
         totalCount: 0
     });
+    const [mentoredSections, setMentoredSections] = useState<any[]>([]);
 
     const { broadcast } = useRealtime();
 
@@ -204,8 +205,21 @@ export default function FacultyDashboardPage() {
             }
         };
 
+        const fetchMentoredSections = async () => {
+            try {
+                const res = await fetch("/api/faculty/mentored-sections");
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setMentoredSections(data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch mentored sections:", err);
+            }
+        };
+
         fetchTimetable();
         fetchExams();
+        fetchMentoredSections();
     }, [facultyId]);
 
     return (
@@ -236,6 +250,18 @@ export default function FacultyDashboardPage() {
                                 </div>
                             ))}
                         </div>
+                        {mentoredSections.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {mentoredSections.map((ms: any, i: number) => (
+                                    <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 rounded-xl border border-teal-100/50">
+                                        <Users className="h-3.5 w-3.5 text-teal-600" />
+                                        <p className="text-[10px] font-black text-teal-700 uppercase tracking-widest">
+                                            Mentor: {ms.department} - {ms.section} ({ms.batch})
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="flex flex-row md:flex-col items-center md:items-end gap-3">
@@ -253,6 +279,8 @@ export default function FacultyDashboardPage() {
                     )}
                 </div>
             </div>
+
+
 
 
             {/* Upcoming Sessions Tiles */}

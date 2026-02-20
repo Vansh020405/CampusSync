@@ -45,21 +45,52 @@ export default function FacultyAttendancePage() {
         }
     }, [facultySubjects, selectedSubject]);
 
-    // Automatically select the first assigned section if available
-    useEffect(() => {
-        const sectionsData = (session?.user as any)?.sectionsTeaching;
-        if (sectionsData) {
-            const sections = typeof sectionsData === 'string' && sectionsData.startsWith('[')
-                ? JSON.parse(sectionsData)
-                : (Array.isArray(sectionsData) ? sectionsData : [sectionsData]);
+    const [combinedSections, setCombinedSections] = useState<string[]>([]);
 
+    // Fetch and merge teaching sections and mentored sections
+    useEffect(() => {
+        const fetchAllSections = async () => {
+            const sectionsData = (session?.user as any)?.sectionsTeaching;
+            let sections: string[] = [];
+
+            if (sectionsData) {
+                sections = typeof sectionsData === 'string' && sectionsData.startsWith('[')
+                    ? JSON.parse(sectionsData)
+                    : (Array.isArray(sectionsData) ? [...sectionsData] : [sectionsData]);
+            }
+
+            try {
+                const res = await fetch('/api/faculty/mentored-sections');
+                if (res.ok) {
+                    const mentored = await res.json();
+                    if (Array.isArray(mentored)) {
+                        mentored.forEach((m: any) => {
+                            if (!sections.includes(m.section)) {
+                                sections.push(m.section);
+                            }
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch mentored sections:", err);
+            }
+
+            setCombinedSections(sections);
             if (sections.length > 0 && !selectedSection) {
                 setSelectedSection(sections[0]);
             }
+        };
+
+        if (session) {
+            fetchAllSections();
         }
     }, [session, selectedSection]);
 
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState(() => {
+        const today = new Date();
+        const offset = today.getTimezoneOffset() * 60000;
+        return new Date(today.getTime() - offset).toISOString().split('T')[0];
+    });
     const [selectedPeriods, setSelectedPeriods] = useState<number[]>([1]);
     const [attendance, setAttendance] = useState<Record<string, 'PRESENT' | 'ABSENT' | 'LATE'>>({});
     const [isSaved, setIsSaved] = useState(false);
@@ -72,13 +103,14 @@ export default function FacultyAttendancePage() {
 
     // Fetch students from database
     const fetchStudents = async () => {
-        if (!selectedSection) return;
+        if (!selectedSection || !selectedSubject) return;
         setIsLoadingStudents(true);
         try {
-            const res = await fetch(`/api/students/by-section/${selectedSection}`);
+            const subjectParam = `?subject=${encodeURIComponent(selectedSubject)}`;
+            const res = await fetch(`/api/students/by-section/${encodeURIComponent(selectedSection)}${subjectParam}`);
             const data = await res.json();
             if (Array.isArray(data)) {
-                setSectionStudents(prev => ({ ...prev, [selectedSection]: data }));
+                setSectionStudents(prev => ({ ...prev, [`${selectedSection}-${selectedSubject}`]: data }));
             }
         } catch (err) {
             console.error("Failed to fetch students:", err);
@@ -89,10 +121,10 @@ export default function FacultyAttendancePage() {
 
     // Fetch students from database
     useEffect(() => {
-        if (selectedSection) {
+        if (selectedSection && selectedSubject) {
             fetchStudents();
         }
-    }, [selectedSection]);
+    }, [selectedSection, selectedSubject]);
 
     // Reset attendance and save state when section, subject or date changes
     useEffect(() => {
@@ -101,17 +133,13 @@ export default function FacultyAttendancePage() {
     }, [selectedSection, selectedSubject, selectedDate]);
 
     // Get current students from state
-    const currentStudents = sectionStudents[selectedSection] || [];
+    const currentStudents = sectionStudents[`${selectedSection}-${selectedSubject}`] || [];
 
     const currentSubject = selectedSubject || facultySubjects[0]?.trim() || "Unassigned";
 
     // Helper to get raw sections list for selectors
     const getSectionsList = () => {
-        const sectionsData = (session?.user as any)?.sectionsTeaching;
-        if (!sectionsData) return [];
-        return typeof sectionsData === 'string' && sectionsData.startsWith('[')
-            ? JSON.parse(sectionsData)
-            : (Array.isArray(sectionsData) ? sectionsData : [sectionsData]);
+        return combinedSections;
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

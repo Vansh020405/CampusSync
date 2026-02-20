@@ -148,7 +148,11 @@ export const authOptions: NextAuthOptions = {
         })
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
+            if (trigger === "update" && session?.user) {
+                // Update token with new session data
+                return { ...token, ...session.user };
+            }
             if (user) {
                 token.role = (user as any).role;
                 token.id = user.id;

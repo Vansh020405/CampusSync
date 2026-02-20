@@ -3,11 +3,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, BookOpen, AlertCircle, ChevronRight, Sparkles } from "lucide-react";
+import { Clock, BookOpen, AlertCircle, ChevronRight, Sparkles, Calendar, Loader2, CheckCircle, XCircle, Palmtree } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRealtime } from "@/hooks/useRealtime";
+import { toast } from "sonner";
 
 export default function StudentAttendancePage() {
     const { data: session } = useSession();
@@ -15,6 +16,11 @@ export default function StudentAttendancePage() {
     const [allRecords, setAllRecords] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
+
+    // Leave State
+    const [leaves, setLeaves] = useState<any[]>([]);
+    const [leaveForm, setLeaveForm] = useState({ fromDate: '', toDate: '', reason: '' });
+    const [isSubmittingLeave, setIsSubmittingLeave] = useState(false);
 
     const rollNo = (session?.user as any)?.rollNo || "23-4G2-01";
 
@@ -39,8 +45,21 @@ export default function StudentAttendancePage() {
         }
     };
 
+    const fetchLeaves = async () => {
+        try {
+            const res = await fetch('/api/student/leave');
+            if (res.ok) {
+                const data = await res.json();
+                setLeaves(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch leaves:", error);
+        }
+    };
+
     useEffect(() => {
         fetchAttendance();
+        fetchLeaves();
     }, [rollNo]);
 
     useRealtime((event) => {
@@ -50,6 +69,36 @@ export default function StudentAttendancePage() {
             }
         }
     });
+
+    const handleApplyLeave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!leaveForm.fromDate || !leaveForm.toDate || !leaveForm.reason) {
+            toast.error("Please fill all required fields");
+            return;
+        }
+
+        setIsSubmittingLeave(true);
+        try {
+            const res = await fetch('/api/student/leave', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(leaveForm)
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                toast.success("Leave application submitted successfully");
+                setLeaveForm({ fromDate: '', toDate: '', reason: '' });
+                fetchLeaves();
+            } else {
+                toast.error(data.error || "Failed to submit leave application");
+            }
+        } catch (error) {
+            toast.error("An error occurred");
+        } finally {
+            setIsSubmittingLeave(false);
+        }
+    };
 
     if (isLoading) {
         return <div className="p-8 text-center text-slate-400 font-bold animate-pulse uppercase tracking-widest text-xs">Accessing Ledger...</div>;
@@ -210,6 +259,96 @@ export default function StudentAttendancePage() {
                         </Card>
                     );
                 })}
+            </div>
+
+            {/* Leave Application Section */}
+            <div className="space-y-6 pt-6">
+                <div>
+                    <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                        <Palmtree className="h-5 w-5 text-amber-500" /> Authorized Absence Form
+                    </h2>
+                    <p className="text-[13px] text-slate-400 font-medium mt-1">Submit formal requests to your designated mentor</p>
+                </div>
+
+                <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] overflow-hidden">
+                    <form onSubmit={handleApplyLeave} className="p-6 space-y-5">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Commencement Date</label>
+                                <input
+                                    type="date"
+                                    required
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                    value={leaveForm.fromDate}
+                                    onChange={(e) => setLeaveForm(prev => ({ ...prev, fromDate: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Resumption Date</label>
+                                <input
+                                    type="date"
+                                    required
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                    value={leaveForm.toDate}
+                                    onChange={(e) => setLeaveForm(prev => ({ ...prev, toDate: e.target.value }))}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Comprehensive Reason</label>
+                            <textarea
+                                required
+                                rows={3}
+                                placeholder="State the exact nature of your absence..."
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all resize-none"
+                                value={leaveForm.reason}
+                                onChange={(e) => setLeaveForm(prev => ({ ...prev, reason: e.target.value }))}
+                            />
+                        </div>
+
+                        <Button
+                            type="submit"
+                            disabled={isSubmittingLeave}
+                            className="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-12 font-black tracking-widest uppercase text-xs shadow-[0_4px_14px_0_rgba(245,158,11,0.39)] transition-all active:scale-[0.98]"
+                        >
+                            {isSubmittingLeave ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Transmit Request"}
+                        </Button>
+                    </form>
+
+                    {leaves.length > 0 && (
+                        <div className="border-t border-slate-100 bg-slate-50/50 p-6 space-y-4">
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Historical Applications</h3>
+                            {leaves.map((leave, idx) => (
+                                <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-slate-100">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                                            <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
+                                                {new Date(leave.fromDate).toLocaleDateString()} — {new Date(leave.toDate).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm font-medium text-slate-500 italic max-w-sm truncate">"{leave.reason}"</p>
+                                    </div>
+                                    <div className="shrink-0 flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
+                                        <div className="text-right">
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Assessor</p>
+                                            <p className="text-xs font-bold text-slate-600">{leave.faculty?.name || 'Mentor'}</p>
+                                        </div>
+                                        <Badge className={cn(
+                                            "border-none shadow-none text-[10px] font-bold uppercase tracking-widest px-3 py-1",
+                                            leave.status === 'APPROVED' ? "bg-emerald-50 text-emerald-600" :
+                                                leave.status === 'REJECTED' ? "bg-red-50 text-red-600" :
+                                                    "bg-amber-50 text-amber-600 hover:bg-amber-100"
+                                        )}>
+                                            {leave.status}
+                                        </Badge>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Quick Note Card */}

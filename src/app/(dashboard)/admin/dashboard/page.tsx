@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
     Briefcase, Users, CalendarDays,
     GraduationCap, ChevronRight,
-    Activity, Shield, Globe, FileText, BookOpen, Palmtree
+    Activity, Shield, Globe, FileText, BookOpen, Palmtree, UserPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -43,6 +43,7 @@ export default function AdminDashboardPage() {
         { href: "/admin/students", label: "Student Details", description: "Global student data registry and monitoring", icon: GraduationCap, stats: `${counts.students} Enrolled`, color: "bg-blue-50 text-blue-500" },
         { href: "/admin/syllabus", label: "Syllabus Master", description: "Manage curriculum, allots subjects and exam mapping", icon: BookOpen, stats: "Authorized", color: "bg-purple-50 text-purple-600" },
         { href: "/admin/exams", label: "Exam Planner", description: "Coordinate examination schedules and invigilation", icon: FileText, stats: "Pending", color: "bg-rose-50 text-rose-500" },
+        { href: "/admin/mentors", label: "Section Mentors", description: "Assign faculty mentors to academic sections", icon: UserPlus, stats: "New", color: "bg-cyan-50 text-cyan-600" },
         { href: "/admin/internships", label: "Job & Internship Allocation", description: "Corporate sync and student placement management", icon: Briefcase, stats: "12 New", color: "bg-amber-50 text-amber-500" }
     ];
 

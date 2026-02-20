@@ -25,6 +25,7 @@ export default function FacultyMenuPage() {
             title: "Academic & Schedule",
             items: [
                 { href: "/faculty/leave", label: "My Attendance", icon: CheckCircle, color: "bg-emerald-50 text-emerald-600" },
+                { href: "/faculty/student-leaves", label: "Student Leaves", icon: Palmtree, color: "bg-amber-50 text-amber-600" },
                 { href: "/faculty/attendance", label: "Mark Students", icon: Users, color: "bg-cyan-50 text-cyan-600" },
                 { href: "/faculty/availability", label: "Schedule", icon: Calendar, color: "bg-blue-50 text-blue-600" },
                 { href: "/faculty/syllabus", label: "Syllabus", icon: BookOpen, color: "bg-purple-50 text-purple-600" },

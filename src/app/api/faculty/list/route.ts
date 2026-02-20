@@ -51,8 +51,12 @@ export async function GET() {
         }));
 
         return NextResponse.json(mapped);
-    } catch (error) {
-        console.error("Fetch faculty error:", error);
-        return NextResponse.json({ error: "Failed to fetch faculty" }, { status: 500 });
+    } catch (error: any) {
+        console.error("DETAILED FETCH FACULTY ERROR:", error);
+        return NextResponse.json({
+            error: "Failed to fetch faculty",
+            details: error.message,
+            code: error.code
+        }, { status: 500 });
     }
 }

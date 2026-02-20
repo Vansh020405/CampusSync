@@ -25,6 +25,7 @@ model Student {
   examSeating  ExamSeating[]
   grades           Grade[]
   acknowledgements AnnouncementAcknowledgement[]
+  leaves           StudentLeave[]
 }
 
 model Faculty {
@@ -49,6 +50,8 @@ model Faculty {
   assignedClasses  Timetable[]         @relation("FacultyClasses")
   topicProgress    TopicProgress[]
   examDuties       Exam[]              @relation("InvigilatorDuty")
+  mentoredSections SectionMentor[]
+  leaveApprovals   StudentLeave[]      @relation("LeaveApprovals")
 }
 
 model Admin {
@@ -169,6 +172,23 @@ model FacultyLeave {
   faculty   Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
 
   @@index([facultyId, status])
+}
+
+model StudentLeave {
+  id          String   @id @default(uuid())
+  studentId   String
+  facultyId   String
+  fromDate    DateTime
+  toDate      DateTime
+  reason      String
+  documentUrl String?
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  appliedAt   DateTime @default(now())
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  faculty     Faculty  @relation("LeaveApprovals", fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@index([facultyId, status])
+  @@index([studentId, status])
 }
 
 model Internship {
@@ -327,4 +347,18 @@ model AnnouncementAcknowledgement {
   student        Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([announcementId, studentId])
+}
+
+model SectionMentor {
+  id         String   @id @default(uuid())
+  department String
+  semester   String
+  section    String
+  batch      String   @default("Morning")
+  facultyId  String
+  faculty    Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([department, semester, section, batch])
 }

@@ -34,6 +34,17 @@ export async function GET() {
         const subjects = parseSafe(faculty.subjects);
         const sections = parseSafe(faculty.sectionsTeaching);
 
+        const mentoredSections = await prisma.sectionMentor.findMany({
+            where: { facultyId: faculty.id }
+        });
+
+        mentoredSections.forEach(m => {
+            const trimmed = m.section.trim();
+            if (!sections.includes(trimmed)) {
+                sections.push(trimmed);
+            }
+        });
+
         return NextResponse.json({ subjects, sections });
     } catch (error) {
         console.error("Courses fetch error:", error);

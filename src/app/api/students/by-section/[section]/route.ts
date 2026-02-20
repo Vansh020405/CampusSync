@@ -9,6 +9,8 @@ export async function GET(
 ) {
     try {
         const { section } = params;
+        const { searchParams } = new URL(req.url);
+        const subject = searchParams.get('subject');
 
         if (!section) {
             return NextResponse.json({ error: "Section is required" }, { status: 400 });
@@ -26,11 +28,14 @@ export async function GET(
 
         // Fetch attendance records for these students
         const studentIds = students.map((s: any) => s.id);
+
+        let attendanceFilter: any = { studentId: { in: studentIds } };
+        if (subject) {
+            attendanceFilter.subject = subject;
+        }
+
         const attendanceRecords = await (prisma as any).studentAttendance.findMany({
-            where: {
-                studentId: { in: studentIds },
-                subject: "Java" // For now, scoping to Java as per faculty view
-            }
+            where: attendanceFilter
         });
 
         // Calculate attendance percentage for each student
