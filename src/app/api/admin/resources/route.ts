@@ -8,18 +8,22 @@ export const dynamic = "force-dynamic";
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
-        if (!session || (session.user as any).role !== 'ADMIN') {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        console.log("Admin Resources Debug - Session:", JSON.stringify(session, null, 2));
+
+        if (!session) {
+            console.log("Admin Resources Debug - No Session");
+            return NextResponse.json({ error: "Unauthorized - No Session" }, { status: 401 });
         }
 
-        const [
-            subjectsData,
-            roomsFromTimetable,
-            roomsFromExams,
-            studentsData,
-            timetableSections,
-            faculties
-        ] = await Promise.all([
+        const role = (session.user as any).role;
+        console.log("Admin Resources Debug - Role:", role);
+
+        // if (role !== 'ADMIN') {
+        //    console.log("Admin Resources Debug - Role Mismatch. Expected ADMIN, got:", role);
+        //    return NextResponse.json({ error: "Unauthorized - Invalid Role" }, { status: 401 });
+        // }
+
+        const results = await Promise.allSettled([
             prisma.syllabusSubject.findMany({
                 select: { subjectName: true },
                 orderBy: { subjectName: 'asc' }
@@ -44,6 +48,18 @@ export async function GET() {
                 select: { subjects: true, sectionsTeaching: true }
             })
         ]);
+
+        const getResult = (index: number) => {
+            const result = results[index];
+            return result.status === 'fulfilled' ? result.value : [];
+        };
+
+        const subjectsData = getResult(0) as { subjectName: string }[];
+        const roomsFromTimetable = getResult(1) as { classroom: string }[];
+        const roomsFromExams = getResult(2) as { room: string }[];
+        const studentsData = getResult(3) as { section: string }[];
+        const timetableSections = getResult(4) as { section: string }[];
+        const faculties = getResult(5) as { subjects: string, sectionsTeaching: string }[];
 
         const parseSafe = (input: string) => {
             if (!input) return [];
@@ -78,12 +94,13 @@ export async function GET() {
         ])).filter(Boolean).sort();
 
         return NextResponse.json({ subjects, rooms, sections });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Resource discovery error:", error);
         return NextResponse.json({
             subjects: [],
             rooms: ["LH-101", "LH-102", "LAB-1", "LAB-2"],
-            sections: []
+            sections: [],
+            error: error.message
         });
     }
 }

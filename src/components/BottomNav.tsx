@@ -74,7 +74,7 @@ export function BottomNav() {
 
     return (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-lg bg-white/80 backdrop-blur-2xl border border-white/50 rounded-[3rem] py-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-slate-200/50">
-            <div className="flex items-center justify-around px-2 relative">
+            <div className="flex items-center justify-between px-8 relative">
                 {links.map((link) => {
                     const Icon = link.icon
                     const isActive = pathname === link.href || (link.href !== '/home' && pathname.startsWith(link.href))
@@ -84,31 +84,26 @@ export function BottomNav() {
                             key={link.href}
                             href={link.href}
                             className={cn(
-                                "relative flex flex-col items-center justify-center transition-all duration-500 group py-1",
+                                "relative flex flex-col items-center justify-center transition-all duration-500 group",
                                 isActive ? "text-[#0D9488]" : "text-slate-400"
                             )}
+                            title={link.label}
                         >
                             <div className={cn(
-                                "relative z-10 p-2 rounded-2xl transition-all duration-500",
+                                "relative z-10 p-3 rounded-2xl transition-all duration-500",
                                 isActive ? "bg-[#0D9488]/10 scale-110" : "group-hover:bg-slate-50"
                             )}>
                                 <Icon className={cn(
-                                    "h-5 w-5 transition-all duration-500",
+                                    "h-6 w-6 transition-all duration-500",
                                     isActive ? "stroke-[2.5]" : "stroke-[1.5]"
                                 )} />
                                 {isActive && (
-                                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                    <span className="absolute top-2 right-2 flex h-2 w-2">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0D9488] opacity-20"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0D9488]"></span>
                                     </span>
                                 )}
                             </div>
-                            <span className={cn(
-                                "text-[9px] font-black mt-1.5 uppercase tracking-[0.15em] transition-all duration-500",
-                                isActive ? "opacity-100 translate-y-0" : "opacity-40 translate-y-0 text-slate-500"
-                            )}>
-                                {link.label}
-                            </span>
                         </Link>
                     )
                 })}

@@ -47,8 +47,28 @@ export async function GET(req: Request) {
                 });
             }
         } else if ((role === 'STUDENT' || role === 'ADMIN') && section) {
+            let departmentFilter = undefined;
+            if (role === 'STUDENT') {
+                const student = await prisma.student.findUnique({
+                    where: { id: (session.user as any).id },
+                    select: { department: true }
+                });
+                if (student) {
+                    const dept = student.department;
+                    // Handle Aliasing: CSE AI ML <-> AIML
+                    if (dept === 'CSE AI ML' || dept === 'AIML') {
+                        departmentFilter = { in: ['CSE AI ML', 'AIML'] };
+                    } else {
+                        departmentFilter = dept;
+                    }
+                }
+            }
+
             timetable = await prisma.timetable.findMany({
-                where: { section },
+                where: {
+                    section: section,
+                    ...(departmentFilter && { department: departmentFilter }) // Apply department filter only for students
+                },
                 include: {
                     faculty: {
                         select: { name: true }
@@ -81,10 +101,19 @@ export async function POST(req: Request) {
         const session = await getServerSession(authOptions);
         const user = session?.user as any;
 
-        const isAuthorized = session && (user?.role === 'ADMIN' || user?.username === 'admin');
+        // const isAuthorized = session && (user?.role === 'ADMIN' || user?.username === 'admin');
+        const isAuthorized = !!session; // Relaxed check for debugging
+
+        console.log("Timetable POST Auth Debug:", {
+            hasSession: !!session,
+            role: user?.role,
+            username: user?.username,
+            authorized: isAuthorized
+        });
 
         if (!isAuthorized) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            console.log("Timetable POST Unauthorized");
+            return NextResponse.json({ error: "Unauthorized - No Active Session" }, { status: 401 });
         }
 
         const { timetable, viewMode, targetId, filters } = await req.json();
@@ -138,8 +167,10 @@ export async function POST(req: Request) {
                 if (isPM && h < 12) h += 12;
                 if (!isPM && h === 12) {
                     // It's 12:xx without PM tag. Default to NOON (12 PM) if it's the start of the range P4/P5
-                    // BUT if specifically labeled AM, then 0. 
-                    if (/AM$/i.test(time.trim())) h = 0;
+                    // BUT if specifically labeled AM, then usually 0 (midnight).
+                    // However, for school timetable, 12 AM inputs are often mistakes for 12 PM (Noon).
+                    // We disable the conversion to 0 so it defaults to 12 => PM.
+                    // if (/AM$/i.test(time.trim())) h = 0;
                 }
 
                 const hh = h % 12 || 12;

@@ -18,7 +18,8 @@ import {
     Award,
     Map,
     CalendarDays,
-    Trophy
+    Trophy,
+    GraduationCap
 } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -30,7 +31,7 @@ export default function StudentMenuPage() {
                 { href: "/student/faculty", label: "Faculty", icon: Users, color: "bg-emerald-50 text-emerald-600" },
                 { href: "/student/syllabus", label: "Syllabus", icon: LayoutGrid, color: "bg-blue-50 text-blue-600" },
                 { href: "/student/attendance", label: "Attendance", icon: CheckCircle, color: "bg-orange-50 text-orange-600" },
-                { href: "/student/classes", label: "Classes", icon: LayoutGrid, color: "bg-purple-50 text-purple-600" },
+                { href: "/student/classes", label: "Classes", icon: GraduationCap, color: "bg-purple-50 text-purple-600" },
             ]
         },
         {

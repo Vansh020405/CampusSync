@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 import {
     Plus, Save, Trash2, Clock,
-    MapPin, Box, Sparkles, User, GraduationCap, ChevronRight, Loader2, Search, Info, Check, ChevronsUpDown
+    MapPin, Box, Sparkles, User, GraduationCap, ChevronRight, Loader2, Search, Info, Check, ChevronsUpDown, RotateCcw
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -423,6 +423,20 @@ export default function AdminTimetableManagement() {
                             <span className="text-[10px] font-bold text-slate-400 uppercase">Context:</span>
                             <span className="text-xs font-bold text-slate-700">{department} • Sem {semester} • {batch}</span>
                         </div>
+                        <Button
+                            variant="destructive"
+                            onClick={() => {
+                                if (confirm("Are you sure you want to clear the entire grid? This action cannot be undone.")) {
+                                    setTimetable([]);
+                                    toast({ title: "Grid Reset", description: "All slots cleared from local view" });
+                                }
+                            }}
+                            disabled={isSaving}
+                            className="bg-white text-rose-600 border border-rose-200 hover:bg-rose-50 hover:border-rose-300 rounded-lg font-bold text-xs px-5 h-9 shadow-sm transition-all mr-2"
+                        >
+                            <RotateCcw className="h-3 w-3 mr-2" />
+                            Reset
+                        </Button>
                         <Button
                             onClick={deployArchitecture}
                             disabled={isSaving}
