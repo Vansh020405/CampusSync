@@ -44,10 +44,14 @@ export async function GET() {
 
         const updatedRiskScores = riskScores.map((rs: any) => {
             // Extract 'academicPerf' component algebraically from stored RiskScore
+            // Logic: RiskScore = (1 - (academicPerf * 0.7 + attendanceScore * 0.3)) * 100
+            // WeightedScore = 1 - (rs.riskScore / 100)
+            // academicPerf * 0.7 = WeightedScore - (attendanceScore * 0.3)
             const oldAttendancePerc = rs.attendance ?? 100;
             const oldAttendanceScore = oldAttendancePerc / 100;
-            const academicPerfTimesPoint6 = 1 - (rs.riskScore / 100) - (oldAttendanceScore * 0.4);
-            const academicPerf = Math.min(1, Math.max(0, academicPerfTimesPoint6 / 0.6));
+            const weightedScore = 1 - (rs.riskScore / 100);
+            const academicPerfPart = weightedScore - (oldAttendanceScore * 0.3);
+            const academicPerf = Math.min(1, Math.max(0, academicPerfPart / 0.7));
 
             // Default fallback calculation for reqMarks for legacy records
             let reqMarks = rs.requiredMarks;
@@ -67,7 +71,7 @@ export async function GET() {
                 const attendancePerc = (attendedClasses / totalClasses) * 100;
                 const newAttendanceScore = attendancePerc / 100;
 
-                let newWeightedScore = academicPerfTimesPoint6 + (newAttendanceScore * 0.4);
+                let newWeightedScore = (academicPerf * 0.7) + (newAttendanceScore * 0.3);
                 let newFinalRiskScore = Math.min(100, Math.max(0, (1 - newWeightedScore) * 100));
 
                 let newRiskCategory = "Safe";

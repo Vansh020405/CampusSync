@@ -25,10 +25,20 @@ interface GradeRow {
 
 export default function FacultyGradesPage() {
     const { data: session } = useSession();
-    const facultySubjectsString = (session?.user as any)?.subjects;
-    const facultySubjects: string[] = facultySubjectsString
-        ? (facultySubjectsString.startsWith('[') ? JSON.parse(facultySubjectsString) : facultySubjectsString.split(','))
-        : [];
+    const facultySubjectsRaw = (session?.user as any)?.subjects;
+    let facultySubjects: string[] = [];
+
+    if (Array.isArray(facultySubjectsRaw)) {
+        facultySubjects = facultySubjectsRaw;
+    } else if (typeof facultySubjectsRaw === 'string') {
+        try {
+            facultySubjects = facultySubjectsRaw.startsWith('[')
+                ? JSON.parse(facultySubjectsRaw)
+                : facultySubjectsRaw.split(',').map(s => s.trim());
+        } catch (e) {
+            facultySubjects = [facultySubjectsRaw];
+        }
+    }
 
     const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
     const [parsedData, setParsedData] = useState<GradeRow[]>([]);

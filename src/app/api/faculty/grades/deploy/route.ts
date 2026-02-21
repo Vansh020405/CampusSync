@@ -31,12 +31,16 @@ export async function POST(request: Request) {
 
         // Insert / Update each grade and risk score
         const processes = grades.map(async (row) => {
-            // Find student by RollNumber
+            // Find student by RollNumber - Handle case sensitivity and whitespace
+            const rawRoll = row.RollNumber?.toString().trim();
             const student = await prisma.student.findUnique({
-                where: { rollNo: row.RollNumber }
+                where: { rollNo: rawRoll }
             });
 
-            if (!student) return null; // Skip if invalid
+            if (!student) {
+                console.warn(`[GRADES_DEPLOY] Student with RollNumber ${rawRoll} not found. Skipping.`);
+                return null;
+            }
 
             const pFloat = (val: any) => val ? parseFloat(val) : null;
 
@@ -46,6 +50,10 @@ export async function POST(request: Request) {
             const st2T = pFloat(row.ST2TotalMarks);
             const etM = pFloat(row.EndTermMarks);
             const etT = pFloat(row.EndTermTotalMarks);
+
+            const internalM = Math.round((st1M || 0) + (st2M || 0));
+            const externalM = Math.round(etM || 0);
+            const totalM = internalM + externalM;
 
             // Upsert Grade in schema
             await (prisma as any).grade.upsert({
@@ -62,9 +70,9 @@ export async function POST(request: Request) {
                     st2Total: st2T,
                     endTermMarks: etM,
                     endTermTotal: etT,
-                    internalMarks: (st1M || 0) + (st2M || 0),
-                    externalMarks: etM || 0,
-                    totalMarks: (st1M || 0) + (st2M || 0) + (etM || 0),
+                    internalMarks: internalM,
+                    externalMarks: externalM,
+                    totalMarks: totalM,
                     grade: row.Grade || "-",
                     credits: parseInt(row.Credits) || 3,
                     versionId: newVersion.id
@@ -80,9 +88,9 @@ export async function POST(request: Request) {
                     st2Total: st2T,
                     endTermMarks: etM,
                     endTermTotal: etT,
-                    internalMarks: (st1M || 0) + (st2M || 0),
-                    externalMarks: etM || 0,
-                    totalMarks: (st1M || 0) + (st2M || 0) + (etM || 0),
+                    internalMarks: internalM,
+                    externalMarks: externalM,
+                    totalMarks: totalM,
                     grade: row.Grade || "-",
                     credits: parseInt(row.Credits) || 3,
                     versionId: newVersion.id
