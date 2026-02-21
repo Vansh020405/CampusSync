@@ -14,6 +14,7 @@ export default function StudentAttendancePage() {
     const { data: session } = useSession();
     const [subjects, setSubjects] = useState<any[]>([]);
     const [allRecords, setAllRecords] = useState<any[]>([]);
+    const [riskScores, setRiskScores] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
 
@@ -31,6 +32,7 @@ export default function StudentAttendancePage() {
             const res = await fetch(`/api/attendance/student?rollNo=${rollNo}`);
             const data = await res.json();
             if (data.records) setAllRecords(data.records);
+            if (data.riskScores) setRiskScores(data.riskScores);
             if (data.stats) {
                 setSubjects(data.stats.map((s: any) => ({
                     name: s.subject,
@@ -230,19 +232,44 @@ export default function StudentAttendancePage() {
                                 {isExpanded && (
                                     <div className="px-6 pb-6 animate-in slide-in-from-top-2 duration-400">
                                         {/* AI Recovery Insight */}
-                                        {subject.percentage < 75 && (
-                                            <div className="mb-6 p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100/50 flex items-start gap-4 ring-1 ring-indigo-500/10">
-                                                <div className="h-10 w-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200">
-                                                    <Sparkles className="h-5 w-5 animate-pulse" />
+                                        {(() => {
+                                            const risk = riskScores.find(rs => rs.subjectName === subject.name);
+                                            const insight = risk?.requiredAttendance || (subject.percentage < 75 ? `Attend next ${Math.ceil((0.75 * subject.total - subject.attended) / 0.25)} classes to hit 75%` : null);
+
+                                            if (!insight) return null;
+
+                                            return (
+                                                <div className={cn(
+                                                    "mb-6 p-4 rounded-2xl flex items-start gap-4 ring-1",
+                                                    subject.percentage < 75
+                                                        ? "bg-indigo-50/50 border border-indigo-100/50 ring-indigo-500/10"
+                                                        : "bg-emerald-50/50 border border-emerald-100/50 ring-emerald-500/10"
+                                                )}>
+                                                    <div className={cn(
+                                                        "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg",
+                                                        subject.percentage < 75
+                                                            ? "bg-indigo-500 text-white shadow-indigo-200"
+                                                            : "bg-emerald-500 text-white shadow-emerald-200"
+                                                    )}>
+                                                        <Sparkles className="h-5 w-5 animate-pulse" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className={cn(
+                                                            "text-[10px] font-black uppercase tracking-[0.2em] leading-none",
+                                                            subject.percentage < 75 ? "text-indigo-400" : "text-emerald-500"
+                                                        )}>
+                                                            Intelligence • {subject.percentage < 75 ? "Recovery Plan" : "Safety Margin"}
+                                                        </p>
+                                                        <p className={cn(
+                                                            "text-[13px] font-bold leading-tight",
+                                                            subject.percentage < 75 ? "text-indigo-900" : "text-emerald-900"
+                                                        )}>
+                                                            {insight}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div className="space-y-1">
-                                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] leading-none">AI Insight • Protocol 75</p>
-                                                    <p className="text-[13px] font-bold text-indigo-900 leading-tight">
-                                                        Attend the next <span className="text-xl font-black">{Math.ceil((0.75 * subject.total - subject.attended) / 0.25)}</span> classes consecutively to reach the 75% threshold.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
+                                            );
+                                        })()}
 
                                         <div className="space-y-3 pt-2 border-t border-slate-50">
                                             <p className="text-[11px] font-bold text-slate-300 uppercase tracking-[0.15em] mb-4">Historical Logs</p>

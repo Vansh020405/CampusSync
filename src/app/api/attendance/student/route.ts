@@ -51,9 +51,15 @@ export async function GET(req: Request) {
             totalClasses: data.total
         }));
 
+        // 4. Fetch risk scores for intelligent insights
+        const riskScores = await prisma.riskScore.findMany({
+            where: { studentId: student.id }
+        });
+
         return NextResponse.json({
             records: attendanceRecords,
-            stats: stats
+            stats: stats,
+            riskScores: riskScores
         });
     } catch (error) {
         console.error("Fetch student attendance error:", error);

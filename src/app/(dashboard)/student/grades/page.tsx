@@ -16,9 +16,22 @@ import {
     Percent
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useSession } from 'next-auth/react'
+
+export interface RiskScore {
+    subjectName: string;
+    riskScore: number;
+    riskCategory: string;
+    trend: 'UP' | 'DOWN' | 'STABLE';
+    recommendations: string;
+    attendance?: number;
+    requiredMarks?: string;
+    requiredAttendance?: string;
+    priority?: number;
+}
 
 interface Grade {
     id: string
@@ -30,6 +43,12 @@ interface Grade {
     totalMarks: number
     grade: string
     credits: number
+    st1Marks?: number
+    st1Total?: number
+    st2Marks?: number
+    st2Total?: number
+    endTermMarks?: number
+    endTermTotal?: number
 }
 
 const gradePoints: Record<string, number> = {
@@ -44,28 +63,29 @@ const gradePoints: Record<string, number> = {
 }
 
 const MOCK_GRADES: Grade[] = [
-    { id: '1', semester: '1', subjectName: 'Engineering Mathematics-I', subjectCode: 'MA101', internalMarks: 34, externalMarks: 58, totalMarks: 92, grade: 'O', credits: 4 },
-    { id: '2', semester: '1', subjectName: 'Applied Physics', subjectCode: 'PH101', internalMarks: 32, externalMarks: 52, totalMarks: 84, grade: 'A+', credits: 4 },
-    { id: '3', semester: '1', subjectName: 'C Programming', subjectCode: 'CS101', internalMarks: 28, externalMarks: 45, totalMarks: 73, grade: 'A', credits: 3 },
-    { id: '4', semester: '1', subjectName: 'Engineering Graphics', subjectCode: 'ME101', internalMarks: 25, externalMarks: 40, totalMarks: 65, grade: 'B+', credits: 2 },
-    { id: '5', semester: '1', subjectName: 'English Communication', subjectCode: 'HS101', internalMarks: 35, externalMarks: 50, totalMarks: 85, grade: 'A+', credits: 2 },
+    { id: '1', semester: '1', subjectName: 'Engineering Mathematics-I', subjectCode: 'MA101', internalMarks: 34, externalMarks: 58, totalMarks: 92, grade: 'O', credits: 4, st1Marks: 28, st1Total: 30, st2Marks: 27, st2Total: 30, endTermMarks: 47, endTermTotal: 50 },
+    { id: '2', semester: '1', subjectName: 'Applied Physics', subjectCode: 'PH101', internalMarks: 32, externalMarks: 52, totalMarks: 84, grade: 'A+', credits: 4, st1Marks: 25, st1Total: 30, st2Marks: 26, st2Total: 30, endTermMarks: 42, endTermTotal: 50 },
+    { id: '3', semester: '1', subjectName: 'C Programming', subjectCode: 'CS101', internalMarks: 28, externalMarks: 45, totalMarks: 73, grade: 'A', credits: 3, st1Marks: 22, st1Total: 30, st2Marks: 24, st2Total: 30, endTermMarks: 38, endTermTotal: 50 },
+    { id: '4', semester: '1', subjectName: 'Engineering Graphics', subjectCode: 'ME101', internalMarks: 25, externalMarks: 40, totalMarks: 65, grade: 'B+', credits: 2, st1Marks: 20, st1Total: 30, st2Marks: 21, st2Total: 30, endTermMarks: 34, endTermTotal: 50 },
+    { id: '5', semester: '1', subjectName: 'English Communication', subjectCode: 'HS101', internalMarks: 35, externalMarks: 50, totalMarks: 85, grade: 'A+', credits: 2, st1Marks: 28, st1Total: 30, st2Marks: 28, st2Total: 30, endTermMarks: 45, endTermTotal: 50 },
 
-    { id: '6', semester: '2', subjectName: 'Engineering Mathematics-II', subjectCode: 'MA102', internalMarks: 36, externalMarks: 55, totalMarks: 91, grade: 'O', credits: 4 },
-    { id: '7', semester: '2', subjectName: 'Data Structures', subjectCode: 'CS102', internalMarks: 33, externalMarks: 58, totalMarks: 91, grade: 'O', credits: 4 },
-    { id: '8', semester: '2', subjectName: 'Digital Logic Design', subjectCode: 'EC102', internalMarks: 31, externalMarks: 48, totalMarks: 79, grade: 'A', credits: 3 },
-    { id: '9', semester: '2', subjectName: 'Environment Studies', subjectCode: 'ES102', internalMarks: 29, externalMarks: 42, totalMarks: 71, grade: 'A', credits: 2 },
-    { id: '10', semester: '2', subjectName: 'Workshop Practice', subjectCode: 'ME102', internalMarks: 38, externalMarks: 50, totalMarks: 88, grade: 'A+', credits: 2 },
+    { id: '6', semester: '2', subjectName: 'Engineering Mathematics-II', subjectCode: 'MA102', internalMarks: 36, externalMarks: 55, totalMarks: 91, grade: 'O', credits: 4, st1Marks: 29, st1Total: 30, st2Marks: 29, st2Total: 30, endTermMarks: 48, endTermTotal: 50 },
+    { id: '7', semester: '2', subjectName: 'Data Structures', subjectCode: 'CS102', internalMarks: 33, externalMarks: 58, totalMarks: 91, grade: 'O', credits: 4, st1Marks: 28, st1Total: 30, st2Marks: 28, st2Total: 30, endTermMarks: 49, endTermTotal: 50 },
+    { id: '8', semester: '2', subjectName: 'Digital Logic Design', subjectCode: 'EC102', internalMarks: 31, externalMarks: 48, totalMarks: 79, grade: 'A', credits: 3, st1Marks: 24, st1Total: 30, st2Marks: 25, st2Total: 30, endTermMarks: 40, endTermTotal: 50 },
+    { id: '9', semester: '2', subjectName: 'Environment Studies', subjectCode: 'ES102', internalMarks: 29, externalMarks: 42, totalMarks: 71, grade: 'A', credits: 2, st1Marks: 22, st1Total: 30, st2Marks: 23, st2Total: 30, endTermMarks: 36, endTermTotal: 50 },
+    { id: '10', semester: '2', subjectName: 'Workshop Practice', subjectCode: 'ME102', internalMarks: 38, externalMarks: 50, totalMarks: 88, grade: 'A+', credits: 2, st1Marks: 29, st1Total: 30, st2Marks: 30, st2Total: 30, endTermMarks: 46, endTermTotal: 50 },
 
-    { id: '11', semester: '3', subjectName: 'Discrete Mathematics', subjectCode: 'CS201', internalMarks: 35, externalMarks: 60, totalMarks: 95, grade: 'O', credits: 4 },
-    { id: '12', semester: '3', subjectName: 'Operating Systems', subjectCode: 'CS202', internalMarks: 32, externalMarks: 54, totalMarks: 86, grade: 'A+', credits: 4 },
-    { id: '13', semester: '3', subjectName: 'Computer Networks', subjectCode: 'CS203', internalMarks: 30, externalMarks: 52, totalMarks: 82, grade: 'A+', credits: 3 },
-    { id: '14', semester: '3', subjectName: 'Software Engineering', subjectCode: 'CS204', internalMarks: 28, externalMarks: 49, totalMarks: 77, grade: 'A', credits: 3 },
-    { id: '15', semester: '3', subjectName: 'Human Values & Ethics', subjectCode: 'HS201', internalMarks: 38, externalMarks: 55, totalMarks: 93, grade: 'O', credits: 2 }
+    { id: '11', semester: '3', subjectName: 'Discrete Mathematics', subjectCode: 'CS201', internalMarks: 35, externalMarks: 60, totalMarks: 95, grade: 'O', credits: 4, st1Marks: 29, st1Total: 30, st2Marks: 30, st2Total: 30, endTermMarks: 50, endTermTotal: 50 },
+    { id: '12', semester: '3', subjectName: 'Operating Systems', subjectCode: 'CS202', internalMarks: 32, externalMarks: 54, totalMarks: 86, grade: 'A+', credits: 4, st1Marks: 26, st1Total: 30, st2Marks: 27, st2Total: 30, endTermMarks: 44, endTermTotal: 50 },
+    { id: '13', semester: '3', subjectName: 'Computer Networks', subjectCode: 'CS203', internalMarks: 30, externalMarks: 52, totalMarks: 82, grade: 'A+', credits: 3, st1Marks: 24, st1Total: 30, st2Marks: 25, st2Total: 30, endTermMarks: 42, endTermTotal: 50 },
+    { id: '14', semester: '3', subjectName: 'Software Engineering', subjectCode: 'CS204', internalMarks: 28, externalMarks: 49, totalMarks: 77, grade: 'A', credits: 3, st1Marks: 22, st1Total: 30, st2Marks: 24, st2Total: 30, endTermMarks: 39, endTermTotal: 50 },
+    { id: '15', semester: '3', subjectName: 'Human Values & Ethics', subjectCode: 'HS201', internalMarks: 38, externalMarks: 55, totalMarks: 93, grade: 'O', credits: 2, st1Marks: 29, st1Total: 30, st2Marks: 30, st2Total: 30, endTermMarks: 48, endTermTotal: 50 }
 ]
 
 export default function StudentGradesPage() {
-    const [grades, setGrades] = useState<Grade[]>(MOCK_GRADES)
-    const [loading, setLoading] = useState(false) // Start with false so UI is visible immediately
+    const [grades, setGrades] = useState<Grade[]>([])
+    const [riskScores, setRiskScores] = useState<RiskScore[]>([])
+    const [loading, setLoading] = useState(true)
     const [selectedSemester, setSelectedSemester] = useState<string>('all')
     const [error, setError] = useState<string | null>(null)
     const { data: session } = useSession()
@@ -227,16 +247,38 @@ export default function StudentGradesPage() {
     }
 
     useEffect(() => {
-        // Still attempt to fetch live data, but keep fallback
         const fetchGrades = async () => {
             try {
                 const res = await fetch('/api/student/grades')
                 if (res.ok) {
                     const data = await res.json()
-                    if (data && data.length > 0) setGrades(data)
+                    if (data && data.grades) {
+                        setGrades(data.grades)
+                        const scores = data.riskScores || [];
+                        setRiskScores(scores);
+
+                        // If student is in a new semester (e.g. 4) but table is empty, 
+                        // we might want to default the view to that semester.
+                        // However, 'all' is safer for now.
+
+                        // Backlog Warning Trigger
+                        const highRiskSubjects = scores.filter((s: any) => s.riskCategory === 'High Risk');
+                        if (highRiskSubjects.length > 0) {
+                            setTimeout(() => {
+                                toast.error("BACKLOG WARNING", {
+                                    description: `You are trending toward backlogs in ${highRiskSubjects.length} subject(s). Check the Risk Engine for priority actions.`,
+                                    duration: 8000,
+                                });
+                            }, 1000);
+                        }
+                    } else if (Array.isArray(data)) {
+                        setGrades(data)
+                    }
                 }
             } catch (err) {
-                console.log('Using local academic records')
+                console.log('Error fetching grades:', err)
+            } finally {
+                setLoading(false)
             }
         }
         fetchGrades()
@@ -246,21 +288,53 @@ export default function StudentGradesPage() {
 
     const calculateSGPA = (semesterGrades: Grade[]) => {
         if (semesterGrades.length === 0) return 0
-        const totalPoints = semesterGrades.reduce((acc, curr) => acc + (gradePoints[curr.grade] || 0) * curr.credits, 0)
-        const totalCredits = semesterGrades.reduce((acc, curr) => acc + curr.credits, 0)
+
+        // Only include subjects where all marks are uploaded
+        const validGrades = semesterGrades.filter(g =>
+            g.st1Marks !== null && g.st1Total !== null &&
+            g.st2Marks !== null && g.st2Total !== null &&
+            g.endTermMarks !== null && g.endTermTotal !== null
+        )
+
+        if (validGrades.length === 0) return '-'
+
+        const totalPoints = validGrades.reduce((acc, curr) => acc + (gradePoints[curr.grade] || 0) * curr.credits, 0)
+        const totalCredits = validGrades.reduce((acc, curr) => acc + curr.credits, 0)
         return totalCredits === 0 ? 0 : (totalPoints / totalCredits).toFixed(2)
     }
 
     const calculateCGPA = () => {
         if (grades.length === 0) return 0
-        const totalPoints = grades.reduce((acc, curr) => acc + (gradePoints[curr.grade] || 0) * curr.credits, 0)
-        const totalCredits = grades.reduce((acc, curr) => acc + curr.credits, 0)
+
+        // Only include subjects where all marks are uploaded
+        const validGrades = grades.filter(g =>
+            g.st1Marks !== null && g.st1Total !== null &&
+            g.st2Marks !== null && g.st2Total !== null &&
+            g.endTermMarks !== null && g.endTermTotal !== null
+        )
+
+        if (validGrades.length === 0) return '-'
+
+        const totalPoints = validGrades.reduce((acc, curr) => acc + (gradePoints[curr.grade] || 0) * curr.credits, 0)
+        const totalCredits = validGrades.reduce((acc, curr) => acc + curr.credits, 0)
         return totalCredits === 0 ? 0 : (totalPoints / totalCredits).toFixed(2)
     }
 
     const calculateTotalCredits = () => {
-        return grades.reduce((acc, curr) => acc + curr.credits, 0)
+        // Only count credits for subjects where all marks are uploaded
+        const validGrades = grades.filter(g =>
+            g.st1Marks !== null && g.st1Total !== null &&
+            g.st2Marks !== null && g.st2Total !== null &&
+            g.endTermMarks !== null && g.endTermTotal !== null
+        )
+        return validGrades.reduce((acc, curr) => acc + curr.credits, 0)
     }
+
+    const getComponentPercentage = (marks?: number, total?: number) => {
+        if (marks === undefined || total === undefined || marks === null || total === null) return '-';
+        if (total === 0) return '-';
+        return ((marks / total) * 100).toFixed(1) + '%';
+    };
 
     const getGradeColor = (grade: string) => {
         switch (grade) {
@@ -312,6 +386,10 @@ export default function StudentGradesPage() {
                         <Download className="h-4 w-4" />
                         {selectedSemester === 'all' ? 'TRANSCRIPT' : 'DOWNLOAD PDF'}
                     </button>
+                    <button className="h-10 px-4 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-100" onClick={() => toast("Redirecting to Exam Strategy Builder (Beta)...")}>
+                        <FileText className="h-4 w-4" />
+                        BUILD STRATEGY
+                    </button>
                     <button className="h-10 px-4 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg shadow-emerald-100">
                         <TrendingUp className="h-4 w-4" />
                         PROJECTION
@@ -332,7 +410,7 @@ export default function StudentGradesPage() {
                     <div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cumulative GPA</p>
                         <h2 className="text-4xl font-black text-slate-900 leading-none">{calculateCGPA()}</h2>
-                        <span className="text-[10px] text-emerald-600 font-bold uppercase mt-1 inline-block">Top 5% of Batch</span>
+                        <span className="text-[10px] text-emerald-600 font-bold uppercase mt-1 inline-block">Current Standing</span>
                     </div>
                 </div>
 
@@ -349,21 +427,144 @@ export default function StudentGradesPage() {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50 flex items-center gap-5">
-                    <div className="h-16 w-16 bg-amber-500 rounded-3xl flex items-center justify-center text-white shadow-lg shadow-amber-100">
+                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50 flex items-center gap-5 transition-transform hover:scale-[1.02]">
+                    <div className="h-16 w-16 bg-indigo-600 rounded-3xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
                         <BookOpen className="h-8 w-8" />
                     </div>
                     <div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Credits Earned</p>
                         <h2 className="text-4xl font-black text-slate-900 leading-none">{calculateTotalCredits()}</h2>
-                        <span className="text-[10px] text-amber-600 font-bold uppercase mt-1 inline-block">Standing: Excellent</span>
+                        <span className="text-[10px] text-indigo-600 font-bold uppercase mt-1 inline-block">Standing: Excellent</span>
                     </div>
                 </div>
             </motion.div>
 
+            {/* Backlog Prevention Engine Section */}
+            {riskScores && riskScores.length > 0 && (
+                <div className="px-4 space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="h-5 w-5 text-indigo-500" />
+                        <h2 className="text-lg font-black text-slate-800 tracking-tight uppercase">Academic Risk Engine</h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[...riskScores].sort((a, b) => (b.priority || 0) - (a.priority || 0)).map((rs, idx) => (
+                            <div key={idx} className={cn(
+                                "group relative bg-white p-6 rounded-[2.5rem] border shadow-xl transition-all hover:scale-[1.02]",
+                                rs.riskCategory === 'High Risk' ? "border-rose-100 shadow-rose-50/50" : rs.riskCategory === 'Moderate' ? "border-slate-200 shadow-slate-200/50" : "border-emerald-100 shadow-emerald-50/50"
+                            )}>
+                                {/* Priority Badge */}
+                                <div className="absolute -top-3 -right-3 h-8 w-8 bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-black text-white border-4 border-white shadow-lg z-20 transition-transform">
+                                    #{rs.priority || idx + 1}
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight truncate leading-tight mb-1" title={rs.subjectName}>
+                                                {rs.subjectName}
+                                            </h3>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <span className={cn(
+                                                    "text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border shrink-0",
+                                                    rs.riskCategory === 'High Risk' ? "bg-rose-50 text-rose-600 border-rose-200" : rs.riskCategory === 'Moderate' ? "bg-slate-50 text-slate-600 border-slate-200" : "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                                )}>
+                                                    {rs.riskCategory}
+                                                </span>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    {rs.trend === 'UP' ? (
+                                                        <TrendingUp className="h-3 w-3 text-rose-500" />
+                                                    ) : (
+                                                        <TrendingUp className="h-3 w-3 text-emerald-500 rotate-180" />
+                                                    )}
+                                                    <span className={cn(
+                                                        "text-[8px] font-black uppercase tracking-tighter",
+                                                        rs.trend === 'UP' ? "text-rose-500" : "text-emerald-500"
+                                                    )}>
+                                                        {rs.trend === 'UP' ? 'Rising Risk' : 'Improving'}
+                                                    </span>
+                                                </div>
+                                                {rs.attendance !== undefined && (
+                                                    <div className="bg-slate-50 text-slate-500 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-slate-200 ml-1">
+                                                        Att: {rs.attendance.toFixed(0)}%
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="text-right shrink-0">
+                                            <div className="text-2xl font-black text-slate-900 leading-none">{rs.riskScore.toFixed(0)}</div>
+                                            <div className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Score</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Risk Meter */}
+                                    <div className="space-y-1.5">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Risk Meter</span>
+                                            <span className="text-[10px] font-bold text-slate-600">{rs.riskScore.toFixed(0)}%</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${rs.riskScore}%` }}
+                                                className={cn(
+                                                    "h-full rounded-full transition-all duration-1000",
+                                                    rs.riskScore > 70 ? "bg-rose-500" : rs.riskScore > 40 ? "bg-indigo-500" : "bg-emerald-500"
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Intelligence Grid */}
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+                                                <span>Target GPA Milestones</span>
+                                                <Percent className="h-2.5 w-2.5" />
+                                            </p>
+                                            <div className="space-y-1">
+                                                {rs.requiredMarks?.split('|').map((target, tIdx) => {
+                                                    const parts = target.split(':');
+                                                    const label = parts.length > 1 ? parts[0].trim() : "Target";
+                                                    const value = parts.length > 1 ? parts[1].trim() : target.trim();
+                                                    return (
+                                                        <div key={tIdx} className="flex justify-between items-center bg-white px-2 py-1 rounded-lg border border-slate-100/50">
+                                                            <span className="text-[8px] font-bold text-slate-500 uppercase truncate pr-2">{label}</span>
+                                                            <span className="text-[9px] font-black text-indigo-600 shrink-0">{value}</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-indigo-50/50 p-3 rounded-2xl border border-indigo-100/50">
+                                            <p className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Attendance Recovery Plan</p>
+                                            <p className="text-[10px] font-black text-indigo-700 leading-tight">
+                                                {rs.requiredAttendance || '75% Stabilization Required'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* AI Insight */}
+                                    <div className={cn(
+                                        "p-3 rounded-2xl text-[9px] font-medium leading-relaxed relative",
+                                        rs.riskCategory === 'High Risk' ? "bg-rose-50 text-rose-700 border border-rose-100" : "bg-slate-50 text-slate-600 border border-slate-100"
+                                    )}>
+                                        <span className="font-black uppercase text-[7px] block mb-1">AI Recommendation:</span>
+                                        "{rs.recommendations}"
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+
+
             {/* Filter Controls */}
             <div className="flex items-center justify-between px-6">
-                <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-none">
+                <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
                     <button
                         onClick={() => setSelectedSemester('all')}
                         className={cn(
@@ -443,8 +644,9 @@ export default function StudentGradesPage() {
                                                     <tr className="bg-slate-50/50 border-b border-slate-100">
                                                         <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subject Detail</th>
                                                         <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Credits</th>
-                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Internal</th>
-                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">External</th>
+                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">ST1</th>
+                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">ST2</th>
+                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">EndTerm</th>
                                                         <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Total</th>
                                                         <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Grade</th>
                                                     </tr>
@@ -466,10 +668,28 @@ export default function StudentGradesPage() {
                                                                 <span className="text-xs font-black text-slate-600">{grade.credits}</span>
                                                             </td>
                                                             <td className="px-6 py-5 text-center">
-                                                                <span className="text-xs font-bold text-slate-500">{grade.internalMarks}</span>
+                                                                <div className="flex flex-col items-center">
+                                                                    <span className="text-xs font-bold text-slate-500">{grade.st1Marks ?? '-'} <span className="text-[10px] text-slate-400">/ {grade.st1Total ?? '-'}</span></span>
+                                                                    {grade.st1Marks != null && grade.st1Total != null && (
+                                                                        <span className="text-[9px] font-black text-indigo-500 bg-indigo-50 px-1 rounded mt-0.5">{getComponentPercentage(grade.st1Marks, grade.st1Total)}</span>
+                                                                    )}
+                                                                </div>
                                                             </td>
-                                                            <td className="px-6 py-5 text-center text-xs font-bold text-slate-500">
-                                                                {grade.externalMarks}
+                                                            <td className="px-6 py-5 text-center">
+                                                                <div className="flex flex-col items-center">
+                                                                    <span className="text-xs font-bold text-slate-500">{grade.st2Marks ?? '-'} <span className="text-[10px] text-slate-400">/ {grade.st2Total ?? '-'}</span></span>
+                                                                    {grade.st2Marks != null && grade.st2Total != null && (
+                                                                        <span className="text-[9px] font-black text-emerald-500 bg-emerald-50 px-1 rounded mt-0.5">{getComponentPercentage(grade.st2Marks, grade.st2Total)}</span>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-5 text-center">
+                                                                <div className="flex flex-col items-center">
+                                                                    <span className="text-xs font-bold text-slate-500">{grade.endTermMarks ?? '-'} <span className="text-[10px] text-slate-400">/ {grade.endTermTotal ?? '-'}</span></span>
+                                                                    {grade.endTermMarks != null && grade.endTermTotal != null && (
+                                                                        <span className="text-[9px] font-black text-blue-500 bg-blue-50 px-1 rounded mt-0.5">{getComponentPercentage(grade.endTermMarks, grade.endTermTotal)}</span>
+                                                                    )}
+                                                                </div>
                                                             </td>
                                                             <td className="px-6 py-5 text-center">
                                                                 <div className="inline-flex flex-col items-center">

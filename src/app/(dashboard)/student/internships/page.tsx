@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { useStore } from "@/lib/store";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Search, MapPin, Clock, Building2, Briefcase,
-    DollarSign, ArrowRight, Sparkles, X
+    DollarSign, ArrowRight, X
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
@@ -17,7 +16,6 @@ export default function InternshipsPage() {
     const [search, setSearch] = useState('');
     const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
 
-    // ongoing: Extract unique skills from all internships
     const allSkills = Array.from(new Set(internships.flatMap(i => i.skills || [])));
 
     const filteredInternships = internships.filter(internship => {
@@ -36,15 +34,16 @@ export default function InternshipsPage() {
         <div className="space-y-6 pb-24 animate-in fade-in duration-700">
             {/* Premium Gradient Header - Optimized for Mobile */}
             <div className="relative -mx-3 -mt-3 md:-mx-6 md:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden rounded-b-[2rem] md:rounded-b-[3rem] shadow-xl shadow-indigo-500/10 mb-6">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-700"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-700"></div>
                 <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20"></div>
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
 
                 <div className="relative px-5 py-8 md:px-10 md:py-16">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
-                                <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md px-3 py-1 font-bold text-[10px] uppercase tracking-widest">
-                                    <span className="mr-2 h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-md px-3 py-1 font-black text-[10px] uppercase tracking-widest">
+                                    <span className="mr-2 h-1.5 w-1.5 rounded-full bg-fuchsia-300 animate-pulse"></span>
                                     Recruitment Active
                                 </Badge>
                             </div>

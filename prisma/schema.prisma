@@ -3,29 +3,31 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Student {
-  id           String              @id @default(uuid())
-  name         String
-  rollNo       String              @unique
-  section      String
-  batch        String              @default("Morning")
-  department   String
-  semester     String
-  email        String?
-  password     String
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @default(now()) @updatedAt
-  applications Application[]
-  bookings     Booking[]
-  attendance   StudentAttendance[]
-  examSeating  ExamSeating[]
+  id               String                        @id @default(uuid())
+  name             String
+  rollNo           String                        @unique
+  section          String
+  batch            String                        @default("Morning")
+  department       String
+  semester         String
+  email            String?
+  password         String
+  createdAt        DateTime                      @default(now())
+  updatedAt        DateTime                      @default(now()) @updatedAt
+  applications     Application[]
+  bookings         Booking[]
+  attendance       StudentAttendance[]
+  examSeating      ExamSeating[]
   grades           Grade[]
   acknowledgements AnnouncementAcknowledgement[]
   leaves           StudentLeave[]
+  riskScores       RiskScore[]
 }
 
 model Faculty {
@@ -52,6 +54,7 @@ model Faculty {
   examDuties       Exam[]              @relation("InvigilatorDuty")
   mentoredSections SectionMentor[]
   leaveApprovals   StudentLeave[]      @relation("LeaveApprovals")
+  gradeVersions    GradeVersion[]
 }
 
 model Admin {
@@ -238,7 +241,7 @@ model SyllabusTopic {
   title         String
   totalLectures Int             @default(1)
   order         Int             @default(0)
-  examType      String?         // ST1, ST2, ST3, End Term, Practical
+  examType      String? // ST1, ST2, ST3, End Term, Practical
   subject       SyllabusSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   progress      TopicProgress[]
 }
@@ -248,7 +251,7 @@ model SubjectAssignment {
   subjectId  String
   department String
   semester   String
-  batch      String   // Morning, Evening, Both
+  batch      String // Morning, Evening, Both
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -274,41 +277,41 @@ model TopicProgress {
 }
 
 model Exam {
-  id          String        @id @default(uuid())
-  name        String        @default("Examination")
-  subject     String
-  department  String?       // Added for datesheet support
-  semester    String?       // Added for datesheet support
-  section     String?       // Added for datesheet support
-  date        DateTime
-  startTime   String
-  endTime     String
-  duration    String
-  type        String        // Mid-Sem, End-Sem, Practical
-  room        String
-  hall        String?
-  block       String?
-  floor       String?
-  createdAt   DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  invigilatorId   String?
-  invigilator     Faculty?      @relation("InvigilatorDuty", fields: [invigilatorId], references: [id])
-  seating         ExamSeating[]
+  id            String        @id @default(uuid())
+  name          String        @default("Examination")
+  subject       String
+  department    String? // Added for datesheet support
+  semester      String? // Added for datesheet support
+  section       String? // Added for datesheet support
+  date          DateTime
+  startTime     String
+  endTime       String
+  duration      String
+  type          String // Mid-Sem, End-Sem, Practical
+  room          String
+  hall          String?
+  block         String?
+  floor         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  invigilatorId String?
+  invigilator   Faculty?      @relation("InvigilatorDuty", fields: [invigilatorId], references: [id])
+  seating       ExamSeating[]
 }
 
 model ExamSeating {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   examId    String
   studentId String
   seatNo    String
-  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exam      Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([examId, studentId])
 }
 
 model Grade {
-  id            String   @id @default(uuid())
+  id            String @id @default(uuid())
   studentId     String
   semester      String
   subjectName   String
@@ -316,23 +319,35 @@ model Grade {
   internalMarks Int
   externalMarks Int
   totalMarks    Int
-  grade         String   // A, B, C, etc.
-  credits       Int      @default(3)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  grade         String // A, B, C, etc.
+  credits       Int    @default(3)
 
+  // Academic Intelligence ST marks
+  st1Marks     Float?
+  st1Total     Float?
+  st2Marks     Float?
+  st2Total     Float?
+  endTermMarks Float?
+  endTermTotal Float?
+  versionId    String?
+  gradeVersion GradeVersion? @relation(fields: [versionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, subjectName])
   @@index([studentId, semester])
 }
 
 model Announcement {
-  id               String                      @id @default(uuid())
+  id               String                        @id @default(uuid())
   content          String
-  department       String                      @default("ALL")
-  semester         String                      @default("ALL")
-  batch            String                      @default("ALL")
+  department       String                        @default("ALL")
+  semester         String                        @default("ALL")
+  batch            String                        @default("ALL")
   senderId         String
-  createdAt        DateTime                    @default(now())
+  createdAt        DateTime                      @default(now())
   acknowledgements AnnouncementAcknowledgement[]
 
   @@index([department, semester, batch])
@@ -361,4 +376,42 @@ model SectionMentor {
   updatedAt  DateTime @updatedAt
 
   @@unique([department, semester, section, batch])
+}
+
+model GradeVersion {
+  id        String   @id @default(uuid())
+  versionId String   @unique // e.g. V1, V2
+  facultyId String
+  createdAt DateTime @default(now())
+  faculty   Faculty  @relation(fields: [facultyId], references: [id])
+  grades    Grade[]
+}
+
+model RiskScore {
+  id                 String   @id @default(uuid())
+  studentId          String
+  subjectName        String
+  riskScore          Float
+  riskCategory       String // Safe, Moderate, High Risk
+  trend              String   @default("STABLE") // UP, DOWN, STABLE
+  attendance         Float?
+  requiredMarks      String?
+  requiredAttendance String?
+  priority           Int      @default(0)
+  recommendations    String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  student            Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, subjectName])
+}
+
+model ExamAnalysis {
+  id          String   @id @default(uuid())
+  subjectName String
+  topic       String
+  frequency   Int
+  weightage   Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -37,6 +37,7 @@ export default function FacultyMenuPage() {
                 { href: "/faculty/analytics", label: "Analytics", icon: Activity, color: "bg-rose-50 text-rose-600" },
                 { href: "/faculty/students", label: "My Students", icon: Users, color: "bg-cyan-50 text-cyan-600" },
                 { href: "/faculty/exams", label: "Examinations", icon: Fingerprint, color: "bg-indigo-50 text-indigo-600" },
+                { href: "/faculty/grades", label: "Grades System", icon: LayoutGrid, color: "bg-fuchsia-50 text-fuchsia-600" },
             ]
         },
         {

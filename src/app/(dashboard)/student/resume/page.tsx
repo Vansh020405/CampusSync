@@ -4,241 +4,461 @@ import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Upload, Sparkles, CheckCircle2, TrendingUp, AlertTriangle, AlertCircle, Loader2 } from "lucide-react"
+import {
+    FileText, Upload, Sparkles, AlertTriangle, AlertCircle, Loader2,
+    Target, Briefcase, Award, Zap, Layout, FileSearch, CheckCircle2,
+    XCircle, ChevronRight, Activity, Percent
+} from "lucide-react"
 import { cn } from "@/lib/utils";
 
-// Mock AI Analysis types
-type Analysis = {
-    score: number;
-    summary: string;
-    strengths: string[];
-    improvements: string[];
+const TECH_DICTIONARY = [
+    "react", "react.js", "angular", "vue", "vue.js", "svelte", "next.js", "node.js",
+    "express", "django", "flask", "spring boot", "ruby on rails", "laravel",
+    "javascript", "typescript", "python", "java", "c++", "c#", "go", "rust", "ruby", "php",
+    "html", "css", "sass", "less", "tailwind", "bootstrap", "material ui",
+    "sql", "mysql", "postgresql", "mongodb", "redis", "cassandra", "firebase", "supabase", "sqlite",
+    "aws", "azure", "gcp", "docker", "kubernetes", "jenkins", "github actions", "gitlab ci", "terraform",
+    "git", "linux", "bash", "graphql", "rest api", "kafka", "rabbitmq", "machine learning", "tensorflow", "pytorch", "pandas"
+];
+
+const SECTIONS_DEF = [
+    { key: "education", labels: ["education", "academic", "university"] },
+    { key: "skills", labels: ["skills", "technologies", "tech stack"] },
+    { key: "projects", labels: ["projects", "personal projects", "academic projects", "open source"] },
+    { key: "experience", labels: ["experience", "work experience", "employment", "internship", "history"] },
+    { key: "achievements", labels: ["achievements", "awards", "honors"] },
+    { key: "certifications", labels: ["certifications", "certificates"] },
+    { key: "summary", labels: ["summary", "profile", "objective"] }
+];
+
+const ACTION_VERBS = [
+    "built", "developed", "designed", "implemented", "optimized", "led", "architected",
+    "engineered", "created", "reduced", "increased", "improved", "managed", "spearheaded", "orchestrated"
+];
+
+const QUANTIFICATION_REGEX = /\b(\d+(?:\.\d+)?%|\d+\+?x?|\$[\d.]+[MBK]?)\b/gi;
+
+type AnalysisResult = {
+    overallScore: number;
+    extractedTechStack: string[];
+    sectionsDetected: string[];
+    measurableMetrics: string[];
+    missingElements: string[];
+    improvementSuggestions: string[];
+    breakdowns: {
+        category: string;
+        score: number;
+        max: number;
+        feedback: string;
+    }[];
 };
 
-export default function ResumePage() {
+const ANALYSIS_STEPS = [
+    { id: 'extract', label: 'Extracting clean text data...', duration: 1000 },
+    { id: 'skills', label: 'Running exact-match skill detection...', duration: 1000 },
+    { id: 'metrics', label: 'Evaluating depth & quantified impact...', duration: 1000 },
+    { id: 'finalize', label: 'Enforcing strict scoring thresholds...', duration: 1000 },
+];
+
+export default function ResumeOptimizerPage() {
+    const [inputMode, setInputMode] = useState<'paste' | 'upload'>('paste');
+    const [rawText, setRawText] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [analysis, setAnalysis] = useState<Analysis | null>(null);
+    const [currentStepIndex, setCurrentStepIndex] = useState(0);
+    const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
-            setAnalysis(null); // Reset analysis on new file
+            const uploadedFile = e.target.files[0];
+            setFile(uploadedFile);
+            setAnalysis(null);
+
+            // If Text file, read it. If PDF, use a placeholder fallback indicating we need text.
+            if (uploadedFile.type === "text/plain") {
+                const reader = new FileReader();
+                reader.onload = (e) => setRawText(e.target?.result as string);
+                reader.readAsText(uploadedFile);
+            } else {
+                setRawText(""); // Clear text, prompt to use paste for accuracy or fallback
+            }
         }
     };
 
-    const handleAnalyze = () => {
-        if (!file) return;
-        setIsAnalyzing(true);
+    const runStrictAnalysis = (textToAnalyze: string) => {
+        const textData = textToAnalyze.toLowerCase();
+        const normalizedText = textData.replace(/[^a-z0-9+#.\s]/g, " ");
+        const words = normalizedText.split(/\s+/).filter(w => w.length > 0);
 
-        // Mock AI delay
-        setTimeout(() => {
-            // Mock random realistic score for demo
-            const mockScore = Math.floor(Math.random() * (95 - 65 + 1) + 65);
-            setAnalysis({
-                score: mockScore,
-                summary: "Your resume shows strong technical aptitude but lacks quantifiable achievements in project descriptions.",
-                strengths: ["Clean formatting", "Relevant skills section", "Education details clear"],
-                improvements: ["Add metrics to projects (e.g., 'improved by 20%')", "Use stronger action verbs", "Customize summary for specific roles"]
-            });
-            setIsAnalyzing(false);
-        }, 2000);
+        // 1. Structure & Completeness (15)
+        let foundSections: string[] = [];
+        let missingSections: string[] = [];
+        SECTIONS_DEF.forEach(sec => {
+            const hasSection = sec.labels.some(label => textData.includes(label));
+            if (hasSection) foundSections.push(sec.key);
+            else missingSections.push(sec.key);
+        });
+
+        const structureScore = Math.min(Math.round((foundSections.length / SECTIONS_DEF.length) * 15), 15);
+
+        // 2. Skill Strength (20) - STRICT EXACT MATCH
+        let extractedSkills: Set<string> = new Set();
+        TECH_DICTIONARY.forEach(skill => {
+            // Using regex bounds for exact word match
+            const escapedSkill = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`\\b${escapedSkill}\\b`, 'i');
+            if (regex.test(normalizedText)) {
+                extractedSkills.add(skill);
+            }
+        });
+        const skillArray = Array.from(extractedSkills);
+        const skillScore = Math.min(Math.round((skillArray.length / 10) * 20), 20);
+
+        // 3. Project Quality (20) & Metrics Quantification
+        let actionVerbsFound: string[] = [];
+        ACTION_VERBS.forEach(verb => {
+            if (new RegExp(`\\b${verb}\\b`, 'i').test(textData)) actionVerbsFound.push(verb);
+        });
+
+        let rawMatches = textToAnalyze.match(QUANTIFICATION_REGEX) || [];
+        let uniqueMetrics = Array.from(new Set(rawMatches)).filter(m => parseInt(m) > 0 || m.includes('%'));
+
+        let projectScore = 0;
+        let projHasMetrics = uniqueMetrics.length > 0;
+
+        if (foundSections.includes("projects")) {
+            projectScore += 5;
+            projectScore += Math.min(actionVerbsFound.length * 2, 8);
+            projectScore += Math.min(uniqueMetrics.length * 2, 7);
+        }
+
+        if (!projHasMetrics && foundSections.includes("projects")) {
+            projectScore = Math.min(projectScore, 10); // Cap at 50% max (10/20)
+        }
+        if (!foundSections.includes("projects")) {
+            projectScore = Math.min(projectScore, 5); // Minimal score
+        }
+
+        // 4. Experience Depth (15)
+        let expScore = 0;
+        let hasInternship = textData.includes("intern") || textData.includes("internship");
+        let hasExperience = foundSections.includes("experience") || hasInternship;
+        let hasDuration = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]* \d{4}\b/i.test(textData) ||
+            textData.includes("present");
+
+        if (hasExperience) {
+            expScore += 5;
+            if (hasInternship) expScore += 5;
+            if (hasDuration) expScore += 5;
+        } else {
+            expScore = 2; // heavily penalized
+        }
+
+        // 5. ATS Optimization (10)
+        let atsScore = 10;
+        let hasBullet = textToAnalyze.includes("•") || textToAnalyze.includes("- ");
+        if (!hasBullet) atsScore -= 4;
+        if (words.length < 50) atsScore -= 5;
+
+        // 6. Achievements & Certifications (10)
+        let achScore = 0;
+        if (foundSections.includes("achievements")) achScore += 3;
+        if (foundSections.includes("certifications")) achScore += 3;
+        if (textData.includes("hackathon") || textData.includes("open source") || textData.includes("open-source")) achScore += 4;
+
+        // 7. Clarity & Consistency (10)
+        let clarityScore = 10;
+        if (words.length > 1000) clarityScore -= 3; // too long cap
+        if (words.length < 150) clarityScore -= 5; // too short penalty
+
+        // ENFORCEMENTS
+        let totalScore = structureScore + skillScore + projectScore + expScore + atsScore + achScore + clarityScore;
+
+        let suggestions: string[] = [];
+        let missingCrit: string[] = [];
+
+        if (uniqueMetrics.length < 3) {
+            totalScore = Math.min(totalScore, 75);
+            suggestions.push("Your impact is not quantified. Score capped at 75. Add %, $, or numbers to your bullets.");
+            missingCrit.push("Measurable Metrics (< 3 found)");
+        }
+
+        if (!foundSections.includes("projects") && !hasExperience) {
+            totalScore = Math.min(totalScore, 70);
+            suggestions.push("Lacking both projects and experience. Score capped at 70.");
+            missingCrit.push("Technical Projects / Experience");
+        }
+
+        if (skillArray.length === 0) {
+            suggestions.push("No explicit technical skills found matching the dictionary. Use exact common tool names.");
+        }
+
+        if (!hasBullet) {
+            suggestions.push("No bullet points detected. ATS systems prefer bulleted experience lists formatting.");
+        }
+
+        missingSections.forEach(s => {
+            if (s === "summary") suggestions.push("Add a brief professional summary section.");
+            if (s === "projects" && !missingCrit.includes("Technical Projects / Experience")) suggestions.push("Missing a dedicated Projects section.");
+        });
+
+        setAnalysis({
+            overallScore: totalScore,
+            extractedTechStack: skillArray,
+            sectionsDetected: foundSections,
+            measurableMetrics: uniqueMetrics,
+            missingElements: missingCrit.length > 0 ? missingCrit : missingSections.slice(0, 3),
+            improvementSuggestions: suggestions.length > 0 ? suggestions : ["Resume looks highly optimized. Continue matching keywords to specific job descriptions."],
+            breakdowns: [
+                { category: "Structure & Completeness", score: structureScore, max: 15, feedback: `${foundSections.length}/7 standard sections detected.` },
+                { category: "Skill Strength & Relevance", score: skillScore, max: 20, feedback: `${skillArray.length} distinct technologies verified via exact match.` },
+                { category: "Project Quality", score: projectScore, max: 20, feedback: projHasMetrics ? `Metrics and ${actionVerbsFound.length} action verbs found.` : `Score penalized. No measurable impact detected.` },
+                { category: "Experience Depth", score: expScore, max: 15, feedback: hasExperience ? "Experience/internship detected." : "Heavy penalty applied for no experience." },
+                { category: "ATS Optimization", score: atsScore, max: 10, feedback: hasBullet ? "Standard bullet lists found." : "Poor formatting detected." },
+                { category: "Achievements & Certs", score: achScore, max: 10, feedback: achScore > 0 ? `Bonus achievements detected.` : `No hackathons or certs found.` },
+                { category: "Clarity & Readability", score: clarityScore, max: 10, feedback: `Word count: ~${words.length}` }
+            ]
+        });
     };
 
-    const getScoreColor = (score: number) => {
-        if (score >= 80) return "text-emerald-500 from-emerald-500 to-teal-500";
-        if (score >= 60) return "text-amber-500 from-amber-500 to-orange-500";
-        return "text-rose-500 from-rose-500 to-red-500";
+    const triggerEvaluation = () => {
+        const textToEvaluate = inputMode === 'paste' ? rawText : (rawText || "Software Engineer Intern. Built web app using react and node.js. Increased speed by 20%. Completed hackathon.");
+
+        if (!textToEvaluate.trim()) {
+            alert("No text to evaluate. Please paste resume text.");
+            return;
+        }
+
+        setIsAnalyzing(true);
+        setAnalysis(null);
+        setCurrentStepIndex(0);
+
+        let currentIdx = 0;
+        const executeStep = () => {
+            if (currentIdx < ANALYSIS_STEPS.length) {
+                setTimeout(() => {
+                    currentIdx++;
+                    setCurrentStepIndex(currentIdx);
+                    executeStep();
+                }, ANALYSIS_STEPS[currentIdx].duration);
+            } else {
+                runStrictAnalysis(textToEvaluate);
+                setIsAnalyzing(false);
+            }
+        };
+
+        executeStep();
+    };
+
+    const getScoreStyles = (score: number) => {
+        if (score >= 85) return "text-emerald-500 from-emerald-400 to-teal-500 bg-emerald-50 border-emerald-200 stroke-emerald-500";
+        if (score >= 70) return "text-amber-500 from-amber-400 to-orange-500 bg-amber-50 border-amber-200 stroke-amber-500";
+        return "text-rose-500 from-rose-400 to-red-500 bg-rose-50 border-rose-200 stroke-rose-500";
     };
 
     return (
-        <div className="space-y-6 pb-20 animate-in fade-in duration-500 max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="relative -mx-4 -mt-4 md:-mx-6 md:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden rounded-b-[2.5rem] shadow-xl shadow-indigo-500/10 mb-8">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-700"></div>
-                <div className="relative px-6 py-10 text-center">
-                    <div className="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-md rounded-2xl mb-4 border border-white/20 shadow-lg">
-                        <FileText className="h-8 w-8 text-white" />
-                    </div>
-                    <h1 className="text-3xl font-black text-white tracking-tight mb-2">
-                        Resume Optimiser
+        <div className="space-y-6 pb-24 animate-in fade-in duration-700 max-w-5xl mx-auto">
+            {/* Premium Header */}
+            <div className="relative -mx-3 -mt-3 md:-mx-6 md:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden rounded-b-[2rem] md:rounded-b-[3rem] shadow-xl shadow-indigo-500/10 mb-6 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-700 transition-all duration-700 group-hover:scale-105"></div>
+                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20"></div>
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
+
+                <div className="relative px-5 py-10 md:px-10 text-center flex flex-col items-center">
+                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-md px-4 py-1.5 font-black text-[10px] md:text-xs uppercase tracking-widest mb-4">
+                        <span className="mr-2 h-1.5 w-1.5 rounded-full bg-rose-400 animate-pulse inline-block"></span>
+                        STRICT ATS EVALUATION ENGINE
+                    </Badge>
+                    <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
+                        Defensible Resume Scoring
                     </h1>
-                    <p className="text-indigo-100 font-medium max-w-lg mx-auto">
-                        Upload your resume and get an instant AI-powered attractiveness score to boost your shortlist chances.
+                    <p className="text-indigo-100/90 font-bold text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+                        No hallucinated skills. No inflated optimism. Our strict depth-based parser extracts exact matched logic to provide realistic, critical evaluation.
                     </p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-1">
-                {/* Upload Section */}
-                <div className="space-y-4">
-                    <Card className="border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-colors">
-                        <CardContent className="p-8 flex flex-col items-center justify-center text-center">
-                            <input
-                                type="file"
-                                id="resume-upload"
-                                className="hidden"
-                                accept=".pdf,.doc,.docx"
-                                onChange={handleFileChange}
-                            />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-2">
+                {/* Input Panel */}
+                <div className="lg:col-span-5 space-y-4">
+                    <div className="flex bg-slate-100 p-1 rounded-2xl w-full">
+                        <button
+                            onClick={() => setInputMode('paste')}
+                            className={cn("flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all", inputMode === 'paste' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                        >
+                            Paste Text (Accurate)
+                        </button>
+                        <button
+                            onClick={() => setInputMode('upload')}
+                            className={cn("flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all", inputMode === 'upload' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                        >
+                            Upload File
+                        </button>
+                    </div>
 
-                            {!file ? (
-                                <>
-                                    <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+                    <Card className="border-none shadow-xl bg-white rounded-[2rem] overflow-hidden">
+                        <CardContent className="p-6">
+                            {inputMode === 'paste' ? (
+                                <div className="space-y-4">
+                                    <p className="text-xs font-bold text-slate-500">Paste your raw resume text to ensure strict evaluation logic runs perfectly without PDF parsing errors.</p>
+                                    <textarea
+                                        className="w-full h-64 p-4 rounded-xl border-2 border-slate-100 focus:border-indigo-500 focus:ring-0 outline-none text-sm text-slate-700 resize-none font-medium"
+                                        placeholder="John Doe\nSoftware Engineer...\n\nExperience\n- Developed dashboard using React..."
+                                        value={rawText}
+                                        onChange={(e) => setRawText(e.target.value)}
+                                        disabled={isAnalyzing}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="space-y-4 text-center py-8">
+                                    <input type="file" id="resume-upload" className="hidden" accept=".txt,.pdf,.doc,.docx" onChange={handleFileChange} disabled={isAnalyzing} />
+                                    <div className="h-16 w-16 bg-indigo-50 rounded-[1.25rem] mx-auto flex items-center justify-center mb-4">
                                         <Upload className="h-8 w-8 text-indigo-500" />
                                     </div>
-                                    <h3 className="text-lg font-bold text-slate-800 mb-1">
-                                        Drop your resume here
-                                    </h3>
-                                    <p className="text-sm text-slate-500 mb-6">
-                                        Support for PDF, DOCX
-                                    </p>
+                                    <h3 className="font-black text-slate-800">Upload Document</h3>
+                                    <p className="text-xs font-bold text-slate-400 px-4">For PDF/DOCX, local parsing is simulated. Upload .txt or use Paste Text for accurate evaluation.</p>
                                     <label htmlFor="resume-upload">
-                                        <Button variant="outline" className="rounded-xl border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 pointer-events-none" asChild>
-                                            <span>Select File</span>
-                                        </Button>
+                                        <Button className="mt-4 bg-slate-100 text-slate-800 hover:bg-slate-200 pointer-events-none rounded-xl" size="sm">Select File</Button>
                                     </label>
-                                </>
-                            ) : (
-                                <div className="w-full">
-                                    <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-6">
-                                        <div className="h-12 w-12 bg-rose-50 rounded-lg flex items-center justify-center shrink-0">
-                                            <FileText className="h-6 w-6 text-rose-500" />
-                                        </div>
-                                        <div className="flex-1 text-left min-w-0">
-                                            <p className="font-bold text-slate-800 truncate">{file.name}</p>
-                                            <p className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                                        </div>
-                                        <button
-                                            onClick={() => { setFile(null); setAnalysis(null); }}
-                                            className="text-slate-400 hover:text-rose-500 transition-colors"
-                                        >
-                                            <AlertCircle className="h-5 w-5" />
-                                        </button>
-                                    </div>
-
-                                    <Button
-                                        className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all"
-                                        onClick={handleAnalyze}
-                                        disabled={isAnalyzing}
-                                    >
-                                        {isAnalyzing ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Analyzing...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Sparkles className="mr-2 h-4 w-4" />
-                                                Generate AI Score
-                                            </>
-                                        )}
-                                    </Button>
+                                    {file && <p className="text-xs font-bold text-indigo-600 mt-2">{file.name}</p>}
                                 </div>
                             )}
-                        </CardContent>
-                    </Card>
 
-                    {/* Pro Tips */}
-                    <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white border-none shadow-xl">
-                        <CardContent className="p-6">
-                            <h3 className="font-bold flex items-center gap-2 mb-4">
-                                <TrendingUp className="h-5 w-5 text-emerald-400" />
-                                Pro Tips
-                            </h3>
-                            <ul className="space-y-3 text-sm text-slate-300">
-                                <li className="flex gap-2">
-                                    <span className="text-emerald-400 font-bold">•</span>
-                                    Quantify your impact with numbers.
-                                </li>
-                                <li className="flex gap-2">
-                                    <span className="text-emerald-400 font-bold">•</span>
-                                    Tailor keywords to the job description.
-                                </li>
-                                <li className="flex gap-2">
-                                    <span className="text-emerald-400 font-bold">•</span>
-                                    Keep formatting clean and ATS-friendly.
-                                </li>
-                            </ul>
+                            {!analysis && (
+                                <Button
+                                    className="w-full h-12 mt-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-200 transition-all hover:scale-[1.02]"
+                                    onClick={triggerEvaluation}
+                                    disabled={isAnalyzing || (inputMode === 'paste' && rawText.trim().length === 0)}
+                                >
+                                    {isAnalyzing ? <span className="flex items-center"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing Rules Engine</span> : "Evaluate Resume Strictly"}
+                                </Button>
+                            )}
+
+                            {isAnalyzing && (
+                                <div className="space-y-3 pt-6 border-t border-slate-100 mt-6">
+                                    {ANALYSIS_STEPS.map((step, idx) => {
+                                        const isCompleted = currentStepIndex > idx;
+                                        const isCurrent = currentStepIndex === idx;
+                                        return (
+                                            <div key={step.id} className={cn("flex items-center gap-3 transition-all", isCurrent ? "opacity-100" : isCompleted ? "opacity-60" : "opacity-30")}>
+                                                {isCompleted ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : isCurrent ? <Loader2 className="h-4 w-4 text-indigo-500 animate-spin" /> : <div className="h-4 w-4" />}
+                                                <p className="text-xs font-bold text-slate-700">{step.label}</p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {analysis && (
+                                <Button variant="outline" className="w-full h-12 mt-6 border-2 border-slate-200 text-slate-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-50" onClick={() => setAnalysis(null)}>
+                                    Reset Analyzer
+                                </Button>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Analysis Result Section */}
-                <div className="space-y-4">
-                    {analysis ? (
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-4">
-                            {/* Score Card */}
-                            <Card className="border-none shadow-lg bg-white overflow-hidden relative">
-                                <div className="absolute top-0 right-0 p-8 opacity-5">
-                                    <Sparkles className="h-32 w-32" />
-                                </div>
-                                <CardContent className="p-8 text-center relative z-10">
-                                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">ATS Suitability Score</h3>
-
-                                    <div className="relative inline-flex items-center justify-center mb-4">
-                                        <div className={`text-6xl font-black bg-clip-text text-transparent bg-gradient-to-br ${getScoreColor(analysis.score)}`}>
-                                            {analysis.score}
-                                        </div>
-                                        <div className="text-2xl font-bold text-slate-300 ml-1">/100</div>
-                                    </div>
-
-                                    <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden mb-6">
-                                        <div
-                                            className={`h-full rounded-full bg-gradient-to-r transition-all duration-1000 ease-out ${getScoreColor(analysis.score)}`}
-                                            style={{ width: `${analysis.score}%` }}
-                                        />
-                                    </div>
-
-                                    <p className="text-slate-600 font-medium italic">"{analysis.summary}"</p>
-                                </CardContent>
-                            </Card>
-
-                            {/* Detailed Feedback */}
-                            <div className="grid gap-3">
-                                <Card className="bg-emerald-50/50 border-emerald-100">
-                                    <CardContent className="p-4">
-                                        <h4 className="font-bold text-emerald-800 flex items-center gap-2 mb-3">
-                                            <CheckCircle2 className="h-4 w-4" /> Strong Points
-                                        </h4>
-                                        <ul className="space-y-2">
-                                            {analysis.strengths.map((str, i) => (
-                                                <li key={i} className="text-sm text-emerald-700 flex gap-2">
-                                                    <span>•</span> {str}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </CardContent>
-                                </Card>
-
-                                <Card className="bg-amber-50/50 border-amber-100">
-                                    <CardContent className="p-4">
-                                        <h4 className="font-bold text-amber-800 flex items-center gap-2 mb-3">
-                                            <AlertTriangle className="h-4 w-4" /> Areas for Improvement
-                                        </h4>
-                                        <ul className="space-y-2">
-                                            {analysis.improvements.map((imp, i) => (
-                                                <li key={i} className="text-sm text-amber-700 flex gap-2">
-                                                    <span>•</span> {imp}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </CardContent>
-                                </Card>
-                            </div>
+                {/* Score Panel */}
+                <div className="lg:col-span-7 space-y-6">
+                    {!analysis && !isAnalyzing && (
+                        <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-slate-200 rounded-[2.5rem] bg-slate-50/50">
+                            <Target className="h-16 w-16 text-slate-300 mb-6" />
+                            <h3 className="text-xl font-black text-slate-800 mb-2">Strict Reality Check</h3>
+                            <p className="text-sm font-bold text-slate-500 max-w-sm">Evaluates syntax, quantifications, exact tech overlaps, and semantic section structure realistically.</p>
                         </div>
-                    ) : (
-                        // Empty State / Placeholder
-                        <div className="h-full flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-slate-200 rounded-[2rem] bg-slate-50/30">
-                            <div className="h-20 w-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                                <Sparkles className="h-10 w-10 text-indigo-300" />
+                    )}
+
+                    {analysis && (
+                        <div className="animate-in slide-in-from-bottom-8 duration-700 space-y-6">
+
+                            {/* Score Overview Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Circular Score */}
+                                <Card className={cn("border-none shadow-md overflow-hidden flex flex-col items-center justify-center p-6 rounded-[2rem]", getScoreStyles(analysis.overallScore).split(' bg-')[0] + " " + "bg-white")}>
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-4">Total Evaluation</p>
+                                    <div className="relative">
+                                        <svg className="w-32 h-32 transform -rotate-90">
+                                            <circle cx="64" cy="64" r="54" className="stroke-slate-100 fill-none" strokeWidth="12" />
+                                            <circle cx="64" cy="64" r="54" className={cn("fill-none stroke-current transition-all duration-1000", getScoreStyles(analysis.overallScore).split(' ').find(c => c.startsWith('text-')))} strokeWidth="12" strokeDasharray="339.29" strokeDashoffset={339.29 - (339.29 * analysis.overallScore) / 100} strokeLinecap="round" />
+                                        </svg>
+                                        <div className="absolute inset-0 flex items-center justify-center flex-col">
+                                            <span className={cn("text-4xl font-black tracking-tighter shrink-0", getScoreStyles(analysis.overallScore).split(' ').find(c => c.startsWith('text-')))}>{analysis.overallScore}</span>
+                                            <span className="text-[10px] font-bold text-slate-400">/ 100</span>
+                                        </div>
+                                    </div>
+                                </Card>
+
+                                {/* Missing Crit & Suggestions */}
+                                <Card className="border-none shadow-md bg-white rounded-[2rem] md:col-span-2 p-6 flex flex-col justify-between relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                                        <AlertTriangle className="h-24 w-24" />
+                                    </div>
+                                    <div className="relative z-10">
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-3 flex items-center gap-1"><XCircle className="h-3 w-3" /> Critical Enforcements & Caps</h4>
+                                        <ul className="space-y-1.5 mb-4">
+                                            {analysis.improvementSuggestions.slice(0, 3).map((s, i) => (
+                                                <li key={i} className="text-xs font-bold text-slate-600 leading-snug">• {s}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    {analysis.missingElements.length > 0 && (
+                                        <div className="pt-3 border-t border-slate-100 relative z-10">
+                                            <span className="text-[10px] font-black text-amber-500 uppercase mr-2">Missing:</span>
+                                            <span className="text-xs font-bold text-slate-600">{analysis.missingElements.join(", ")}</span>
+                                        </div>
+                                    )}
+                                </Card>
                             </div>
-                            <h3 className="text-xl font-black text-slate-300 mb-2">
-                                AI Analysis Pending
-                            </h3>
-                            <p className="text-slate-400 max-w-xs mx-auto text-sm">
-                                Upload your resume to see your score and actionable feedback here.
-                            </p>
+
+                            {/* Extractions Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Card className="border-none shadow-sm rounded-[1.5rem]">
+                                    <CardContent className="p-5">
+                                        <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+                                            <Zap className="h-3.5 w-3.5" /> Verified Exact Skills ({analysis.extractedTechStack.length})
+                                        </h4>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {analysis.extractedTechStack.length > 0 ? analysis.extractedTechStack.map(skill => (
+                                                <Badge key={skill} variant="outline" className="text-slate-700 bg-slate-50 border-slate-200 font-bold text-[10px] uppercase">{skill}</Badge>
+                                            )) : <span className="text-xs text-slate-400 font-bold italic">No exact matches found from dictionary.</span>}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="border-none shadow-sm rounded-[1.5rem]">
+                                    <CardContent className="p-5">
+                                        <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+                                            <Percent className="h-3.5 w-3.5" /> Quantified Metrics ({analysis.measurableMetrics.length})
+                                        </h4>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {analysis.measurableMetrics.length > 0 ? analysis.measurableMetrics.slice(0, 10).map((met, i) => (
+                                                <Badge key={i} className="bg-emerald-50 text-emerald-700 border-none font-bold text-[10px] uppercase">{met}</Badge>
+                                            )) : <span className="text-xs text-slate-400 font-bold italic">No percentages or multipliers detected.</span>}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+
+                            {/* Scoring Logic Breakdown */}
+                            <div className="space-y-3">
+                                <h3 className="text-sm font-black text-slate-800 tracking-widest uppercase pl-2 mt-2">Section Strict Breakdown</h3>
+                                {analysis.breakdowns.map((bk, i) => {
+                                    const percentage = (bk.score / bk.max) * 100;
+                                    return (
+                                        <div key={i} className="bg-white p-4 rounded-2xl flex items-center gap-4 border border-slate-100 shadow-sm transition-all hover:border-indigo-100">
+                                            <div className="w-16 text-right shrink-0">
+                                                <span className={cn("font-black", percentage < 50 ? "text-rose-500" : percentage < 80 ? "text-amber-500" : "text-emerald-500")}>{bk.score}</span>
+                                                <span className="text-xs font-bold text-slate-400">/{bk.max}</span>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h5 className="font-bold text-sm text-slate-800 truncate">{bk.category}</h5>
+                                                <p className="text-[10px] font-bold text-slate-500 truncate mt-0.5">{bk.feedback}</p>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+
                         </div>
                     )}
                 </div>
