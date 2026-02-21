@@ -32,13 +32,19 @@ export async function POST(req: Request) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const normalizeDept = (dept: string) => {
+            const d = dept.toUpperCase().replace(/\s+/g, '').trim();
+            if (d === 'AIML' || d === 'CSEAIML' || d === 'CSE-AIML') return 'CSE AI ML';
+            return dept;
+        };
+
         const student = await prisma.student.create({
             data: {
                 name,
                 rollNo,
                 section,
                 batch: batch || "Morning",
-                department,
+                department: normalizeDept(department || "Computer Science"),
                 semester: semester || "1",
                 email: email || null,
                 password: hashedPassword

@@ -16,7 +16,7 @@ export default function StudentSignupPage() {
         name: "",
         rollNo: "",
         section: "",
-        department: "Computer Science",
+        department: "CSE",
         year: "3",
         email: "",
         password: "",
@@ -139,13 +139,22 @@ export default function StudentSignupPage() {
 
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase text-slate-400">Department</Label>
-                                    <div className="relative">
-                                        <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-                                        <Input
-                                            value={formData.department}
-                                            onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                                            className="pl-10 h-10 rounded-xl bg-slate-50 border-none focus-visible:ring-slate-900"
-                                        />
+                                    <div className="flex bg-slate-100 p-1 rounded-xl flex-wrap gap-1">
+                                        {["CSE", "ECE", "ME", "CE", "CSE AI ML", "DS", "IOT"].map((dept) => (
+                                            <button
+                                                key={dept}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, department: dept })}
+                                                className={cn(
+                                                    "px-3 h-8 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    formData.department === dept
+                                                        ? "bg-white text-slate-900 shadow-sm"
+                                                        : "text-slate-400 hover:text-slate-600"
+                                                )}
+                                            >
+                                                {dept}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 

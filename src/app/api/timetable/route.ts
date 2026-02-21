@@ -55,9 +55,10 @@ export async function GET(req: Request) {
                 });
                 if (student) {
                     const dept = student.department;
-                    // Handle Aliasing: CSE AI ML <-> AIML
-                    if (dept === 'CSE AI ML' || dept === 'AIML') {
-                        departmentFilter = { in: ['CSE AI ML', 'AIML'] };
+                    // Handle Aliasing: CSE AI ML <-> AIML, CSEAIML, etc.
+                    const aiMlVariants = ['CSE AI ML', 'AIML', 'CSEAIML', 'CSE-AIML', 'AI ML'];
+                    if (aiMlVariants.includes(dept)) {
+                        departmentFilter = { in: aiMlVariants };
                     } else {
                         departmentFilter = dept;
                     }
@@ -178,7 +179,14 @@ export async function POST(req: Request) {
                 return `${hh.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
             };
 
+            const normalizeDept = (dept: string) => {
+                const d = dept.toUpperCase().replace(/\s+/g, '').trim();
+                if (d === 'AIML' || d === 'CSEAIML' || d === 'CSE-AIML') return 'CSE AI ML';
+                return dept;
+            };
+
             const dataToInsert = timetable.map((slot: any) => {
+                const rawDept = String(slot.department || filters?.department || "CSE");
                 return {
                     day: String(slot.day),
                     startTime: formatTime(slot.time?.split(' - ')[0] || slot.startTime),
@@ -187,7 +195,7 @@ export async function POST(req: Request) {
                     classroom: String(slot.classroom || slot.room || "TBA"),
                     section: String(slot.section || "TBA"),
                     facultyId: String(slot.facultyId || slot.teacher),
-                    department: String(slot.department || filters?.department || "CSE"),
+                    department: normalizeDept(rawDept),
                     semester: String(slot.semester || filters?.semester || "4"),
                     batch: String(slot.batch || filters?.batch || "Morning"),
                     floor: String(slot.floor || "1")

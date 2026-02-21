@@ -38,22 +38,28 @@ export async function GET() {
             distinct: ['department', 'semester', 'section', 'batch']
         });
 
+        const normalizeDept = (dept: string) => {
+            const d = dept.toUpperCase().replace(/\s+/g, '').trim();
+            if (d === 'AIML' || d === 'CSEAIML' || d === 'CSE-AIML' || d === 'AIML') return 'CSE AI ML';
+            return dept.trim();
+        };
+
         // Combine and deduplicate
         const allSections = [
             ...students.map(s => ({
-                department: s.department.toUpperCase().trim(),
+                department: normalizeDept(s.department),
                 semester: s.semester,
                 section: s.section.toUpperCase().trim(),
                 batch: s.batch ? (s.batch.charAt(0).toUpperCase() + s.batch.slice(1).toLowerCase().trim()) : "Morning"
             })),
             ...timetableSections.map(t => ({
-                department: t.department.toUpperCase().trim(),
+                department: normalizeDept(t.department),
                 semester: t.semester,
                 section: t.section.toUpperCase().trim(),
                 batch: t.batch ? (t.batch.charAt(0).toUpperCase() + t.batch.slice(1).toLowerCase().trim()) : "Morning"
             })),
             ...mentorSections.map(m => ({
-                department: m.department.toUpperCase().trim(),
+                department: normalizeDept(m.department),
                 semester: m.semester,
                 section: m.section.toUpperCase().trim(),
                 batch: m.batch ? (m.batch.charAt(0).toUpperCase() + m.batch.slice(1).toLowerCase().trim()) : "Morning"

@@ -13,35 +13,51 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                console.log("Student Authorize called with:", credentials);
-                if (!credentials?.rollNo || !credentials?.password) return null;
-
-                const student = await prisma.student.findFirst({
-                    where: {
-                        OR: [
-                            { rollNo: credentials.rollNo },
-                            { email: credentials.rollNo }
-                        ]
+                console.log("[AUTH] Student Authorize Attempt:", credentials?.rollNo);
+                try {
+                    if (!credentials?.rollNo || !credentials?.password) {
+                        console.log("[AUTH] Missing student credentials");
+                        return null;
                     }
-                });
 
-                if (!student) return null;
+                    const rollNo = credentials.rollNo.trim();
+                    const student = await prisma.student.findFirst({
+                        where: {
+                            OR: [
+                                { rollNo: rollNo },
+                                { email: rollNo }
+                            ]
+                        }
+                    });
 
-                const isPasswordValid = await bcrypt.compare(credentials.password, student.password);
+                    if (!student) {
+                        console.log("[AUTH] Student not found:", rollNo);
+                        return null;
+                    }
 
-                if (!isPasswordValid) return null;
+                    const isPasswordValid = await bcrypt.compare(credentials.password, student.password);
 
-                return {
-                    id: student.id,
-                    name: student.name,
-                    email: student.email,
-                    role: "STUDENT",
-                    rollNo: student.rollNo,
-                    section: student.section,
-                    batch: student.batch,
-                    department: student.department,
-                    semester: student.semester
-                };
+                    if (!isPasswordValid) {
+                        console.log("[AUTH] Invalid password for student:", rollNo);
+                        return null;
+                    }
+
+                    console.log("[AUTH] Student Login Successful:", rollNo);
+                    return {
+                        id: student.id,
+                        name: student.name,
+                        email: student.email,
+                        role: "STUDENT",
+                        rollNo: student.rollNo,
+                        section: student.section,
+                        batch: student.batch,
+                        department: student.department,
+                        semester: student.semester
+                    };
+                } catch (error) {
+                    console.error("[AUTH] STUDENT AUTHORIZE ERROR:", error);
+                    return null;
+                }
             }
         }),
         CredentialsProvider({
@@ -52,34 +68,56 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                if (!credentials?.facultyId || !credentials?.password) return null;
-
-                const faculty = await prisma.faculty.findFirst({
-                    where: {
-                        OR: [
-                            { facultyId: credentials.facultyId },
-                            { email: credentials.facultyId }
-                        ]
+                console.log("[AUTH] Faculty Authorize Attempt:", credentials?.facultyId);
+                try {
+                    if (!credentials?.facultyId || !credentials?.password) {
+                        console.log("[AUTH] Missing faculty credentials");
+                        return null;
                     }
-                });
 
-                if (!faculty) return null;
+                    const facultyId = credentials.facultyId.trim();
+                    const faculty = await prisma.faculty.findFirst({
+                        where: {
+                            OR: [
+                                { facultyId: facultyId },
+                                { email: facultyId }
+                            ]
+                        }
+                    });
 
-                const isPasswordValid = await bcrypt.compare(credentials.password, faculty.password);
+                    if (!faculty) {
+                        console.log("[AUTH] Faculty not found:", facultyId);
+                        return null;
+                    }
 
-                if (!isPasswordValid) return null;
+                    const isPasswordValid = await bcrypt.compare(credentials.password, faculty.password);
 
-                return {
-                    id: faculty.id,
-                    name: faculty.name,
-                    email: faculty.email,
-                    role: "FACULTY",
-                    facultyId: faculty.facultyId,
-                    department: faculty.department,
-                    subjects: faculty.subjects,
-                    sectionsTeaching: faculty.sectionsTeaching,
-                    cabinLocation: faculty.cabinLocation
-                };
+                    if (!isPasswordValid) {
+                        console.log("[AUTH] Invalid password for faculty:", facultyId);
+                        return null;
+                    }
+
+                    const mentoredSections = await prisma.sectionMentor.findMany({
+                        where: { facultyId: faculty.id }
+                    });
+
+                    console.log("[AUTH] Faculty Login Successful:", facultyId, `(Mentoring ${mentoredSections.length} sections)`);
+                    return {
+                        id: faculty.id,
+                        name: faculty.name,
+                        email: faculty.email,
+                        role: "FACULTY",
+                        facultyId: faculty.facultyId,
+                        department: faculty.department,
+                        subjects: faculty.subjects,
+                        sectionsTeaching: faculty.sectionsTeaching,
+                        cabinLocation: faculty.cabinLocation,
+                        mentoredSections: JSON.stringify(mentoredSections)
+                    };
+                } catch (error) {
+                    console.error("[AUTH] FACULTY AUTHORIZE ERROR:", error);
+                    return null;
+                }
             }
         }),
         CredentialsProvider({
@@ -165,6 +203,7 @@ export const authOptions: NextAuthOptions = {
                 token.department = (user as any).department;
                 token.semester = (user as any).semester;
                 token.batch = (user as any).batch;
+                token.mentoredSections = (user as any).mentoredSections;
             }
             return token;
         },
@@ -181,6 +220,7 @@ export const authOptions: NextAuthOptions = {
                 (session.user as any).department = token.department;
                 (session.user as any).semester = token.semester;
                 (session.user as any).batch = token.batch;
+                (session.user as any).mentoredSections = token.mentoredSections;
             }
             return session;
         }

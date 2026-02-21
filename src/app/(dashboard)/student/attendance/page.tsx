@@ -319,7 +319,7 @@ export default function StudentAttendancePage() {
 
                 <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] overflow-hidden">
                     <form onSubmit={handleApplyLeave} className="p-6 space-y-5">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Commencement Date</label>
                                 <input

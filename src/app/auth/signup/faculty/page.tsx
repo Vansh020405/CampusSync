@@ -158,6 +158,22 @@ export default function FacultySignupPage() {
                                             Add
                                         </Button>
                                     </div>
+                                    <div className="flex flex-wrap gap-1 mb-2">
+                                        {["CSE", "ECE", "ME", "CE", "CSE AI ML", "DS", "IOT"].map(d => (
+                                            <button
+                                                key={d}
+                                                type="button"
+                                                onClick={() => {
+                                                    if (!formData.departments.includes(d)) {
+                                                        setFormData({ ...formData, departments: [...formData.departments, d] });
+                                                    }
+                                                }}
+                                                className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-widest hover:bg-emerald-100 transition-colors"
+                                            >
+                                                + {d}
+                                            </button>
+                                        ))}
+                                    </div>
                                     <div className="flex flex-wrap gap-1.5 mt-2 min-h-[20px]">
                                         {formData.departments.length > 0 ? formData.departments.map(d => (
                                             <Badge key={d} className="bg-slate-100 text-slate-700 border-none rounded-lg px-2 py-1 flex items-center gap-1 group transition-all">

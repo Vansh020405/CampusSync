@@ -53,32 +53,40 @@ export async function GET() {
             const academicPerfPart = weightedScore - (oldAttendanceScore * 0.3);
             const academicPerf = Math.min(1, Math.max(0, academicPerfPart / 0.7));
 
-            // Default fallback calculation for reqMarks for legacy records
             let reqMarks = rs.requiredMarks;
-            if (!reqMarks || !reqMarks.includes('|')) {
-                reqMarks = "9.0 GPA: 85% | 8.0 GPA: 70% | 7.0 GPA: 55%";
-                if (academicPerf < 0.6) {
-                    reqMarks = "9.0 GPA: 95% | 8.0 GPA: 85% | 7.0 GPA: 75%";
-                } else if (academicPerf > 0.85) {
-                    reqMarks = "9.0 GPA: 70% | 8.0 GPA: 55% | 7.0 GPA: 45%";
+
+            // Calculate dynamic marks based on existing grades if available
+            const subjectGrade = grades.find(g => g.subjectName === rs.subjectName);
+            if (subjectGrade) {
+                let currentMarks = 0;
+                if (subjectGrade.internalMarks != null) {
+                    currentMarks += subjectGrade.internalMarks;
+                } else {
+                    if (subjectGrade.st1Marks != null) currentMarks += subjectGrade.st1Marks;
+                    if (subjectGrade.st2Marks != null) currentMarks += subjectGrade.st2Marks;
                 }
+
+                const neededForPass = Math.max(0, 40 - currentMarks);
+                const neededForO = Math.max(0, 90 - currentMarks);
+
+                if (subjectGrade.totalMarks != null && subjectGrade.totalMarks > 0) {
+                    reqMarks = `Total Score: ${Math.round(subjectGrade.totalMarks)} | Status: ${subjectGrade.totalMarks >= 40 ? 'Passed' : 'Failed'}`;
+                } else {
+                    reqMarks = `To Pass (>40): ${neededForPass} marks | For 'O' (>90): ${neededForO} marks`;
+                }
+            } else {
+                reqMarks = `To Pass (>40): 40 marks | For 'O' (>90): 90 marks`;
             }
 
             const attn = subjectAttendance[rs.subjectName];
+            let attendancePerc = 0;
+            let reqAtt = "No attendance data yet";
+
             if (attn && attn.total > 0) {
                 const totalClasses = attn.total;
                 const attendedClasses = attn.present;
-                const attendancePerc = (attendedClasses / totalClasses) * 100;
-                const newAttendanceScore = attendancePerc / 100;
+                attendancePerc = (attendedClasses / totalClasses) * 100;
 
-                let newWeightedScore = (academicPerf * 0.7) + (newAttendanceScore * 0.3);
-                let newFinalRiskScore = Math.min(100, Math.max(0, (1 - newWeightedScore) * 100));
-
-                let newRiskCategory = "Safe";
-                if (newFinalRiskScore > 70) newRiskCategory = "High Risk";
-                else if (newFinalRiskScore > 40) newRiskCategory = "Moderate";
-
-                let reqAtt = "Maintain >75% attendance";
                 const classesNeeded = Math.ceil((0.75 * totalClasses - attendedClasses) / 0.25);
                 if (classesNeeded > 0) {
                     reqAtt = `Attend next ${classesNeeded} classes to hit 75%`;
@@ -86,19 +94,22 @@ export async function GET() {
                     const canSkip = Math.floor(attendedClasses - (0.75 * totalClasses));
                     reqAtt = canSkip > 0 ? `Safe: Can skip ${canSkip} classes max` : "Attendance is currently Safe";
                 }
-
-                return {
-                    ...rs,
-                    riskScore: newFinalRiskScore,
-                    riskCategory: newRiskCategory,
-                    attendance: attendancePerc,
-                    requiredAttendance: reqAtt,
-                    requiredMarks: reqMarks
-                };
             }
+
+            const newAttendanceScore = attendancePerc / 100;
+            let newWeightedScore = (academicPerf * 0.7) + (newAttendanceScore * 0.3);
+            let newFinalRiskScore = Math.min(100, Math.max(0, (1 - newWeightedScore) * 100));
+
+            let newRiskCategory = "Safe";
+            if (newFinalRiskScore > 70) newRiskCategory = "High Risk";
+            else if (newFinalRiskScore > 40) newRiskCategory = "Moderate";
 
             return {
                 ...rs,
+                riskScore: newFinalRiskScore,
+                riskCategory: newRiskCategory,
+                attendance: attendancePerc,
+                requiredAttendance: reqAtt,
                 requiredMarks: reqMarks
             };
         });

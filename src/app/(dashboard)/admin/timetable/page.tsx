@@ -27,7 +27,7 @@ const TIME_SLOTS = [
     { label: "P7", time: "15:00 - 16:00" }
 ];
 
-const DEPARTMENTS = ["CSE", "ECE", "ME", "CE", "AIML", "DS", "IOT"];
+const DEPARTMENTS = ["CSE", "ECE", "ME", "CE", "CSE AI ML", "DS", "IOT"];
 const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const BATCHES = ["Morning", "Evening"];
 

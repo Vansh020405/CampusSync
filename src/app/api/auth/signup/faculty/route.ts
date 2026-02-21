@@ -20,11 +20,20 @@ export async function POST(req: Request) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const normalizeDept = (dept: string) => {
+            const d = dept.toUpperCase().replace(/\s+/g, '').trim();
+            if (d === 'AIML' || d === 'CSEAIML' || d === 'CSE-AIML') return 'CSE AI ML';
+            return dept;
+        };
+
+        const deptArray = Array.isArray(department) ? department : [department].filter(Boolean);
+        const normalizedDepts = deptArray.map((d: string) => normalizeDept(d));
+
         const faculty = await prisma.faculty.create({
             data: {
                 name,
                 facultyId,
-                department: JSON.stringify(department || []),
+                department: JSON.stringify(normalizedDepts),
                 subjects: JSON.stringify(subjects || []),
                 sectionsTeaching: JSON.stringify(sectionsTeaching || []),
                 cabinLocation,

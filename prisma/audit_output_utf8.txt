@@ -1,0 +1,11 @@
+﻿--- STUDENTS ---
+STUDENT: 4G2 | Sem 3 | Computer Science | Morning
+STUDENT: 4G3 | Sem 3 | Data Science | Morning
+STUDENT: 4G2 | Sem 4 | CSE AI ML | Morning
+
+--- TIMETABLE ---
+TIMETABLE: 4G2 | Sem 4 | AIML | Morning
+
+--- SECTION MENTORS ---
+MENTOR: 4G2 | Sem 4 | CSE AI ML | Morning -> f1bbd27b-1782-478c-8799-58e1e2858730
+MENTOR: 4G2 | Sem 4 | AIML | Morning -> 7179de93-ff73-489a-81f2-44e5a98958ae
