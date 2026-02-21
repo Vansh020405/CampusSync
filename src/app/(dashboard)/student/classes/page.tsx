@@ -108,10 +108,10 @@ export default function StudentClassesPage() {
                         AY 2025-26 • SEM 4
                     </Badge>
                     <h1 className="text-2xl font-black text-slate-800 tracking-tight">
-                        Section CSE AI ML {section}
+                        CSE AI ML {section}
                     </h1>
                     <p className="text-slate-500 text-xs font-medium flex items-center gap-1.5 mt-1">
-                        <MapPin className="h-3.5 w-3.5 text-blue-500" /> Institutional Matrix Hub
+                        <MapPin className="h-3.5 w-3.5 text-blue-500" /> Chitkara University
                     </p>
                 </div>
             </div>
