@@ -5,10 +5,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
     req: Request,
-    { params }: { params: { section: string } }
+    { params }: { params: Promise<{ section: string }> }
 ) {
     try {
-        const { section } = params;
+        const { section } = await params;
         const { searchParams } = new URL(req.url);
         const subject = searchParams.get('subject');
 

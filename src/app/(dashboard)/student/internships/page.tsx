@@ -1,21 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import { useStore } from "@/lib/store";
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Search, MapPin, Clock, Building2, Briefcase,
-    DollarSign, ArrowRight, X, FileText
+    DollarSign, ArrowRight, X, FileText, Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 
 export default function InternshipsPage() {
-    const { internships } = useStore();
+    const [internships, setInternships] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchInternships = async () => {
+            try {
+                const res = await fetch('/api/internships');
+                const data = await res.json();
+                if (Array.isArray(data)) setInternships(data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchInternships();
+    }, []);
 
     const allSkills = Array.from(new Set(internships.flatMap(i => i.skills || [])));
 
@@ -31,53 +46,63 @@ export default function InternshipsPage() {
         return matchesSearch && matchesSkill;
     });
 
+    if (isLoading) {
+        return (
+            <div className="flex flex-col h-[70vh] w-full items-center justify-center gap-4 animate-in fade-in duration-500">
+                <div className="relative h-16 w-16">
+                    <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+                    <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Synchronizing Data</p>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6 pb-24 animate-in fade-in duration-700">
-            {/* Premium Gradient Header - Optimized for Mobile */}
-            <div className="relative -mx-3 -mt-3 md:-mx-6 md:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden rounded-b-[2rem] md:rounded-b-[3rem] shadow-xl shadow-indigo-500/10 mb-6">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-700"></div>
-                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20"></div>
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
+            {/* Premium Header with Dynamic Mesh Gradient */}
+            <div className="relative -mx-3 -mt-3 md:-mx-6 md:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden rounded-b-[3rem] shadow-2xl shadow-indigo-500/20 mb-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900"></div>
+                <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_50%,#4338ca_0,transparent_50%)]"></div>
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-fuchsia-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4"></div>
 
-                <div className="relative px-5 py-8 md:px-10 md:py-16">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-md px-3 py-1 font-black text-[10px] uppercase tracking-widest">
-                                    <span className="mr-2 h-1.5 w-1.5 rounded-full bg-fuchsia-300 animate-pulse"></span>
-                                    Recruitment Active
+                <div className="relative px-6 py-12 md:px-10 md:py-20">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3">
+                                <div className="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></div>
+                                <Badge className="bg-white/10 text-white border-white/20 backdrop-blur-xl px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.2em]">
+                                    Recruitment Live
                                 </Badge>
                             </div>
                             <div>
-                                <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-3 leading-tight">
-                                    In-Campus <br className="sm:hidden" /> Internships
+                                <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.05]">
+                                    In-Campus <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400 font-black">Opportunities</span>
                                 </h1>
-                                <p className="text-indigo-100 font-bold text-sm md:text-base max-w-lg opacity-90 leading-relaxed">
-                                    Exclusive opportunities from premium partners.
-                                    Filter by your expertise and apply instantly.
+                                <p className="text-slate-300 font-bold text-base md:text-lg max-w-xl opacity-80 leading-relaxed mt-4">
+                                    Exclusive roles from premium partners. Filter by expertise and launch your professional journey.
                                 </p>
                             </div>
                         </div>
 
-                        {/* Header Actions - Search & Apps button */}
-                        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-                            {/* Applications Button */}
-                            <Link href="/student/applications" className="w-full md:w-auto block">
-                                <Button className="w-full md:w-auto h-12 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md font-black uppercase tracking-widest text-[10px] rounded-[1.5rem] shadow-xl transition-all hover:-translate-y-0.5">
-                                    <FileText className="h-4 w-4 mr-2" />
-                                    My Applications
+                        {/* Header Actions */}
+                        <div className="flex flex-col sm:flex-row items-center gap-5 w-full lg:w-auto">
+                            <Link href="/student/applications" className="w-full sm:w-auto">
+                                <Button className="w-full h-14 px-8 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-xl font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl shadow-2xl transition-all hover:-translate-y-1">
+                                    <FileText className="h-4 w-4 mr-3" />
+                                    Active Pipeline
                                 </Button>
                             </Link>
 
-                            {/* Search Bar in Header - Enhanced for Mobile */}
-                            <div className="relative w-full md:w-80 group">
-                                <div className="absolute inset-0 bg-white/10 backdrop-blur-2xl rounded-[1.5rem] transform translate-y-1 transition-transform group-focus-within:translate-y-2"></div>
-                                <div className="relative bg-white/95 backdrop-blur-xl rounded-[1.5rem] p-1.5 flex items-center shadow-2xl border border-white/20">
+                            <div className="relative w-full sm:w-80 group">
+                                <div className="absolute inset-0 bg-indigo-500/20 blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                                <div className="relative bg-white/5 backdrop-blur-2xl rounded-2xl p-1.5 flex items-center shadow-2xl border border-white/10 group-focus-within:border-white/30 transition-all">
                                     <Search className="h-5 w-5 text-indigo-400 ml-4 shrink-0" />
                                     <input
                                         type="text"
-                                        placeholder="Search role, company or skill..."
-                                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-bold text-slate-800 placeholder:text-slate-400 px-4 py-3 outline-none"
+                                        placeholder="Search roles, skills..."
+                                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-bold text-white placeholder:text-slate-400 px-4 py-3 outline-none"
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                     />
@@ -148,13 +173,13 @@ export default function InternshipsPage() {
                             <Card key={internship.id} className="group border-none shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 bg-white rounded-[2rem] overflow-hidden relative">
                                 {/* Applied Status or New Badge */}
                                 <div className="absolute top-6 right-6 z-10">
-                                    {internship.postedDate?.includes("hours") || internship.postedDate?.includes("Just") ? (
+                                    {internship.postedDate?.includes("hours") || internship.postedDate?.includes("Just") || (internship.createdAt && new Date(internship.createdAt).getTime() > Date.now() - 86400000) ? (
                                         <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 font-black px-3 py-1 text-[9px] uppercase tracking-widest rounded-full">
                                             New
                                         </Badge>
                                     ) : (
                                         <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">
-                                            {internship.postedDate}
+                                            {internship.postedDate || (internship.createdAt && new Date(internship.createdAt).toLocaleDateString())}
                                         </span>
                                     )}
                                 </div>
@@ -181,7 +206,7 @@ export default function InternshipsPage() {
 
                                         {/* Skills Tags - Responsive Layout */}
                                         <div className="flex flex-wrap gap-2">
-                                            {internship.skills?.map(skill => (
+                                            {internship.skills?.map((skill: string) => (
                                                 <span
                                                     key={skill}
                                                     className={cn(
