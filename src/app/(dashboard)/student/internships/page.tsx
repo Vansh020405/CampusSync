@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Search, MapPin, Clock, Building2, Briefcase,
-    DollarSign, ArrowRight, X
+    DollarSign, ArrowRight, X, FileText
 } from 'lucide-react';
+import Link from 'next/link';
 import { cn } from "@/lib/utils";
 
 export default function InternshipsPage() {
@@ -58,18 +59,29 @@ export default function InternshipsPage() {
                             </div>
                         </div>
 
-                        {/* Search Bar in Header - Enhanced for Mobile */}
-                        <div className="relative w-full md:w-96 group">
-                            <div className="absolute inset-0 bg-white/10 backdrop-blur-2xl rounded-[1.5rem] transform translate-y-1 transition-transform group-focus-within:translate-y-2"></div>
-                            <div className="relative bg-white/95 backdrop-blur-xl rounded-[1.5rem] p-1.5 flex items-center shadow-2xl border border-white/20">
-                                <Search className="h-5 w-5 text-indigo-400 ml-4 shrink-0" />
-                                <input
-                                    type="text"
-                                    placeholder="Search role, company or skill..."
-                                    className="w-full bg-transparent border-none focus:ring-0 text-sm font-bold text-slate-800 placeholder:text-slate-400 px-4 py-3 outline-none"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                />
+                        {/* Header Actions - Search & Apps button */}
+                        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+                            {/* Applications Button */}
+                            <Link href="/student/applications" className="w-full md:w-auto block">
+                                <Button className="w-full md:w-auto h-12 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md font-black uppercase tracking-widest text-[10px] rounded-[1.5rem] shadow-xl transition-all hover:-translate-y-0.5">
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    My Applications
+                                </Button>
+                            </Link>
+
+                            {/* Search Bar in Header - Enhanced for Mobile */}
+                            <div className="relative w-full md:w-80 group">
+                                <div className="absolute inset-0 bg-white/10 backdrop-blur-2xl rounded-[1.5rem] transform translate-y-1 transition-transform group-focus-within:translate-y-2"></div>
+                                <div className="relative bg-white/95 backdrop-blur-xl rounded-[1.5rem] p-1.5 flex items-center shadow-2xl border border-white/20">
+                                    <Search className="h-5 w-5 text-indigo-400 ml-4 shrink-0" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search role, company or skill..."
+                                        className="w-full bg-transparent border-none focus:ring-0 text-sm font-bold text-slate-800 placeholder:text-slate-400 px-4 py-3 outline-none"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

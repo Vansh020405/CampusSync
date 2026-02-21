@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect } from "react";
-import { useMode } from "@/contexts/ModeContext";
 import InternshipDashboard from "@/components/dashboards/InternshipDashboard";
-import CampusDashboard from "@/components/dashboards/CampusDashboard";
+import { useMode } from "@/contexts/ModeContext";
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-export default function HomePage() {
+export default function InternshipHomePage() {
     const { mode } = useMode();
     const { data: session } = useSession();
     const router = useRouter();
@@ -17,18 +16,16 @@ export default function HomePage() {
             router.push('/admin/dashboard');
         } else if (session?.user?.role === 'FACULTY') {
             router.push('/faculty');
-        } else if (mode === 'internships') {
-            router.push('/home/internships');
+        } else if (mode === 'campus') {
+            router.push('/home');
         }
     }, [mode, session, router]);
 
-    if (session?.user?.role === 'ADMIN' || session?.user?.role === 'FACULTY' || mode === 'internships') {
-        return null;
-    }
+    if (session?.user?.role === 'ADMIN' || session?.user?.role === 'FACULTY' || mode === 'campus') return null;
 
     return (
         <div className="min-h-screen">
-            <CampusDashboard />
+            <InternshipDashboard />
         </div>
     );
 }

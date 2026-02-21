@@ -11,7 +11,7 @@ export function ModeToggle() {
 
     const handleModeSwitch = (newMode: 'internships' | 'campus') => {
         setMode(newMode);
-        router.push('/home');
+        router.push(newMode === 'internships' ? '/home/internships' : '/home');
     };
 
     return (

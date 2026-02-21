@@ -1,0 +1,67 @@
+﻿  Γû▓ Next.js 14.2.35
+  - Environments: .env
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+node.exe : Error: ENOENT: no such file 
+or directory, open 'C:\Users\VANSH\Desk
+top\CampusSync\test\data\05-versions-sp
+ace.pdf'
+At C:\Program Files\nodejs\npx.ps1:29 
+char:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpeci 
+   fied: (Error: ENOENT: ...ions-spac  
+  e.pdf':String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCo 
+   mmandError
+ 
+    at Object.openSync (node:fs:562:18)
+    at Object.readFileSync 
+(node:fs:446:35)
+    at 1238 (C:\Users\VANSH\Desktop\Cam
+pusSync\.next\server\app\api\resume\par
+se\route.js:1:3137)
+    at t (C:\Users\VANSH\Desktop\Campus
+Sync\.next\server\webpack-runtime.js:1:
+143)
+    at 2141 (C:\Users\VANSH\Desktop\Cam
+pusSync\.next\server\app\api\resume\par
+se\route.js:1:1146)
+    at t (C:\Users\VANSH\Desktop\Campus
+Sync\.next\server\webpack-runtime.js:1:
+143)
+    at r (C:\Users\VANSH\Desktop\Campus
+Sync\.next\server\app\api\resume\parse\
+route.js:3:1128107)
+    at C:\Users\VANSH\Desktop\CampusSyn
+c\.next\server\app\api\resume\parse\rou
+te.js:3:1128140
+    at t.X (C:\Users\VANSH\Desktop\Camp
+usSync\.next\server\webpack-runtime.js:
+1:1285)
+    at C:\Users\VANSH\Desktop\CampusSyn
+c\.next\server\app\api\resume\parse\rou
+te.js:3:1128120 {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\VANSH\\Desktop\\Cam
+pusSync\\test\\data\\05-versions-space.
+pdf'
+}
+
+> Build error occurred
+Error: Failed to collect page data for 
+/api/resume/parse
+    at C:\Users\VANSH\Desktop\CampusSyn
+c\node_modules\next\dist\build\utils.js
+:1269:15
+    at 
+process.processTicksAndRejections (node
+:internal/process/task_queues:105:5) {
+  type: 'Error'
+}

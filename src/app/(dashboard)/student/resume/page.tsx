@@ -68,19 +68,55 @@ export default function ResumeOptimizerPage() {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const uploadedFile = e.target.files[0];
             setFile(uploadedFile);
             setAnalysis(null);
+            setCurrentStepIndex(0);
 
-            // If Text file, read it. If PDF, use a placeholder fallback indicating we need text.
+            // If Text file, read directly
             if (uploadedFile.type === "text/plain") {
                 const reader = new FileReader();
                 reader.onload = (e) => setRawText(e.target?.result as string);
                 reader.readAsText(uploadedFile);
+            } else if (uploadedFile.type === "application/pdf") {
+                // PDF Safe Extraction Pipeline
+                setIsAnalyzing(true);
+                const formData = new FormData();
+                formData.append("file", uploadedFile);
+
+                try {
+                    const res = await fetch("/api/resume/parse", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.isValid) {
+                            setRawText(data.text);
+                        } else {
+                            alert(`PDF extraction quality is low: ${data.reason}. Please upload a cleaner PDF or paste resume text.`);
+                            setRawText("");
+                            setFile(null);
+                        }
+                    } else {
+                        alert("Failed to parse PDF securely. Please paste text instead to avoid hallucinated scores.");
+                        setRawText("");
+                        setFile(null);
+                    }
+                } catch (error) {
+                    alert("Error extracting text securely. Please use Paste Text.");
+                    setRawText("");
+                    setFile(null);
+                } finally {
+                    setIsAnalyzing(false);
+                }
             } else {
-                setRawText(""); // Clear text, prompt to use paste for accuracy or fallback
+                alert("Unsupported document type. Please use PDF or TXT.");
+                setRawText("");
+                setFile(null);
             }
         }
     };
@@ -311,16 +347,18 @@ export default function ResumeOptimizerPage() {
                                 </div>
                             ) : (
                                 <div className="space-y-4 text-center py-8">
-                                    <input type="file" id="resume-upload" className="hidden" accept=".txt,.pdf,.doc,.docx" onChange={handleFileChange} disabled={isAnalyzing} />
-                                    <div className="h-16 w-16 bg-indigo-50 rounded-[1.25rem] mx-auto flex items-center justify-center mb-4">
-                                        <Upload className="h-8 w-8 text-indigo-500" />
+                                    <input type="file" id="resume-upload" className="hidden" accept=".txt,.pdf" onChange={handleFileChange} disabled={isAnalyzing} />
+                                    <div className="h-16 w-16 bg-indigo-50 rounded-[1.25rem] mx-auto flex items-center justify-center mb-4 border border-indigo-100/50">
+                                        {isAnalyzing ? <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" /> : <Upload className="h-8 w-8 text-indigo-500" />}
                                     </div>
-                                    <h3 className="font-black text-slate-800">Upload Document</h3>
-                                    <p className="text-xs font-bold text-slate-400 px-4">For PDF/DOCX, local parsing is simulated. Upload .txt or use Paste Text for accurate evaluation.</p>
+                                    <h3 className="font-black text-slate-800">Upload PDF</h3>
+                                    <p className="text-xs font-bold text-slate-400 px-4">Our strict extractor scrubs fragmented words and symbols to prevent hallucination.</p>
                                     <label htmlFor="resume-upload">
-                                        <Button className="mt-4 bg-slate-100 text-slate-800 hover:bg-slate-200 pointer-events-none rounded-xl" size="sm">Select File</Button>
+                                        <Button className="mt-4 bg-slate-900 text-white hover:bg-slate-800 pointer-events-none rounded-xl font-bold uppercase tracking-widest text-[10px] px-6" size="sm">Select Document</Button>
                                     </label>
-                                    {file && <p className="text-xs font-bold text-indigo-600 mt-2">{file.name}</p>}
+                                    {file && !isAnalyzing && <div className="mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-100 max-w-[250px] mx-auto text-emerald-700 font-bold text-xs truncate">
+                                        <CheckCircle2 className="h-4 w-4 inline mr-1" /> {file.name} Verified
+                                    </div>}
                                 </div>
                             )}
 
@@ -328,7 +366,7 @@ export default function ResumeOptimizerPage() {
                                 <Button
                                     className="w-full h-12 mt-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-200 transition-all hover:scale-[1.02]"
                                     onClick={triggerEvaluation}
-                                    disabled={isAnalyzing || (inputMode === 'paste' && rawText.trim().length === 0)}
+                                    disabled={isAnalyzing || rawText.trim().length === 0}
                                 >
                                     {isAnalyzing ? <span className="flex items-center"><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing Rules Engine</span> : "Evaluate Resume Strictly"}
                                 </Button>
