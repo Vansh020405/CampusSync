@@ -20,6 +20,7 @@ import {
 import { BottomNav } from "@/components/BottomNav"
 import { Clock } from "@/components/Clock"
 import { BrandLogo } from "@/components/brand/Logo"
+import { PlacementMentorChat } from "@/components/chat/PlacementMentorChat"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { data: session, status } = useSession()
@@ -110,6 +111,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Bottom Navigation - Managed by BottomNav component */}
             {!pathname.startsWith('/admin') && <BottomNav />}
+
+            {/* AI Placement Mentor for Students */}
+            {session?.user?.role === 'STUDENT' && <PlacementMentorChat />}
         </div>
     )
 }

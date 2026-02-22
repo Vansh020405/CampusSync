@@ -255,6 +255,13 @@ export default function ResumeOptimizerPage() {
                 { category: "Clarity & Readability", score: clarityScore, max: 10, feedback: `Word count: ~${words.length}` }
             ]
         });
+
+        // Fire asynchronous background task to sync to DB for AI Mentor visibility
+        fetch('/api/student/resume/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ score: totalScore, text: textToAnalyze })
+        }).catch(err => console.error("Failed to sync resume to AI Context:", err));
     };
 
     const triggerEvaluation = () => {

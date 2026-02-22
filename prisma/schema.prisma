@@ -13,21 +13,23 @@ model Student {
   name             String
   rollNo           String                        @unique
   section          String
-  batch            String                        @default("Morning")
   department       String
   semester         String
   email            String?
   password         String
   createdAt        DateTime                      @default(now())
   updatedAt        DateTime                      @default(now()) @updatedAt
+  batch            String                        @default("Morning")
+  resumeText       String?                       
+  resumeScore      Float?
+  acknowledgements AnnouncementAcknowledgement[]
   applications     Application[]
   bookings         Booking[]
-  attendance       StudentAttendance[]
   examSeating      ExamSeating[]
   grades           Grade[]
-  acknowledgements AnnouncementAcknowledgement[]
-  leaves           StudentLeave[]
   riskScores       RiskScore[]
+  attendance       StudentAttendance[]
+  leaves           StudentLeave[]
 }
 
 model Faculty {
@@ -44,17 +46,17 @@ model Faculty {
   updatedAt        DateTime            @updatedAt
   email            String?
   bookings         Booking[]
+  examDuties       Exam[]              @relation("InvigilatorDuty")
   attendance       FacultyAttendance[]
   leaves           FacultyLeave[]
   timetable        FacultyTimetable[]
+  gradeVersions    GradeVersion[]
   sentMessages     Message[]           @relation("SentMessages")
+  mentoredSections SectionMentor[]
   markings         StudentAttendance[]
+  leaveApprovals   StudentLeave[]      @relation("LeaveApprovals")
   assignedClasses  Timetable[]         @relation("FacultyClasses")
   topicProgress    TopicProgress[]
-  examDuties       Exam[]              @relation("InvigilatorDuty")
-  mentoredSections SectionMentor[]
-  leaveApprovals   StudentLeave[]      @relation("LeaveApprovals")
-  gradeVersions    GradeVersion[]
 }
 
 model Admin {
@@ -62,10 +64,10 @@ model Admin {
   username   String   @unique
   password   String
   name       String?
+  createdAt  DateTime @default(now())
   position   String?
   department String?
   subjects   String?
-  createdAt  DateTime @default(now())
 }
 
 model Timetable {
@@ -73,7 +75,6 @@ model Timetable {
   department String
   section    String
   semester   String
-  batch      String   @default("Morning")
   subject    String
   facultyId  String
   classroom  String
@@ -83,6 +84,7 @@ model Timetable {
   endTime    String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  batch      String   @default("Morning")
   faculty    Faculty  @relation("FacultyClasses", fields: [facultyId], references: [id])
 
   @@index([department, section, semester, batch])
@@ -185,10 +187,10 @@ model StudentLeave {
   toDate      DateTime
   reason      String
   documentUrl String?
-  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  status      String   @default("PENDING")
   appliedAt   DateTime @default(now())
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   faculty     Faculty  @relation("LeaveApprovals", fields: [facultyId], references: [id], onDelete: Cascade)
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([facultyId, status])
   @@index([studentId, status])
@@ -231,8 +233,8 @@ model SyllabusSubject {
   subjectName String              @unique
   subjectCode String?
   department  String
-  topics      SyllabusTopic[]
   assignments SubjectAssignment[]
+  topics      SyllabusTopic[]
 }
 
 model SyllabusTopic {
@@ -241,21 +243,20 @@ model SyllabusTopic {
   title         String
   totalLectures Int             @default(1)
   order         Int             @default(0)
-  examType      String? // ST1, ST2, ST3, End Term, Practical
+  examType      String?
   subject       SyllabusSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   progress      TopicProgress[]
 }
 
 model SubjectAssignment {
-  id         String   @id @default(uuid())
+  id         String          @id @default(uuid())
   subjectId  String
   department String
   semester   String
-  batch      String // Morning, Evening, Both
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  subject SyllabusSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  batch      String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  subject    SyllabusSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@unique([subjectId, department, semester, batch])
 }
@@ -280,14 +281,14 @@ model Exam {
   id            String        @id @default(uuid())
   name          String        @default("Examination")
   subject       String
-  department    String? // Added for datesheet support
-  semester      String? // Added for datesheet support
-  section       String? // Added for datesheet support
+  department    String?
+  semester      String?
+  section       String?
   date          DateTime
   startTime     String
   endTime       String
   duration      String
-  type          String // Mid-Sem, End-Sem, Practical
+  type          String
   room          String
   hall          String?
   block         String?
@@ -311,7 +312,7 @@ model ExamSeating {
 }
 
 model Grade {
-  id            String @id @default(uuid())
+  id            String        @id @default(uuid())
   studentId     String
   semester      String
   subjectName   String
@@ -319,22 +320,19 @@ model Grade {
   internalMarks Int
   externalMarks Int
   totalMarks    Int
-  grade         String // A, B, C, etc.
-  credits       Int    @default(3)
-
-  // Academic Intelligence ST marks
-  st1Marks     Float?
-  st1Total     Float?
-  st2Marks     Float?
-  st2Total     Float?
-  endTermMarks Float?
-  endTermTotal Float?
-  versionId    String?
-  gradeVersion GradeVersion? @relation(fields: [versionId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  grade         String
+  credits       Int           @default(3)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  endTermMarks  Float?
+  endTermTotal  Float?
+  st1Marks      Float?
+  st1Total      Float?
+  st2Marks      Float?
+  st2Total      Float?
+  versionId     String?
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  gradeVersion  GradeVersion? @relation(fields: [versionId], references: [id])
 
   @@unique([studentId, subjectName])
   @@index([studentId, semester])
@@ -371,20 +369,20 @@ model SectionMentor {
   section    String
   batch      String   @default("Morning")
   facultyId  String
-  faculty    Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  faculty    Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
 
   @@unique([department, semester, section, batch])
 }
 
 model GradeVersion {
   id        String   @id @default(uuid())
-  versionId String   @unique // e.g. V1, V2
+  versionId String   @unique
   facultyId String
   createdAt DateTime @default(now())
-  faculty   Faculty  @relation(fields: [facultyId], references: [id])
   grades    Grade[]
+  faculty   Faculty  @relation(fields: [facultyId], references: [id])
 }
 
 model RiskScore {
@@ -392,15 +390,15 @@ model RiskScore {
   studentId          String
   subjectName        String
   riskScore          Float
-  riskCategory       String // Safe, Moderate, High Risk
-  trend              String   @default("STABLE") // UP, DOWN, STABLE
+  riskCategory       String
+  trend              String   @default("STABLE")
   attendance         Float?
-  requiredMarks      String?
-  requiredAttendance String?
-  priority           Int      @default(0)
   recommendations    String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  priority           Int      @default(0)
+  requiredAttendance String?
+  requiredMarks      String?
   student            Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, subjectName])
