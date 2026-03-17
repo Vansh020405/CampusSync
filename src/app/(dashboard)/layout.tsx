@@ -19,7 +19,6 @@ import {
 
 import { BottomNav } from "@/components/BottomNav"
 import { Clock } from "@/components/Clock"
-import { BrandLogo } from "@/components/brand/Logo"
 import { PlacementMentorChat } from "@/components/chat/PlacementMentorChat"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -51,9 +50,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="relative flex h-16 md:h-20 items-center justify-between px-4 md:px-6">
                     {/* Left: Logo Tag */}
                     <div className="flex items-center shrink-0">
-                        <BrandLogo size={34} className="md:size-[42px]" withText={false} />
-                        <div className="hidden md:block ml-2">
-                            <span className="text-xl font-black tracking-tighter leading-none italic text-slate-900 leading-none">
+                        <div className="ml-2">
+                            <span className="text-xl font-black tracking-tighter italic text-slate-900 leading-none">
                                 Campus<span className="text-teal-600 not-italic">Sync</span>
                             </span>
                         </div>

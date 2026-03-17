@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   description: "Career & Academic Interaction Platform",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/logo.svg",
-    apple: "/icons/logo.svg",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
 };
 
