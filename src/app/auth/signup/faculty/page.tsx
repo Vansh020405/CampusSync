@@ -99,8 +99,8 @@ export default function FacultySignupPage() {
                         <Users className="h-24 w-24 rotate-12" />
                     </div>
                     <div className="relative z-10">
-                        <h1 className="text-2xl font-black tracking-tight">Faculty Onboarding</h1>
-                        <p className="text-emerald-100 text-xs font-bold uppercase tracking-widest mt-1">Management Access Control</p>
+                        <h1 className="text-2xl font-black tracking-tight">Faculty Sign Up</h1>
+                        <p className="text-emerald-100 text-xs font-bold uppercase tracking-widest mt-1">Create Faculty Account</p>
                     </div>
                 </div>
 
@@ -264,13 +264,13 @@ export default function FacultySignupPage() {
                                     onClick={handleNext}
                                     disabled={!formData.name || formData.subjects.length === 0 || formData.departments.length === 0}
                                 >
-                                    Verify Identities <ArrowRight className="ml-2 h-4 w-4" />
+                                    Next Step <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
                             </div>
                         ) : (
                             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-slate-400">Institutional Email</Label>
+                                    <Label className="text-[10px] font-black uppercase text-slate-400">College Email</Label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
                                         <Input
@@ -284,7 +284,7 @@ export default function FacultySignupPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-slate-400">Faculty Password</Label>
+                                    <Label className="text-[10px] font-black uppercase text-slate-400">Password</Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
                                         <Input
@@ -298,8 +298,8 @@ export default function FacultySignupPage() {
                                 </div>
 
                                 <div className="pt-4 p-4 rounded-2xl bg-slate-50 space-y-2 border border-slate-100">
-                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Onboarding Summary</p>
-                                    <p className="text-xs font-bold text-slate-700">Linking Profile to Institutional Data</p>
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Account Summary</p>
+                                    <p className="text-xs font-bold text-slate-700">Your Account Details</p>
                                     {formData.departments.length > 0 && (
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
                                             Depts: <span className="text-slate-600 font-black">{formData.departments.join(', ')}</span>
@@ -310,7 +310,7 @@ export default function FacultySignupPage() {
                                             Teaching: <span className="text-slate-600 font-black">{formData.subjects.join(', ')}</span>
                                         </p>
                                     )}
-                                    <p className="text-[9px] text-slate-400 leading-relaxed">Once approved, you will be able to manage attendance and broadcast messages to these specific groups.</p>
+                                    <p className="text-[9px] text-slate-400 leading-relaxed">You can manage attendance and send messages for these groups.</p>
                                 </div>
 
                                 <div className="flex gap-2 mt-4">
@@ -320,7 +320,7 @@ export default function FacultySignupPage() {
                                         className="flex-1 h-12 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest"
                                         disabled={isLoading || !formData.password}
                                     >
-                                        {isLoading ? "Registering..." : "Register Prof."}
+                                        {isLoading ? "Signing Up..." : "Sign Up"}
                                     </Button>
                                 </div>
                             </div>
@@ -329,7 +329,7 @@ export default function FacultySignupPage() {
 
                     <div className="mt-8 text-center pt-6 border-t border-slate-50">
                         <Link href="/" className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-900 tracking-widest transition-colors">
-                            Returning Faculty? Sign in here
+                            Already have an account? Log In
                         </Link>
                     </div>
                 </CardContent>

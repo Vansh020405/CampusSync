@@ -77,8 +77,8 @@ export default function StudentSignupPage() {
                         <GraduationCap className="h-24 w-24 rotate-12" />
                     </div>
                     <div className="relative z-10">
-                        <h1 className="text-2xl font-black tracking-tight">Student Onboarding</h1>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Institutional Access Only</p>
+                        <h1 className="text-2xl font-black tracking-tight">Student Sign Up</h1>
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Create Student Account</p>
                     </div>
                 </div>
 
@@ -202,7 +202,7 @@ export default function StudentSignupPage() {
                                     onClick={handleNext}
                                     disabled={!formData.name || !formData.rollNo || !formData.section}
                                 >
-                                    Credential Step <ArrowRight className="ml-2 h-4 w-4" />
+                                    Next Step <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
                             </div>
                         ) : (
@@ -219,7 +219,7 @@ export default function StudentSignupPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-slate-400">Secure Password</Label>
+                                    <Label className="text-[10px] font-black uppercase text-slate-400">Password</Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
                                         <Input
@@ -253,7 +253,7 @@ export default function StudentSignupPage() {
                                         className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest"
                                         disabled={isLoading || !formData.password || formData.password !== formData.confirmPassword}
                                     >
-                                        {isLoading ? "Saving..." : "Finish Signup"}
+                                        {isLoading ? "Signing Up..." : "Sign Up"}
                                     </Button>
                                 </div>
                             </div>
@@ -262,7 +262,7 @@ export default function StudentSignupPage() {
 
                     <div className="mt-8 text-center pt-6 border-t border-slate-50">
                         <Link href="/" className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-900 tracking-widest transition-colors">
-                            Already registered? Sign in instead
+                            Already have an account? Log In
                         </Link>
                     </div>
                 </CardContent>

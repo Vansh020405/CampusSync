@@ -65,7 +65,7 @@ export default function AuthPage() {
       });
 
       if (res?.error) {
-        setError("Invalid credentials. Please verify your identity.");
+        setError("Invalid login details. Please try again.");
         setLoading(false);
       } else {
         window.location.reload();
@@ -147,7 +147,7 @@ export default function AuthPage() {
                 activeTab === 'login' ? "bg-white text-slate-900 shadow-md" : "text-slate-400 hover:text-slate-500"
               )}
             >
-              Sign In
+              Log In
             </button>
             <button
               onClick={() => { setActiveTab('signup'); setError(""); }}
@@ -156,7 +156,7 @@ export default function AuthPage() {
                 activeTab === 'signup' ? "bg-white text-slate-900 shadow-md" : "text-slate-400 hover:text-slate-500"
               )}
             >
-              Create Account
+              Sign Up
             </button>
           </div>
 
@@ -403,7 +403,7 @@ export default function AuthPage() {
                 {activeTab === 'signup' && (
                   <div className="space-y-1.5 group">
                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] ml-1">
-                      {selectedRole === 'student' ? 'Chitkara Email' : 'Institutional Email'}
+                      College Email
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 transition-colors group-focus-within:text-slate-900" />
@@ -448,7 +448,7 @@ export default function AuthPage() {
                     <Loader2 className="animate-spin h-5 w-5" />
                   ) : (
                     <span className="flex items-center gap-3">
-                      {activeTab === 'login' ? "Authorize Access" : "Join Network"}
+                      {activeTab === 'login' ? "Log In" : "Sign Up"}
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                   )}
@@ -459,14 +459,14 @@ export default function AuthPage() {
 
           <div className="text-center space-y-4">
             <Link href="/auth/admin/login" className="text-[10px] font-bold text-slate-300 uppercase tracking-widest hover:text-slate-900 transition-colors flex items-center justify-center gap-2 group">
-              <ShieldCheck className="w-4 h-4 text-slate-200 group-hover:text-indigo-500 transition-colors" /> Administrator Console
+              <ShieldCheck className="w-4 h-4 text-slate-200 group-hover:text-indigo-500 transition-colors" /> Admin Login
             </Link>
             <div className="flex flex-col gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
               <div className="text-[8px] font-black text-slate-400 uppercase tracking-[0.5em]">
-                CampusSync v4.2 Secure Nexus
+                CampusSync v4.2
               </div>
               <div className="text-[7px] font-bold text-slate-300 uppercase tracking-[0.2em]">
-                End-to-end Encrypted Institutional Protocol
+                Student & Faculty Portal
               </div>
             </div>
           </div>

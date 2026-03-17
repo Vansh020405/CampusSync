@@ -310,10 +310,10 @@ export default function ResumeOptimizerPage() {
                 <div className="relative px-5 py-10 md:px-10 text-center flex flex-col items-center">
                     <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-md px-4 py-1.5 font-black text-[10px] md:text-xs uppercase tracking-widest mb-4">
                         <span className="mr-2 h-1.5 w-1.5 rounded-full bg-rose-400 animate-pulse inline-block"></span>
-                        STRICT ATS EVALUATION ENGINE
+                        STRICT ATS EVALUATION 
                     </Badge>
                     <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
-                        Defensible Resume Scoring
+                        Resume Analyser
                     </h1>
                     <p className="text-indigo-100/90 font-bold text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
                         No hallucinated skills. No inflated optimism. Our strict depth-based parser extracts exact matched logic to provide realistic, critical evaluation.
@@ -326,17 +326,18 @@ export default function ResumeOptimizerPage() {
                 <div className="lg:col-span-5 space-y-4">
                     <div className="flex bg-slate-100 p-1 rounded-2xl w-full">
                         <button
-                            onClick={() => setInputMode('paste')}
-                            className={cn("flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all", inputMode === 'paste' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
-                        >
-                            Paste Text (Accurate)
-                        </button>
-                        <button
                             onClick={() => setInputMode('upload')}
                             className={cn("flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all", inputMode === 'upload' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
                         >
                             Upload File
                         </button>
+                        <button
+                            onClick={() => setInputMode('paste')}
+                            className={cn("flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all", inputMode === 'paste' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+                        >
+                            Paste Text (Accurate)
+                        </button>
+                        
                     </div>
 
                     <Card className="border-none shadow-xl bg-white rounded-[2rem] overflow-hidden">

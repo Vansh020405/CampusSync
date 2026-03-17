@@ -41,7 +41,7 @@ export default function AdminSignupPage() {
 
             const data = await res.json();
             if (res.ok) {
-                toast.success("Admin core registered successfully");
+                toast.success("Admin registered successfully");
                 router.push("/admin/dashboard");
             } else {
                 toast.error(data.error || "Signup failed");
@@ -64,8 +64,8 @@ export default function AdminSignupPage() {
                         <Link href="/admin/dashboard" className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 hover:text-white transition-colors">
                             <ChevronLeft className="h-3 w-3" /> Dashboard
                         </Link>
-                        <h1 className="text-3xl font-black tracking-tighter uppercase">Admin Provision</h1>
-                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Institutional Node Setup • Level 4 Access</p>
+                        <h1 className="text-3xl font-black tracking-tighter uppercase">Admin Sign Up</h1>
+                        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Create Admin Account</p>
                     </div>
                 </div>
 
@@ -73,7 +73,7 @@ export default function AdminSignupPage() {
                     <form onSubmit={handleSignup} className="space-y-6">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Administrator Name</Label>
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Full Name</Label>
                                 <div className="relative group">
                                     <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
                                     <Input
@@ -87,12 +87,12 @@ export default function AdminSignupPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">System Username</Label>
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Username</Label>
                                 <div className="relative group">
                                     <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
                                     <Input
                                         required
-                                        placeholder="Unique network handle"
+                                        placeholder="Enter username"
                                         className="pl-12 h-12 rounded-xl bg-slate-50 border-none font-bold text-sm focus-visible:ring-slate-900 transition-all placeholder:text-slate-300"
                                         value={formData.username}
                                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -102,7 +102,7 @@ export default function AdminSignupPage() {
 
                             <div className="grid grid-cols-1 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Security Token</Label>
+                                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Password</Label>
                                     <div className="relative group">
                                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
                                         <Input
@@ -116,7 +116,7 @@ export default function AdminSignupPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Verify Token</Label>
+                                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Confirm Password</Label>
                                     <div className="relative group">
                                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
                                         <Input
@@ -137,14 +137,14 @@ export default function AdminSignupPage() {
                             disabled={isLoading}
                             className="w-full h-14 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 transition-all active:scale-95 flex items-center justify-center gap-3"
                         >
-                            {isLoading ? "Provisioning..." : "Authorize Administrative Node"}
+                            {isLoading ? "Signing Up..." : "Sign Up"}
                             {!isLoading && <ArrowRight className="h-4 w-4" />}
                         </Button>
                     </form>
 
                     <div className="pt-8 border-t border-slate-50 text-center">
                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-relaxed px-4">
-                            This action will create a new institutional root account with global management permissions.
+                            This creates a new admin account with full access.
                         </p>
                     </div>
                 </CardContent>

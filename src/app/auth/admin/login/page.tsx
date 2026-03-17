@@ -42,21 +42,21 @@ export default function AdminLoginPage() {
             if (result?.error) {
                 toast({
                     title: "Access Denied",
-                    description: "Terminal rejection: Invalid institutional credentials.",
+                    description: "Invalid login details.",
                     variant: "destructive",
                 });
             } else {
                 router.push('/admin/dashboard');
                 toast({
-                    title: "System Authenticated",
-                    description: "Admin privileges granted. Redirecting to core...",
+                    title: "Success",
+                    description: "Logged in successfully. Redirecting...",
                 });
             }
         } catch (error) {
             console.error("Login error:", error);
             toast({
-                title: "Network Error",
-                description: "Critical system failure. Please try again.",
+                title: "Error",
+                description: "Something went wrong. Please try again.",
                 variant: "destructive",
             });
         } finally {
@@ -79,22 +79,22 @@ export default function AdminLoginPage() {
 
             if (res.ok) {
                 toast({
-                    title: "Registration Success",
-                    description: "Administrator account created. Please authorize access.",
+                    title: "Account Created",
+                    description: "Admin account created. Please log in.",
                 });
                 setActiveTab('login');
                 setUsername(formData.username);
             } else {
                 toast({
                     title: "Registration Failed",
-                    description: data.error || "Could not establish admin protocol.",
+                    description: data.error || "Could not create admin account.",
                     variant: "destructive",
                 });
             }
         } catch (error) {
             toast({
-                title: "System Error",
-                description: "Failed to connect to authentication server.",
+                title: "Error",
+                description: "Failed to connect.",
                 variant: "destructive",
             });
         } finally {
@@ -112,7 +112,7 @@ export default function AdminLoginPage() {
                 <div className="flex flex-col items-center mb-10 space-y-4">
                     <BrandLogo size={48} withText />
                     <div className="h-0.5 w-8 bg-slate-900/5 rounded-full" />
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] text-center">Administrative Secure Core</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] text-center">Admin Login</p>
                 </div>
 
                 {/* Tab Switcher */}
@@ -124,7 +124,7 @@ export default function AdminLoginPage() {
                             activeTab === 'login' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-500"
                         )}
                     >
-                        Sign In
+                        Log In
                     </button>
                     <button
                         onClick={() => setActiveTab('signup')}
@@ -133,17 +133,17 @@ export default function AdminLoginPage() {
                             activeTab === 'signup' ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-500"
                         )}
                     >
-                        Create Account
+                        Sign Up
                     </button>
                 </div>
 
                 <Card className="border-[0.5px] border-slate-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] bg-white/80 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
                     <CardHeader className="p-8 pb-4 text-center">
                         <CardTitle className="text-xl font-black text-slate-900 tracking-tight">
-                            {activeTab === 'login' ? "Security Protocol" : "Admin Registration"}
+                            {activeTab === 'login' ? "Admin Login" : "Admin Sign Up"}
                         </CardTitle>
                         <CardDescription className="text-slate-400 text-xs font-medium">
-                            {activeTab === 'login' ? "Verify credentials to bypass gatekeeper" : "Establish new administrative credentials"}
+                            {activeTab === 'login' ? "Enter your details to log in" : "Create a new admin account"}
                         </CardDescription>
                     </CardHeader>
 
@@ -151,7 +151,7 @@ export default function AdminLoginPage() {
                         {activeTab === 'login' ? (
                             <form onSubmit={handleLogin} className="space-y-5">
                                 <div className="space-y-2">
-                                    <Label htmlFor="username" className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Identity Token</Label>
+                                    <Label htmlFor="username" className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Username</Label>
                                     <div className="relative group">
                                         <Input
                                             id="username"
@@ -167,7 +167,7 @@ export default function AdminLoginPage() {
 
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center px-1">
-                                        <Label htmlFor="password" className="text-[10px] uppercase font-black tracking-widest text-slate-400">Access Key</Label>
+                                        <Label htmlFor="password" className="text-[10px] uppercase font-black tracking-widest text-slate-400">Password</Label>
                                         <Lock className="h-3 w-3 text-slate-200" />
                                     </div>
                                     <Input
@@ -193,7 +193,7 @@ export default function AdminLoginPage() {
                                         </>
                                     ) : (
                                         <>
-                                            Authorize Access <ArrowRight className="h-4 w-4" />
+                                            Log In <ArrowRight className="h-4 w-4" />
                                         </>
                                     )}
                                 </Button>
@@ -202,7 +202,7 @@ export default function AdminLoginPage() {
                             <form onSubmit={handleSignup} className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <Label className="text-[9px] uppercase font-black tracking-widest text-slate-400 px-1">Legal Name</Label>
+                                        <Label className="text-[9px] uppercase font-black tracking-widest text-slate-400 px-1">Full Name</Label>
                                         <Input
                                             placeholder="John Doe"
                                             value={formData.name}
@@ -212,7 +212,7 @@ export default function AdminLoginPage() {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-[9px] uppercase font-black tracking-widest text-slate-400 px-1">Identity ID</Label>
+                                        <Label className="text-[9px] uppercase font-black tracking-widest text-slate-400 px-1">Username</Label>
                                         <Input
                                             placeholder="adm_101"
                                             value={formData.username}
@@ -257,7 +257,7 @@ export default function AdminLoginPage() {
                                 </div>
 
                                 <div className="space-y-1">
-                                    <Label className="text-[9px] uppercase font-black tracking-widest text-slate-400 px-1">Secure Key</Label>
+                                    <Label className="text-[9px] uppercase font-black tracking-widest text-slate-400 px-1">Password</Label>
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
@@ -273,14 +273,14 @@ export default function AdminLoginPage() {
                                     className="w-full h-14 bg-slate-900 hover:bg-black text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-slate-200 transition-all active:scale-[0.98] mt-4"
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? "Provisioning..." : "Initialize Admin"}
+                                    {isLoading ? "Signing Up..." : "Sign Up"}
                                 </Button>
                             </form>
                         )}
 
                         <div className="mt-10 pt-8 border-t border-slate-50 text-center">
                             <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                                CampusSync Network Security © 2026
+                                CampusSync © 2026
                             </span>
                         </div>
                     </CardContent>
@@ -290,7 +290,7 @@ export default function AdminLoginPage() {
                 <div className="mt-8 flex justify-center gap-4 opacity-40">
                     <div className="flex items-center gap-1.5">
                         <div className="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
-                        <span className="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Database Connected</span>
+                        <span className="text-[9px] font-black uppercase text-slate-500 tracking-tighter">System Online</span>
                     </div>
                 </div>
             </div>
