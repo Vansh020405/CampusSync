@@ -152,9 +152,9 @@ export default function CampusDashboard() {
     return (
         <div className="w-full max-w-4xl mx-auto pb-32 px-4 md:px-8 py-6 md:py-10 space-y-8 animate-in fade-in duration-700">
             {/* Premium Header Card */}
-            <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-teal-500 via-emerald-600 to-green-700 p-5 md:p-8 shadow-2xl shadow-emerald-500/20">
-                <div className="absolute top-0 right-0 -m-8 h-64 w-64 rounded-full bg-white/10 blur-[80px]"></div>
-                <div className="absolute bottom-0 left-0 -m-8 h-48 w-48 rounded-full bg-black/10 blur-[60px]"></div>
+            <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-teal-500 via-emerald-600 to-green-700 dark:from-card dark:via-card dark:to-card dark:border dark:border-border p-5 md:p-8 shadow-2xl shadow-emerald-500/20 dark:shadow-black/20">
+                <div className="absolute top-0 right-0 -m-8 h-64 w-64 rounded-full bg-white/10 blur-[80px] dark:hidden"></div>
+                <div className="absolute bottom-0 left-0 -m-8 h-48 w-48 rounded-full bg-black/10 blur-[60px] dark:hidden"></div>
 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-2 md:space-y-4">
@@ -163,7 +163,7 @@ export default function CampusDashboard() {
                             <span className="text-[10px] font-black text-emerald-100 uppercase tracking-[0.3em]">Live</span>
                         </div>
                         <div>
-                            <h1 className="text-2xl md:text-5xl font-black text-white tracking-tight leading-none mb-2 md:mb-3">
+                            <h1 className="text-2xl md:text-5xl font-black text-white dark:text-foreground tracking-tight leading-none mb-2 md:mb-3">
                                 {studentData.name}
                             </h1>
                             <div className="flex items-center gap-3 text-emerald-50/80">
@@ -181,8 +181,8 @@ export default function CampusDashboard() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between px-2">
                     <div className="space-y-1">
-                        <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                            <Layout className="h-6 w-6 text-emerald-500" />
+                        <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-foreground tracking-tight flex items-center gap-2">
+                            <Layout className="h-6 w-6 text-emerald-500 dark:text-primary" />
                             Today's classes
                         </h2>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -215,66 +215,66 @@ export default function CampusDashboard() {
                                 style={{ animationDelay: `${idx * 100}ms` }}
                             >
                                 <div className={cn(
-                                    "absolute inset-0 bg-gradient-to-r rounded-[2rem] blur-xl opacity-0 group-hover:opacity-1 transition-opacity",
+                                    "absolute inset-0 bg-gradient-to-r rounded-[2rem] blur-xl opacity-0 group-hover:opacity-1 transition-opacity dark:hidden",
                                     cls.status === "Live" ? "from-emerald-400 to-teal-400 opacity-20" :
                                         cls.status === "Next Up" ? "from-indigo-400 to-blue-400 opacity-10" : "from-slate-200 to-indigo-100"
                                 )}></div>
 
                                 <Card className={cn(
-                                    "relative border-0 rounded-[2rem] shadow-sm group-hover:shadow-xl transition-all overflow-hidden",
-                                    cls.status === "Live" ? "ring-2 ring-emerald-500 shadow-lg shadow-emerald-500/10" :
-                                        cls.status === "Next Up" ? "ring-2 ring-indigo-500/20" : ""
+                                    "relative border-0 dark:border dark:border-border dark:bg-card rounded-[1.5rem] transition-all overflow-hidden shadow-sm dark:shadow-none",
+                                    cls.status === "Live" ? "ring-2 ring-emerald-500 dark:ring-primary" :
+                                        cls.status === "Next Up" ? "ring-1 ring-indigo-500/20 dark:ring-border" : ""
                                 )}>
-                                    <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                                        <div className="flex items-center gap-5">
+                                    <div className="p-4 md:p-5 flex flex-col gap-4">
+                                        {/* Top Row: Icon and Subject */}
+                                        <div className="flex items-center gap-4">
                                             <div className={cn(
-                                                "h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:rotate-6",
+                                                "h-12 w-12 rounded-[1rem] flex items-center justify-center shrink-0 transition-all duration-300",
                                                 cls.status === "Live"
-                                                    ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-200"
+                                                    ? "bg-emerald-500 dark:bg-primary text-white dark:text-primary-foreground"
                                                     : cls.status === "Next Up"
-                                                        ? "bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-indigo-200"
-                                                        : "bg-slate-100 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500"
+                                                        ? "bg-indigo-500 dark:bg-secondary text-white dark:text-foreground"
+                                                        : "bg-slate-100 dark:bg-muted/50 text-slate-400 dark:text-muted-foreground"
                                             )}>
-                                                {cls.status === "Completed" ? <CheckCircle2 className="h-7 w-7" /> : <BookOpen className="h-7 w-7" />}
+                                                {cls.status === "Completed" ? <CheckCircle2 className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}
                                             </div>
-                                            <div className="space-y-1">
+                                            <div className="space-y-1 min-w-0">
                                                 <h3 className={cn(
-                                                    "text-lg font-black tracking-tight transition-colors",
-                                                    cls.status === "Live" ? "text-emerald-600" : "text-slate-800"
+                                                    "text-base md:text-lg font-black tracking-tight truncate",
+                                                    cls.status === "Live" ? "text-emerald-600 dark:text-primary" : "text-slate-800 dark:text-foreground"
                                                 )}>
                                                     {cls.subject}
                                                 </h3>
-                                                <div className="flex flex-wrap items-center gap-3 text-slate-400 font-bold">
-                                                    <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                                                <div className="flex flex-wrap items-center gap-3 text-slate-400 dark:text-muted-foreground font-bold">
+                                                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide">
                                                         <Clock className="h-3.5 w-3.5" />
                                                         {cls.time}
                                                     </div>
-                                                    <div className="h-1 w-1 rounded-full bg-slate-200 hidden md:block" />
-                                                    <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                                                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide">
                                                         <MapPin className="h-3.5 w-3.5" />
-                                                        Room {cls.room}
+                                                        ROOM {cls.room}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-4 md:pt-0">
-                                            <div className="flex flex-col md:items-end">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Faculty</p>
-                                                <p className="text-xs font-bold text-slate-800">{cls.faculty}</p>
+                                        {/* Bottom Row: Faculty and Actions */}
+                                        <div className="flex items-center justify-between border-t border-slate-100 dark:border-border/50 pt-4">
+                                            <div className="flex flex-col">
+                                                <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest">Faculty</p>
+                                                <p className="text-[11px] font-bold text-slate-800 dark:text-foreground/80">{cls.faculty}</p>
                                             </div>
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-2.5">
                                                 <Badge className={cn(
-                                                    "rounded-xl px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.1em] border-0",
-                                                    cls.status === "Live" ? "bg-emerald-500 text-white animate-pulse" :
-                                                        cls.status === "Next Up" ? "bg-indigo-500 text-white" :
-                                                            cls.status === "Completed" ? "bg-slate-200 text-slate-500" :
-                                                                "bg-slate-100 text-slate-500"
+                                                    "rounded-xl px-3 py-1 text-[9px] font-black uppercase tracking-[0.1em] border-0 shadow-none",
+                                                    cls.status === "Live" ? "bg-emerald-500 dark:bg-primary text-white dark:text-primary-foreground animate-pulse" :
+                                                        cls.status === "Next Up" ? "bg-indigo-500 dark:bg-secondary text-white dark:text-foreground" :
+                                                            "bg-slate-100 dark:bg-muted/50 text-slate-500 dark:text-muted-foreground"
                                                 )}>
                                                     {cls.status}
                                                 </Badge>
-                                                <Link href={`/student/classes/${cls.id}`} className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100">
-                                                    <ChevronRight className="h-5 w-5" />
+                                                <Link href={`/student/classes/${cls.id}`} className="h-8 w-8 rounded-full bg-slate-50 dark:bg-muted/80 flex items-center justify-center text-slate-400 dark:text-muted-foreground hover:bg-slate-200 dark:hover:bg-muted transition-colors">
+                                                    <ChevronRight className="h-4 w-4" />
                                                 </Link>
                                             </div>
                                         </div>
@@ -284,7 +284,7 @@ export default function CampusDashboard() {
                         ))}
                     </div>
                 ) : (
-                    <Card className="border-0 rounded-[2.5rem] bg-slate-50/50 border-dashed border-2 border-slate-200">
+                    <Card className="border-0 rounded-[2.5rem] bg-slate-50/50 dark:bg-card border-dashed border-2 border-slate-200 dark:border-border">
                         <CardContent className="py-20 flex flex-col items-center justify-center text-center space-y-4">
                             <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center shadow-lg">
                                 <Sparkles className="h-8 w-8 text-slate-300" />
@@ -308,8 +308,8 @@ export default function CampusDashboard() {
                         </h2>
                     </div>
                     {attendanceStats.some(s => s.percentage < 75) && (
-                        <div className="bg-rose-50 border border-rose-100 rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 flex flex-col md:flex-row items-center gap-4 md:gap-6 animate-in slide-in-from-top-4 duration-500 shadow-sm">
-                            <div className="h-12 w-12 md:h-16 md:w-16 rounded-[1rem] md:rounded-[1.5rem] bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-200 shrink-0">
+                        <div className="bg-rose-50 dark:bg-card border border-rose-100 dark:border-rose-900/50 rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 flex flex-col md:flex-row items-center gap-4 md:gap-6 animate-in slide-in-from-top-4 duration-500 shadow-sm dark:shadow-black/20">
+                            <div className="h-12 w-12 md:h-16 md:w-16 rounded-[1rem] md:rounded-[1.5rem] bg-rose-500 dark:bg-rose-900/80 text-white flex items-center justify-center shadow-lg shadow-rose-200 dark:shadow-none shrink-0">
                                 <AlertTriangle className="h-6 w-6 md:h-8 md:w-8" />
                             </div>
                             <div className="flex-1 text-center md:text-left">
@@ -317,28 +317,28 @@ export default function CampusDashboard() {
                                     <Sparkles className="h-3 w-3 text-rose-400" />
                                     <p className="text-[9px] font-black text-rose-400 uppercase tracking-[0.2em]">Priority Protocol • AI Analysis</p>
                                 </div>
-                                <h3 className="text-base md:text-lg font-black text-rose-900 leading-tight">
+                                <h3 className="text-base md:text-lg font-black text-rose-900 dark:text-rose-100 leading-tight">
                                     Attendance Deficit Detected
                                 </h3>
-                                <p className="text-xs md:text-sm font-bold text-rose-700/80 mt-1">
-                                    <span className="text-rose-900">{attendanceStats.filter(s => s.percentage < 75).length} subjects</span> are below 75%.
+                                <p className="text-xs md:text-sm font-bold text-rose-700/80 dark:text-rose-200/70 mt-1">
+                                    <span className="text-rose-900 dark:text-rose-50">{attendanceStats.filter(s => s.percentage < 75).length} subjects</span> are below 75%.
                                 </p>
                             </div>
                             <Link href="/student/attendance" className="w-full md:w-auto">
-                                <Button size="sm" className="w-full md:w-auto rounded-xl md:rounded-2xl bg-rose-900 text-white hover:bg-rose-800 px-6 font-black text-[9px] uppercase tracking-widest h-10 md:h-14 shadow-xl shadow-rose-100">
+                                <Button size="sm" className="w-full md:w-auto rounded-xl md:rounded-2xl bg-rose-900 text-white hover:bg-rose-800 px-6 font-black text-[9px] uppercase tracking-widest h-10 md:h-14 shadow-xl shadow-rose-100 dark:shadow-none">
                                     Recovery Strategy
                                 </Button>
                             </Link>
                         </div>
                     )}
                     {liveMessage && (
-                        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl md:rounded-3xl p-4 md:p-5 flex items-center gap-4 animate-in slide-in-from-top-4 duration-500">
-                            <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-200 shrink-0">
+                        <div className="bg-indigo-50 dark:bg-card border border-indigo-100 dark:border-border rounded-2xl md:rounded-3xl p-4 md:p-5 flex items-center gap-4 animate-in slide-in-from-top-4 duration-500 dark:shadow-black/20 shadow-sm">
+                            <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-indigo-500 dark:bg-secondary text-white dark:text-foreground flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none shrink-0">
                                 <Zap className="h-5 w-5 md:h-6 md:w-6" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-0.5">Live from {liveMessage.sender}</p>
-                                <p className="text-xs md:text-sm font-bold text-indigo-900 line-clamp-1 md:line-clamp-2">{liveMessage.message}</p>
+                                <p className="text-[9px] font-black text-indigo-400 dark:text-primary uppercase tracking-widest mb-0.5">Live from {liveMessage.sender}</p>
+                                <p className="text-xs md:text-sm font-bold text-indigo-900 dark:text-foreground line-clamp-1 md:line-clamp-2">{liveMessage.message}</p>
                             </div>
                             <div className="text-[9px] font-black text-indigo-300 uppercase shrink-0">{liveMessage.time}</div>
                         </div>
@@ -357,22 +357,22 @@ export default function CampusDashboard() {
                         Schedule
                     </Link>
                 </div>
-                <div className="bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 shadow-sm overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 h-32 w-32 bg-sky-50 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-sky-100 transition-colors" />
+                <div className="bg-white dark:bg-card border border-slate-100 dark:border-border rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 shadow-sm dark:shadow-black/20 overflow-hidden relative group">
+                    <div className="absolute top-0 right-0 h-32 w-32 bg-sky-50 dark:hidden rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-sky-100 transition-colors" />
                     <div className="relative flex flex-col md:flex-row items-center gap-4 md:gap-6">
                         <div className="h-12 w-12 md:h-16 md:w-16 rounded-[1rem] md:rounded-[1.5rem] bg-sky-100 text-sky-600 flex items-center justify-center shadow-inner shrink-0">
                             <Clock className="h-6 w-6 md:h-8 md:w-8" />
                         </div>
                         <div className="flex-1 text-center md:text-left">
-                            <h3 className="text-base md:text-lg font-black text-slate-900 leading-tight uppercase">
+                            <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-foreground leading-tight uppercase">
                                 Season of Knowledge
                             </h3>
-                            <p className="text-xs md:text-sm font-bold text-slate-500 mt-1">
+                            <p className="text-xs md:text-sm font-bold text-slate-500 dark:text-muted-foreground mt-1">
                                 End-Sem exams are approaching.
                             </p>
                         </div>
                         <Link href="/student/exams" className="w-full md:w-auto">
-                            <Button size="sm" className="w-full md:w-auto rounded-xl md:rounded-2xl bg-sky-600 text-white hover:bg-sky-700 px-6 font-black text-[9px] uppercase tracking-widest h-10 md:h-14 shadow-xl shadow-sky-100">
+                            <Button size="sm" className="w-full md:w-auto rounded-xl md:rounded-2xl bg-sky-600 dark:bg-sky-700 text-white hover:bg-sky-700 px-6 font-black text-[9px] uppercase tracking-widest h-10 md:h-14 shadow-xl shadow-sky-100 dark:shadow-none">
                                 Open Portal
                             </Button>
                         </Link>
@@ -391,19 +391,19 @@ export default function CampusDashboard() {
                     </h2>
                 </div>
 
-                <Card className="border-0 rounded-[2.5rem] bg-indigo-50/50 border-2 border-dashed border-indigo-100/50 overflow-hidden">
+                <Card className="border-0 rounded-[2.5rem] bg-indigo-50/50 dark:bg-card border-2 border-dashed border-indigo-100/50 dark:border-border overflow-hidden dark:shadow-none">
                     <CardContent className="p-8">
                         {liveMessage ? (
                             <div className="flex flex-col md:flex-row gap-6 items-start">
-                                <div className="h-14 w-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200">
+                                <div className="h-14 w-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200 dark:shadow-none">
                                     <Zap className="h-7 w-7" />
                                 </div>
                                 <div className="space-y-3 flex-1">
                                     <div className="flex items-center justify-between">
-                                        <p className="text-xs font-black text-indigo-400 uppercase tracking-widest">Incoming from {liveMessage.sender}</p>
-                                        <Badge className="bg-indigo-100 text-indigo-600 border-0 text-[10px] font-black uppercase tracking-widest px-3 py-1">{liveMessage.time}</Badge>
+                                        <p className="text-xs font-black text-indigo-400 dark:text-primary uppercase tracking-widest">Incoming from {liveMessage.sender}</p>
+                                        <Badge className="bg-indigo-100 text-indigo-600 dark:bg-secondary dark:text-foreground border-0 text-[10px] font-black uppercase tracking-widest px-3 py-1">{liveMessage.time}</Badge>
                                     </div>
-                                    <p className="text-xl font-bold text-slate-800 leading-snug">
+                                    <p className="text-xl font-bold text-slate-800 dark:text-foreground leading-snug">
                                         "{liveMessage.message}"
                                     </p>
                                     <div className="pt-4 flex items-center gap-4">

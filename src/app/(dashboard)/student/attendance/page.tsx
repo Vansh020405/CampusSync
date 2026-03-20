@@ -3,7 +3,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, BookOpen, AlertCircle, ChevronRight, Sparkles, Calendar, Loader2, CheckCircle, XCircle, Palmtree } from "lucide-react";
+import { Clock, BookOpen, AlertCircle, ChevronRight, Sparkles, Calendar, Loader2, CheckCircle, XCircle, Palmtree, Plus } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
@@ -139,12 +146,12 @@ export default function StudentAttendancePage() {
     }
 
     return (
-        <div className="max-w-xl mx-auto space-y-6 pb-20 animate-in fade-in duration-500 font-sans">
+        <div className="max-w-2xl mx-auto space-y-8 pb-24 animate-in fade-in duration-500 font-sans px-2">
             {/* Journal Header */}
             <div className="px-1 py-6 flex items-start justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">{(session?.user as any)?.name}</h1>
-                    <p className="text-[13px] text-slate-400 font-medium mt-1">Section {(session?.user as any)?.section || '4G2'} • Attendence Portal</p>
+                    <h1 className="text-3xl font-bold text-slate-800 dark:text-foreground tracking-tight">{(session?.user as any)?.name}</h1>
+                    <p className="text-[13px] text-slate-400 dark:text-muted-foreground font-medium mt-1">Section {(session?.user as any)?.section || '4G2'} • Attendence Portal</p>
                 </div>
                 <div className="pt-2">
                     <Clock className="h-6 w-6 text-slate-300 stroke-[1.5px]" />
@@ -153,7 +160,7 @@ export default function StudentAttendancePage() {
 
             {/* Global AI Protocol Briefing */}
             {subjects.some(s => s.percentage < 75) && (
-                <div className="mx-1 p-6 rounded-[2.5rem] bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-xl shadow-indigo-200 relative overflow-hidden group">
+                <div className="p-6 rounded-[2.5rem] bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-xl shadow-indigo-200 dark:shadow-none relative overflow-hidden group">
                     <div className="absolute top-0 right-0 -m-8 h-32 w-32 rounded-full bg-white/10 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
                     <div className="relative z-10 space-y-4">
                         <div className="flex items-center gap-3">
@@ -182,8 +189,8 @@ export default function StudentAttendancePage() {
                         <Card
                             key={subject.name}
                             className={cn(
-                                "border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] bg-white rounded-[2rem] overflow-hidden transition-all duration-300",
-                                isExpanded ? "ring-1 ring-slate-100" : ""
+                                "border-0 dark:border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none bg-white dark:bg-card rounded-[2.5rem] overflow-hidden transition-all duration-300",
+                                isExpanded ? "scale-[1.01]" : ""
                             )}
                         >
                             <CardContent
@@ -192,14 +199,14 @@ export default function StudentAttendancePage() {
                             >
                                 <div className="p-6 flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-14 w-14 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 border border-slate-100">
-                                            <BookOpen className="h-6 w-6 text-slate-400" />
+                                        <div className="h-14 w-14 bg-slate-50 dark:bg-muted rounded-2xl flex items-center justify-center shrink-0 border border-slate-100 dark:border-border">
+                                            <BookOpen className="h-6 w-6 text-slate-400 dark:text-muted-foreground" />
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold text-slate-800 tracking-tight">
+                                            <h3 className="text-xl font-bold text-slate-800 dark:text-foreground tracking-tight">
                                                 {shortName}
                                             </h3>
-                                            <p className="text-[13px] font-medium text-slate-400 mt-0.5">
+                                            <p className="text-[13px] font-medium text-slate-400 dark:text-muted-foreground mt-0.5">
                                                 {subject.attended}/{subject.total} Classes
                                             </p>
                                         </div>
@@ -207,10 +214,10 @@ export default function StudentAttendancePage() {
 
                                     <div className="flex items-center gap-4">
                                         <div className="text-right flex flex-col items-end">
-                                            <div className="text-xl font-bold text-slate-900 leading-none mb-2">
+                                            <div className="text-xl font-bold text-slate-900 dark:text-foreground leading-none mb-2">
                                                 {subject.percentage.toFixed(0)}%
                                             </div>
-                                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                            <div className="w-16 h-1.5 bg-slate-100 dark:bg-muted rounded-full overflow-hidden">
                                                 <div
                                                     className={cn(
                                                         "h-full rounded-full transition-all duration-1000",
@@ -242,11 +249,11 @@ export default function StudentAttendancePage() {
                                                 <div className={cn(
                                                     "mb-6 p-4 rounded-2xl flex items-start gap-4 ring-1",
                                                     subject.percentage < 75
-                                                        ? "bg-indigo-50/50 border border-indigo-100/50 ring-indigo-500/10"
-                                                        : "bg-emerald-50/50 border border-emerald-100/50 ring-emerald-500/10"
+                                                        ? "bg-indigo-50/50 dark:bg-indigo-500/10 border border-indigo-100/50 dark:border-indigo-500/20 ring-indigo-500/10"
+                                                        : "bg-emerald-50/50 dark:bg-emerald-500/10 border border-emerald-100/50 dark:border-emerald-500/20 ring-emerald-500/10"
                                                 )}>
                                                     <div className={cn(
-                                                        "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg",
+                                                        "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg dark:shadow-none",
                                                         subject.percentage < 75
                                                             ? "bg-indigo-500 text-white shadow-indigo-200"
                                                             : "bg-emerald-500 text-white shadow-emerald-200"
@@ -256,13 +263,13 @@ export default function StudentAttendancePage() {
                                                     <div className="space-y-1">
                                                         <p className={cn(
                                                             "text-[10px] font-black uppercase tracking-[0.2em] leading-none",
-                                                            subject.percentage < 75 ? "text-indigo-400" : "text-emerald-500"
+                                                            subject.percentage < 75 ? "text-indigo-400 dark:text-indigo-300" : "text-emerald-500 dark:text-emerald-400"
                                                         )}>
                                                             Intelligence • {subject.percentage < 75 ? "Recovery Plan" : "Safety Margin"}
                                                         </p>
                                                         <p className={cn(
                                                             "text-[13px] font-bold leading-tight",
-                                                            subject.percentage < 75 ? "text-indigo-900" : "text-emerald-900"
+                                                            subject.percentage < 75 ? "text-indigo-900 dark:text-indigo-100" : "text-emerald-900 dark:text-emerald-100"
                                                         )}>
                                                             {insight}
                                                         </p>
@@ -271,8 +278,8 @@ export default function StudentAttendancePage() {
                                             );
                                         })()}
 
-                                        <div className="space-y-3 pt-2 border-t border-slate-50">
-                                            <p className="text-[11px] font-bold text-slate-300 uppercase tracking-[0.15em] mb-4">Historical Logs</p>
+                                        <div className="space-y-3 pt-2 border-t border-slate-50 dark:border-border">
+                                            <p className="text-[11px] font-bold text-slate-300 dark:text-muted-foreground uppercase tracking-[0.15em] mb-4">Historical Logs</p>
                                             <div className="space-y-4">
                                                 {subjectRecords.map((record, idx) => (
                                                     <div key={idx} className="flex items-center justify-between">
@@ -282,17 +289,17 @@ export default function StudentAttendancePage() {
                                                                 record.status === 'PRESENT' ? "bg-[#0D9488]" : "bg-red-500"
                                                             )} />
                                                             <div>
-                                                                <p className="text-[13px] font-bold text-slate-700">
+                                                                <p className="text-[13px] font-bold text-slate-700 dark:text-foreground">
                                                                     {new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                                 </p>
-                                                                <p className="text-[11px] text-slate-400 font-medium mt-0.5 leading-none">
+                                                                <p className="text-[11px] text-slate-400 dark:text-muted-foreground font-medium mt-0.5 leading-none">
                                                                     Prof. {record.faculty?.name || "Faculty"}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                         <Badge className={cn(
                                                             "text-[10px] font-bold px-3 py-1 rounded-full border-none shadow-none",
-                                                            record.status === 'PRESENT' ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                                                            record.status === 'PRESENT' ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
                                                         )}>
                                                             {record.status}
                                                         </Badge>
@@ -308,122 +315,151 @@ export default function StudentAttendancePage() {
                 })}
             </div>
 
-            {/* Leave Application Section */}
+            {/* Leave Application & History Section */}
             <div className="space-y-6 pt-6">
-                <div>
-                    <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
-                        <Palmtree className="h-5 w-5 text-amber-500" /> Medical Leave Form
-                    </h2>
-                    <p className="text-[13px] text-slate-400 font-medium mt-1">Submit formal requests to your designated mentor</p>
-                </div>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-xl font-bold text-slate-800 dark:text-foreground tracking-tight flex items-center gap-2">
+                            <Palmtree className="h-5 w-5 text-amber-500" /> Digital Absence Ledger
+                        </h2>
+                        <p className="text-[13px] text-slate-400 dark:text-muted-foreground font-medium mt-1">Formalize your absence through institutional channels</p>
+                    </div>
 
-                <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] overflow-hidden">
-                    <form onSubmit={handleApplyLeave} className="p-6 space-y-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Commencement Date</label>
-                                <input
-                                    type="date"
-                                    required
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
-                                    value={leaveForm.fromDate}
-                                    onChange={(e) => setLeaveForm(prev => ({ ...prev, fromDate: e.target.value }))}
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Resumption Date</label>
-                                <input
-                                    type="date"
-                                    required
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
-                                    value={leaveForm.toDate}
-                                    onChange={(e) => setLeaveForm(prev => ({ ...prev, toDate: e.target.value }))}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Reason</label>
-                            <textarea
-                                required
-                                rows={3}
-                                placeholder="State the exact nature of your absence..."
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all resize-none"
-                                value={leaveForm.reason}
-                                onChange={(e) => setLeaveForm(prev => ({ ...prev, reason: e.target.value }))}
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1 flex items-center justify-between">
-                                <span>Medical Certificate (Optional)</span>
-                                {leaveForm.documentUrl && <span className="text-emerald-500 flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Attached</span>}
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type="file"
-                                    accept=".jpg,.jpeg,.png,.pdf"
-                                    onChange={handleFileUpload}
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    disabled={isUploading}
-                                />
-                                <div className={cn(
-                                    "w-full bg-slate-50 border border-slate-200 border-dashed rounded-xl px-4 py-3 text-sm font-bold text-slate-500 flex items-center justify-center gap-2 transition-all",
-                                    isUploading ? "opacity-50" : "hover:bg-slate-100 hover:border-slate-300"
-                                )}>
-                                    {isUploading ? (
-                                        <><Loader2 className="h-4 w-4 animate-spin text-amber-500" /> Processing file...</>
-                                    ) : leaveForm.documentUrl ? (
-                                        <><CheckCircle className="h-4 w-4 text-emerald-500" /> Document Ready</>
-                                    ) : (
-                                        <>Upload Document (.PDF, .JPG)</>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            disabled={isSubmittingLeave}
-                            className="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-12 font-black tracking-widest uppercase text-xs shadow-[0_4px_14px_0_rgba(245,158,11,0.39)] transition-all active:scale-[0.98]"
-                        >
-                            {isSubmittingLeave ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "SUBMIT"}
-                        </Button>
-                    </form>
-
-                    {leaves.length > 0 && (
-                        <div className="border-t border-slate-100 bg-slate-50/50 p-6 space-y-4">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Leave History</h3>
-                            {leaves.map((leave, idx) => (
-                                <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-slate-100">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                                            <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">
-                                                {new Date(leave.fromDate).toLocaleDateString()} — {new Date(leave.toDate).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm font-medium text-slate-500 italic max-w-sm truncate">"{leave.reason}"</p>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className="rounded-2xl bg-slate-900 dark:bg-card border border-slate-100 dark:border-border text-white dark:text-foreground hover:bg-slate-800 dark:hover:bg-secondary px-6 font-black text-[10px] uppercase tracking-widest h-12 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all active:scale-95 flex items-center gap-2">
+                                <Plus className="h-4 w-4" /> Apply for Leave
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-[92%] max-w-md bg-white dark:bg-[#151515] border-0 rounded-[2.5rem] p-0 shadow-2xl overflow-hidden focus:outline-none">
+                            <DialogHeader className="p-7 md:p-10 bg-slate-50 dark:bg-white/5 border-0">
+                                <DialogTitle className="text-2xl font-black text-slate-900 dark:text-foreground tracking-tight flex items-center gap-3">
+                                    <div className="h-10 w-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-200 dark:shadow-none">
+                                        <Palmtree className="h-6 w-6" />
                                     </div>
-                                    <div className="shrink-0 flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
-                                        <div className="text-right">
-                                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">mentor</p>
-                                            <p className="text-xs font-bold text-slate-600">{leave.faculty?.name || 'Mentor'}</p>
-                                        </div>
-                                        <Badge className={cn(
-                                            "border-none shadow-none text-[10px] font-bold uppercase tracking-widest px-3 py-1",
-                                            leave.status === 'APPROVED' ? "bg-emerald-50 text-emerald-600" :
-                                                leave.status === 'REJECTED' ? "bg-red-50 text-red-600" :
-                                                    "bg-amber-50 text-amber-600 hover:bg-amber-100"
+                                    Leave Application
+                                </DialogTitle>
+                            </DialogHeader>
+                            <form onSubmit={handleApplyLeave} className="p-7 md:p-10 space-y-7">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-muted-foreground ml-1">Commencement</label>
+                                        <input
+                                            type="date"
+                                            required
+                                            className="w-full bg-slate-100 dark:bg-white/5 border-0 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-foreground outline-none focus:ring-0 focus:bg-slate-200 dark:focus:bg-white/10 transition-all"
+                                            value={leaveForm.fromDate}
+                                            onChange={(e) => setLeaveForm(prev => ({ ...prev, fromDate: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-muted-foreground ml-1">Resumption</label>
+                                        <input
+                                            type="date"
+                                            required
+                                            className="w-full bg-slate-100 dark:bg-white/5 border-0 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 dark:text-foreground outline-none focus:ring-0 focus:bg-slate-200 dark:focus:bg-white/10 transition-all"
+                                            value={leaveForm.toDate}
+                                            onChange={(e) => setLeaveForm(prev => ({ ...prev, toDate: e.target.value }))}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-muted-foreground ml-1">Primary Justification</label>
+                                    <textarea
+                                        required
+                                        rows={3}
+                                        placeholder="State the nature of your absence..."
+                                        className="w-full bg-slate-100 dark:bg-white/5 border-0 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 dark:text-foreground outline-none focus:ring-0 focus:bg-slate-200 dark:focus:bg-white/10 transition-all resize-none"
+                                        value={leaveForm.reason}
+                                        onChange={(e) => setLeaveForm(prev => ({ ...prev, reason: e.target.value }))}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-muted-foreground ml-1 flex items-center justify-between">
+                                        <span>Supporting Evidence</span>
+                                        {leaveForm.documentUrl && <span className="text-emerald-500 flex items-center gap-1 font-black underline underline-offset-4 decoration-2">Verified</span>}
+                                    </label>
+                                    <div className="relative group/upload">
+                                        <input
+                                            type="file"
+                                            accept=".jpg,.jpeg,.png,.pdf"
+                                            onChange={handleFileUpload}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                            disabled={isUploading}
+                                        />
+                                        <div className={cn(
+                                            "w-full bg-slate-100 dark:bg-white/5 border-0 rounded-2xl px-4 py-4 text-xs font-black text-slate-400 dark:text-muted-foreground flex items-center justify-center gap-3 transition-all group-hover/upload:bg-slate-200 dark:group-hover/upload:bg-white/10",
+                                            isUploading && "opacity-50"
                                         )}>
-                                            {leave.status}
-                                        </Badge>
+                                            {isUploading ? (
+                                                <><Loader2 className="h-4 w-4 animate-spin text-amber-500" /> Processing...</>
+                                            ) : leaveForm.documentUrl ? (
+                                                <><CheckCircle className="h-4 w-4 text-emerald-500" /> File Attached</>
+                                            ) : (
+                                                <><Plus className="h-4 w-4" /> Upload Document</>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
+
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmittingLeave}
+                                    className="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-2xl h-14 font-black tracking-[0.2em] uppercase text-xs shadow-xl shadow-amber-200 dark:shadow-none transition-all active:scale-[0.98] mt-4"
+                                >
+                                    {isSubmittingLeave ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Authorize Request"}
+                                </Button>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
                 </div>
+
+                {leaves.length > 0 ? (
+                    <div className="bg-white dark:bg-card rounded-[3rem] border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none overflow-hidden">
+                        <div className="p-8 md:p-10 space-y-6">
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 dark:text-muted-foreground mb-8">Historical Context</h3>
+                            <div className="grid gap-5">
+                                {leaves.map((leave, idx) => (
+                                    <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-5 p-6 md:p-8 bg-slate-50/50 dark:bg-secondary/20 rounded-[2.5rem] border-0 group hover:bg-white dark:hover:bg-card transition-all duration-500">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 rounded-xl bg-white dark:bg-card border border-slate-200 dark:border-border flex items-center justify-center">
+                                                    <Calendar className="h-4 w-4 text-slate-400" />
+                                                </div>
+                                                <span className="text-xs font-black text-slate-700 dark:text-foreground uppercase tracking-wider">
+                                                    {new Date(leave.fromDate).toLocaleDateString()} — {new Date(leave.toDate).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p className="text-[13px] font-medium text-slate-500 dark:text-muted-foreground italic truncate max-w-[280px]">"{leave.reason}"</p>
+                                        </div>
+                                        <div className="shrink-0 flex items-center justify-between md:justify-end gap-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-border">
+                                            <div className="text-right">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-slate-300 dark:text-muted-foreground">Authorized By</p>
+                                                <p className="text-[11px] font-bold text-slate-600 dark:text-foreground">{leave.faculty?.name || 'Mentor'}</p>
+                                            </div>
+                                            <Badge className={cn(
+                                                "border-none shadow-none text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl",
+                                                leave.status === 'APPROVED' ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" :
+                                                    leave.status === 'REJECTED' ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400" :
+                                                        "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                                            )}>
+                                                {leave.status}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="p-12 text-center rounded-[2.5rem] border-2 border-dashed border-slate-100 dark:border-border bg-slate-50/50 dark:bg-card/50">
+                        <Palmtree className="h-12 w-12 text-slate-200 mx-auto mb-4" />
+                        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">No Leave Records</h3>
+                        <p className="text-[11px] text-slate-300 mt-1">Your absence ledger is currently empty.</p>
+                    </div>
+                )}
             </div>
 
             {/* Quick Note Card */}

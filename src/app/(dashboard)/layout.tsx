@@ -20,6 +20,8 @@ import {
 import { BottomNav } from "@/components/BottomNav"
 import { Clock } from "@/components/Clock"
 import { PlacementMentorChat } from "@/components/chat/PlacementMentorChat"
+import { ThemeToggle } from "@/components/ThemeToggle"
+import { BrandLogo } from "@/components/brand/Logo"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { data: session, status } = useSession()
@@ -44,22 +46,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (status === "unauthenticated") return null
 
     return (
-        <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
+        <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-background">
             {/* Top Navbar - Optimized for Mobile */}
-            <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
-                <div className="relative flex h-16 md:h-20 items-center justify-between px-4 md:px-6">
+            <header className="sticky top-0 z-40 w-full bg-white/80 dark:bg-background/80 backdrop-blur-md border-b border-slate-100 dark:border-border">
+                <div className="flex h-16 items-center justify-between px-3 md:px-6 gap-2">
                     {/* Left: Logo Tag */}
-                    <div className="flex items-center shrink-0">
-                        <div className="ml-2">
-                            <span className="text-xl font-black tracking-tighter italic text-slate-900 leading-none">
-                                Campus<span className="text-teal-600 not-italic">Sync</span>
-                            </span>
-                        </div>
+                    <div className="flex items-center shrink-0 w-auto">
+                        <BrandLogo size={32} withText className="ml-1 md:ml-2 scale-90 md:scale-100 origin-left" />
                     </div>
 
                     {/* Center: Mode Switcher Pill */}
                     {!isAdmin && session?.user?.role !== 'FACULTY' && !pathname.startsWith('/admin') && (
-                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <div className="flex-1 flex justify-center w-full max-w-[200px] sm:max-w-none">
                             <ModeToggle />
                         </div>
                     )}
@@ -71,28 +69,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-all">
+                                <Button variant="ghost" size="icon" className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-slate-50 dark:bg-card border border-slate-100 dark:border-border hover:bg-slate-100 dark:hover:bg-secondary transition-all">
                                     <User className="h-4 w-4 md:h-5 md:w-5 text-slate-400" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] border-slate-100 shadow-2xl p-2 mt-2">
-                                <DropdownMenuLabel className="px-4 py-3">
+                            <DropdownMenuContent align="end" className="w-64 rounded-[2.5rem] bg-white dark:bg-card border-slate-100 dark:border-border shadow-2xl p-2 mt-2 overflow-hidden">
+                                <DropdownMenuLabel className="px-5 py-4">
                                     <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-bold text-slate-800">{session?.user?.name}</p>
-                                        <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider truncate">{session?.user?.email}</p>
+                                        <p className="text-base font-black text-slate-900 dark:text-foreground tracking-tight">{session?.user?.name}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 dark:text-muted-foreground uppercase tracking-[0.15em] truncate">{session?.user?.email}</p>
                                     </div>
                                 </DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-slate-50" />
-                                <DropdownMenuItem onClick={() => router.push('/home')} className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-tight text-slate-600 hover:text-slate-900 transition-colors">
-                                    Dashboard
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => router.push('/student/profile')} className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-tight text-slate-600 hover:text-slate-900 transition-colors">
-                                    Profile Settings
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })} className="text-red-500 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-tight hover:bg-red-50 transition-colors">
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    Sign Out
-                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="bg-slate-50 dark:bg-border mx-2" />
+                                <div className="p-1 space-y-1">
+                                    <DropdownMenuItem onClick={() => router.push('/home')} className="rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest text-slate-600 dark:text-muted-foreground hover:bg-slate-50 dark:hover:bg-muted hover:text-slate-900 dark:hover:text-foreground transition-all cursor-pointer">
+                                        Dashboard
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => router.push('/student/profile')} className="rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest text-slate-600 dark:text-muted-foreground hover:bg-slate-50 dark:hover:bg-muted hover:text-slate-900 dark:hover:text-foreground transition-all cursor-pointer">
+                                        Profile
+                                    </DropdownMenuItem>
+                                </div>
+                                <DropdownMenuSeparator className="bg-slate-50 dark:bg-border mx-2" />
+                                <div className="p-1">
+                                    <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })} className="text-rose-500 dark:text-rose-400 rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all cursor-pointer flex items-center gap-3">
+                                        <LogOut className="h-4 w-4" />
+                                        Sign Out
+                                    </DropdownMenuItem>
+                                </div>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>

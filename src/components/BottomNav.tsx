@@ -73,7 +73,7 @@ export function BottomNav() {
     }
 
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-lg bg-white/80 backdrop-blur-2xl border border-white/50 rounded-[3rem] py-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-slate-200/50">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-lg bg-white/80 dark:bg-card/80 backdrop-blur-2xl border border-white/50 dark:border-border/50 rounded-[3rem] py-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] ring-1 ring-slate-200/50 dark:ring-border">
             <div className="flex items-center justify-between px-8 relative">
                 {links.map((link) => {
                     const Icon = link.icon
@@ -85,13 +85,13 @@ export function BottomNav() {
                             href={link.href}
                             className={cn(
                                 "relative flex flex-col items-center justify-center transition-all duration-500 group",
-                                isActive ? "text-[#0D9488]" : "text-slate-400"
+                                isActive ? "text-[#0D9488] dark:text-primary" : "text-slate-400 dark:text-muted-foreground"
                             )}
                             title={link.label}
                         >
                             <div className={cn(
                                 "relative z-10 p-3 rounded-2xl transition-all duration-500",
-                                isActive ? "bg-[#0D9488]/10 scale-110" : "group-hover:bg-slate-50"
+                                isActive ? "bg-[#0D9488]/10 dark:bg-primary/20 scale-110" : "group-hover:bg-slate-50 dark:group-hover:bg-muted/50"
                             )}>
                                 <Icon className={cn(
                                     "h-6 w-6 transition-all duration-500",
@@ -99,8 +99,8 @@ export function BottomNav() {
                                 )} />
                                 {isActive && (
                                     <span className="absolute top-2 right-2 flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0D9488] opacity-20"></span>
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0D9488]"></span>
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0D9488] dark:bg-primary opacity-20"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0D9488] dark:bg-primary"></span>
                                     </span>
                                 )}
                             </div>

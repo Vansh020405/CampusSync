@@ -13,10 +13,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const INTERNSHIP_STATS = [
-    { label: 'Applications', value: '12', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Interviews', value: '3', icon: Video, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-    { label: 'Assessments', value: '5', icon: Target, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { label: 'Offers', value: '1', icon: Sparkles, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Applications', value: '12', icon: Briefcase, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+    { label: 'Interviews', value: '3', icon: Video, color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-500/10' },
+    { label: 'Assessments', value: '5', icon: Target, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-500/10' },
+    { label: 'Offers', value: '1', icon: Sparkles, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
 ];
 
 const UPCOMING_INTERVIEWS = [
@@ -36,10 +36,10 @@ export default function InternshipDashboard() {
         <div className="space-y-6 pb-24 animate-in fade-in duration-700">
             {/* Premium Header with Dynamic Mesh Gradient */}
             <div className="relative -mx-3 -mt-3 md:-mx-6 md:-mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden rounded-b-[3rem] shadow-2xl shadow-indigo-500/20 mb-10">
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900"></div>
-                <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_50%,#4338ca_0,transparent_50%)]"></div>
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-fuchsia-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 dark:from-card dark:via-card dark:to-card dark:border-b dark:border-border"></div>
+                <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_50%,#4338ca_0,transparent_50%)] dark:hidden"></div>
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 dark:hidden"></div>
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-fuchsia-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4 dark:hidden"></div>
 
                 <div className="relative px-6 py-12 md:px-10 md:py-20 lg:py-24">
                     <div className="max-w-4xl space-y-6">
@@ -49,10 +49,10 @@ export default function InternshipDashboard() {
                                 Live Career Intelligence
                             </Badge>
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.05]">
-                            Your Career <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400">Command Center</span>
+                        <h1 className="text-4xl md:text-6xl font-black text-white dark:text-foreground tracking-tight leading-[1.05]">
+                            Your Career <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400 dark:from-primary dark:to-primary">Command Center</span>
                         </h1>
-                        <p className="text-slate-300 font-bold text-base md:text-lg max-w-xl opacity-80 leading-relaxed">
+                        <p className="text-slate-300 dark:text-muted-foreground font-bold text-base md:text-lg max-w-xl opacity-80 leading-relaxed">
                             Data-driven insights for your internship journey. Track Every Application, Master Every Interview.
                         </p>
                     </div>
@@ -63,19 +63,19 @@ export default function InternshipDashboard() {
                 {/* FLOATING STATS GRID */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 -mt-20 relative z-20">
                     {INTERNSHIP_STATS.map((stat) => (
-                        <Card key={stat.label} className="border-none shadow-xl shadow-slate-200/50 bg-white/90 backdrop-blur-2xl rounded-[2rem] overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+                        <Card key={stat.label} className="border-0 dark:border dark:border-border shadow-xl shadow-slate-200/50 dark:shadow-none bg-white dark:bg-card backdrop-blur-2xl rounded-[2rem] overflow-hidden group hover:-translate-y-1 transition-all duration-300">
                             <CardContent className="p-6">
                                 <div className="flex items-center justify-between mb-4">
-                                    <div className={cn("p-3 rounded-2xl", stat.bg)}>
+                                    <div className={cn("p-3 rounded-2xl transition-transform group-hover:scale-110", stat.bg)}>
                                         <stat.icon className={cn("h-5 w-5", stat.color)} />
                                     </div>
-                                    <Badge variant="outline" className="text-[10px] font-black border-slate-100 text-slate-400 bg-slate-50/50">
+                                    <Badge variant="outline" className="text-[10px] font-black border-slate-100 dark:border-border text-slate-400 dark:text-muted-foreground bg-slate-50/50 dark:bg-muted/30">
                                         +2 New
                                     </Badge>
                                 </div>
                                 <div>
                                     <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">{stat.value}</h3>
+                                    <h3 className="text-2xl font-black text-slate-900 dark:text-foreground tracking-tight">{stat.value}</h3>
                                 </div>
                             </CardContent>
                         </Card>
@@ -86,8 +86,8 @@ export default function InternshipDashboard() {
                 <section>
                     <div className="flex items-center justify-between mb-6 px-2">
                         <div className="space-y-1">
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-2">
-                                <Calendar className="h-6 w-6 text-indigo-600" /> Action Required
+                            <h2 className="text-xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase flex items-center gap-2">
+                                <Calendar className="h-6 w-6 text-indigo-600 dark:text-primary" /> Action Required
                             </h2>
                             <p className="text-sm font-bold text-slate-400 ml-8">Immediate focus for the next 48 hours</p>
                         </div>
@@ -96,16 +96,16 @@ export default function InternshipDashboard() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {UPCOMING_INTERVIEWS.map((interview: any) => (
-                            <div key={interview.id} className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-100/60 relative overflow-hidden group hover:border-indigo-100 transition-all duration-500">
-                                <div className={`absolute top-0 right-0 w-40 h-40 ${interview.color} opacity-5 blur-[60px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:opacity-10 transition-opacity`}></div>
+                            <div key={interview.id} className="bg-white dark:bg-card p-6 md:p-8 rounded-[2.5rem] border border-slate-100 dark:border-border shadow-xl shadow-slate-100/60 dark:shadow-none relative overflow-hidden group hover:border-indigo-100 dark:hover:border-primary transition-all duration-500">
+                                <div className={`absolute top-0 right-0 w-40 h-40 ${interview.color} opacity-5 blur-[60px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:opacity-10 transition-opacity dark:hidden`}></div>
 
                                 <div className="flex items-start justify-between mb-8 relative z-10">
                                     <div className="flex items-center gap-5">
-                                        <div className="h-14 w-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center font-black text-slate-800 shadow-inner group-hover:scale-110 transition-transform">
+                                        <div className="h-14 w-14 rounded-2xl bg-slate-50 dark:bg-secondary border border-slate-100 dark:border-border flex items-center justify-center font-black text-slate-800 dark:text-foreground shadow-inner group-hover:scale-110 transition-transform">
                                             {interview.logo}
                                         </div>
                                         <div>
-                                            <h3 className="font-black text-xl text-slate-950 truncate leading-tight tracking-tight">{interview.company}</h3>
+                                            <h3 className="font-black text-xl text-slate-950 dark:text-foreground truncate leading-tight tracking-tight">{interview.company}</h3>
                                             <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mt-1.5 flex items-center gap-2">
                                                 <Briefcase className="h-3 w-3" /> {interview.role}
                                             </p>
@@ -113,14 +113,14 @@ export default function InternshipDashboard() {
                                     </div>
                                 </div>
 
-                                <div className="bg-slate-50/80 backdrop-blur-sm rounded-3xl p-5 flex items-center justify-between border border-slate-100 relative z-10 group-hover:bg-white group-hover:border-indigo-50 transition-colors">
+                                <div className="bg-slate-50/80 dark:bg-muted/50 backdrop-blur-sm rounded-3xl p-5 flex items-center justify-between border border-slate-100 dark:border-border relative z-10 group-hover:bg-white dark:group-hover:bg-muted group-hover:border-indigo-50 dark:group-hover:border-primary/50 transition-colors">
                                     <div className="space-y-2">
-                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.15em]">{interview.type}</p>
-                                        <div className="flex items-center gap-3 text-slate-700 font-black text-sm">
+                                        <p className="text-[10px] font-black text-indigo-600 dark:text-primary uppercase tracking-[0.15em]">{interview.type}</p>
+                                        <div className="flex items-center gap-3 text-slate-700 dark:text-foreground font-black text-sm">
                                             <Clock className="h-4 w-4 text-slate-400" /> {interview.date}
                                         </div>
                                     </div>
-                                    <Button className="h-12 px-6 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 active:scale-95 transition-all">
+                                    <Button className="h-12 px-6 rounded-2xl bg-indigo-600 dark:bg-primary text-white dark:text-primary-foreground text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 dark:shadow-none active:scale-95 transition-all">
                                         <Video className="h-4 w-4 mr-2" /> Launch
                                     </Button>
                                 </div>
@@ -133,8 +133,8 @@ export default function InternshipDashboard() {
                 <section>
                     <div className="flex items-center justify-between mb-6 px-2">
                         <div className="space-y-1">
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-2">
-                                <Activity className="h-6 w-6 text-emerald-600" /> Pipeline Status
+                            <h2 className="text-xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase flex items-center gap-2">
+                                <Activity className="h-6 w-6 text-emerald-600 dark:text-primary" /> Pipeline Status
                             </h2>
                             <p className="text-sm font-bold text-slate-400 ml-8">Monitoring 12 active applications</p>
                         </div>
@@ -143,13 +143,13 @@ export default function InternshipDashboard() {
                     <div className="space-y-5">
                         {ACTIVE_APPLICATIONS.map((app: any, idx: number) => {
                             return (
-                                <div key={idx} className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-100/40 flex flex-col lg:flex-row lg:items-center justify-between gap-8 hover:border-slate-200 transition-all duration-300 group hover:-translate-x-1 outline outline-2 outline-transparent hover:outline-slate-50">
+                                <div key={idx} className="bg-white dark:bg-card p-6 md:p-8 rounded-[2.5rem] border border-slate-100 dark:border-border shadow-xl shadow-slate-100/40 dark:shadow-none flex flex-col lg:flex-row lg:items-center justify-between gap-8 hover:border-slate-200 dark:hover:border-primary transition-all duration-300 group hover:-translate-x-1 outline outline-2 outline-transparent hover:outline-slate-50 dark:hover:outline-muted/20">
                                     <div className="flex items-center gap-5 w-full lg:w-1/3">
-                                        <div className="h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center font-black text-slate-800 border border-slate-100 shrink-0 shadow-inner group-hover:bg-white transition-colors">
+                                        <div className="h-14 w-14 rounded-2xl bg-slate-50 dark:bg-secondary flex items-center justify-center font-black text-slate-800 dark:text-foreground border border-slate-100 dark:border-border shrink-0 shadow-inner group-hover:bg-white dark:group-hover:bg-muted transition-colors">
                                             {app.company.substring(0, 2).toUpperCase()}
                                         </div>
                                         <div className="min-w-0">
-                                            <h4 className="font-black text-lg text-slate-950 truncate leading-tight tracking-tight">{app.company}</h4>
+                                            <h4 className="font-black text-lg text-slate-950 dark:text-foreground truncate leading-tight tracking-tight">{app.company}</h4>
                                             <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1.5 truncate flex items-center gap-2">
                                                 <Target className="h-3 w-3" /> {app.role}
                                             </p>
@@ -180,9 +180,9 @@ export default function InternshipDashboard() {
                                                     <div key={stage} className="flex-1 group/stage">
                                                         <div className={cn(
                                                             "h-2.5 rounded-full overflow-hidden transition-all duration-700 relative",
-                                                            isCompleted ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" :
-                                                                isRejected ? "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.3)]" :
-                                                                    isCurrent ? "bg-indigo-600 shadow-[0_0_10px_rgba(79,70,229,0.3)]" : "bg-slate-100"
+                                                            isCompleted ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)] dark:shadow-none" :
+                                                                isRejected ? "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.3)] dark:shadow-none" :
+                                                                    isCurrent ? "bg-indigo-600 shadow-[0_0_10px_rgba(79,70,229,0.3)] dark:shadow-none" : "bg-slate-100 dark:bg-muted"
                                                         )}>
                                                             {isCurrent && !isRejected && (
                                                                 <div className="absolute inset-0 bg-white/20 animate-shimmer" style={{ backgroundSize: '200% 100%', backgroundImage: 'linear-gradient(to right, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)' }}></div>
@@ -190,7 +190,7 @@ export default function InternshipDashboard() {
                                                         </div>
                                                         <p className={cn(
                                                             "text-[8px] font-black uppercase tracking-widest text-center mt-3 transition-opacity duration-300",
-                                                            (isCompleted || isCurrent) ? "text-slate-600 opacity-100" : "text-slate-200 opacity-0 group-hover/stage:opacity-100"
+                                                            (isCompleted || isCurrent) ? "text-slate-600 dark:text-foreground opacity-100" : "text-slate-200 dark:text-muted-foreground opacity-0 group-hover/stage:opacity-100"
                                                         )}>{stage}</p>
                                                     </div>
                                                 )

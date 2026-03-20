@@ -61,12 +61,19 @@ export default function AchievementsPage() {
     ])
 
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [activeFilter, setActiveFilter] = useState<'ALL' | Achievement['position']>('ALL')
+    const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null)
     const [formData, setFormData] = useState({
         eventName: '',
         venue: '',
         position: 'PARTICIPATION' as Achievement['position'],
+        date: new Date().toISOString().split('T')[0],
         certificate: null as File | null
     })
+
+    const filteredAchievements = activeFilter === 'ALL' 
+        ? achievements 
+        : achievements.filter(a => a.position === activeFilter)
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -75,84 +82,86 @@ export default function AchievementsPage() {
             eventName: formData.eventName,
             venue: formData.venue,
             position: formData.position,
-            date: new Date().toISOString().split('T')[0],
+            date: formData.date,
             hasCertificate: !!formData.certificate
         }
 
         setAchievements([newAchievement, ...achievements])
         setIsModalOpen(false)
-        setFormData({ eventName: '', venue: '', position: 'PARTICIPATION', certificate: null })
+        setFormData({ eventName: '', venue: '', position: 'PARTICIPATION', date: new Date().toISOString().split('T')[0], certificate: null })
 
         toast({
-            title: "Achievement Logged!",
-            description: "Your new milestone has been added to your profile.",
+            title: "Asset Verified & Logged",
+            description: "Institutional milestone has been encrypted to your profile.",
         })
     }
 
     const positionOptions = [
-        { value: '1st', label: '1st Place', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-        { value: '2nd', label: '2nd Place', color: 'bg-slate-100 text-slate-700 border-slate-200' },
-        { value: '3rd', label: '3rd Place', color: 'bg-orange-100 text-orange-700 border-orange-200' },
-        { value: 'PARTICIPATION', label: 'Participation', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+        { value: '1st', label: '1st Place', color: 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30' },
+        { value: '2nd', label: '2nd Place', color: 'bg-slate-100 dark:bg-muted text-slate-700 dark:text-slate-300 border-slate-200 dark:border-border' },
+        { value: '3rd', label: '3rd Place', color: 'bg-orange-100 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-500/30' },
+        { value: 'PARTICIPATION', label: 'Participation', color: 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/30' },
     ]
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-32 pt-8 px-4">
+        <div className="max-w-4xl mx-auto space-y-8 pb-32 pt-10 px-4 h-[calc(100vh-80px)] overflow-hidden flex flex-col">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-1">
-                    <h1 className="text-4xl font-black tracking-tight text-slate-900 flex items-center gap-3">
-                        <Trophy className="h-10 w-10 text-yellow-500" />
-                        Achievements
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 shrink-0">
+                <div className="space-y-2">
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-foreground flex items-center gap-4 italic uppercase">
+                        <Trophy className="h-12 w-12 text-yellow-500 dark:text-yellow-400 drop-shadow-xl" />
+                        <span className="text-yellow-500 dark:text-yellow-400 not-italic">AChievements</span>
                     </h1>
-                    <p className="text-slate-500 font-medium">Your digital trophy cabinet and milestones</p>
+                    <p className="text-slate-500 dark:text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px] ml-1">
+                        Institutional Achievement Space
+                    </p>
                 </div>
 
                 <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                     <DialogTrigger asChild>
-                        <Button className="h-12 px-6 rounded-2xl bg-slate-900 hover:bg-black text-white font-bold flex items-center gap-2 shadow-lg shadow-slate-200 transition-all active:scale-95">
+                        <Button className="h-14 px-8 rounded-[1.5rem] bg-slate-900 dark:bg-primary text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-2xl hover:bg-black dark:hover:bg-primary/90 transition-all active:scale-95">
                             <Plus className="h-5 w-5" />
-                            Create New
+                            add new achievement
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-slate-100 shadow-2xl p-0 overflow-hidden">
-                        <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
-                            <DialogTitle className="text-2xl font-black uppercase tracking-tight italic">Log Achievement</DialogTitle>
-                            <DialogDescription className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">
-                                Record your latest victory
+                    <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[400px] max-h-[50vh] rounded-[2.5rem] bg-white dark:bg-card border-0 dark:border dark:border-border shadow-[0_0_80px_rgba(0,0,0,0.2)] p-0 overflow-hidden flex flex-col">
+                        <div className="bg-slate-950 p-6 text-white relative overflow-hidden shrink-0">
+                            <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-500/20 rounded-full blur-[80px] -mr-24 -mt-24" />
+                            <DialogTitle className="text-xl font-black uppercase tracking-tighter">Achievement</DialogTitle>
+                            <DialogDescription className="text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] mt-1 leading-none">
+                               Institutional Performance
                             </DialogDescription>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
                             <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Event Name</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground ml-2">event name</Label>
                                     <Input
                                         required
-                                        placeholder="e.g. Annual Tech Fest 2024"
-                                        className="h-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900 placeholder:text-slate-300"
+                                        placeholder="e.g. ALPHA HACKATHON 2024"
+                                        className="h-12 rounded-xl bg-slate-50 dark:bg-muted border-none font-bold text-slate-900 dark:text-foreground text-xs uppercase tracking-tight placeholder:text-slate-300 dark:placeholder:text-muted-foreground/30 px-5 focus-visible:ring-2 focus-visible:ring-yellow-500"
                                         value={formData.eventName}
                                         onChange={(e) => setFormData({ ...formData, eventName: e.target.value })}
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Venue</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground ml-2">Location</Label>
                                     <div className="relative">
-                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                                        <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                         <Input
                                             required
-                                            placeholder="Location details..."
-                                            className="h-12 pl-12 rounded-xl bg-slate-50 border-none font-bold text-slate-900 placeholder:text-slate-300"
+                                            placeholder="LOCATION UNIT..."
+                                            className="h-12 pl-12 rounded-xl bg-slate-50 dark:bg-muted border-none font-bold text-slate-900 dark:text-foreground text-xs uppercase tracking-tight placeholder:text-slate-300 dark:placeholder:text-muted-foreground/30 focus-visible:ring-2 focus-visible:ring-yellow-500"
                                             value={formData.venue}
                                             onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
                                         />
                                     </div>
                                 </div>
 
-                                <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Position / Performance</Label>
+                                <div className="space-y-2">
+                                    <Label className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground ml-2">Position</Label>
                                     <div className="grid grid-cols-2 gap-2">
                                         {positionOptions.map((opt) => (
                                             <button
@@ -160,10 +169,10 @@ export default function AchievementsPage() {
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, position: opt.value as Achievement['position'] })}
                                                 className={cn(
-                                                    "h-11 rounded-xl border text-[10px] font-black uppercase tracking-tight transition-all flex items-center justify-center gap-2",
+                                                    "h-10 rounded-xl border text-[9px] font-black uppercase tracking-wide transition-all flex items-center justify-center gap-1.5",
                                                     formData.position === opt.value
-                                                        ? opt.color + " shadow-inner scale-[0.98]"
-                                                        : "bg-white border-slate-100 text-slate-400 hover:border-slate-200"
+                                                        ? opt.color + " shadow-inner scale-[0.97] border-transparent"
+                                                        : "bg-white dark:bg-muted border-slate-100 dark:border-border text-slate-400 dark:text-muted-foreground/50 hover:border-slate-300 dark:hover:border-muted-foreground"
                                                 )}
                                             >
                                                 {formData.position === opt.value && <CheckCircle2 className="h-3 w-3" />}
@@ -173,8 +182,22 @@ export default function AchievementsPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Certificate (Optional)</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground ml-2">Event Date</Label>
+                                    <div className="relative w-full">
+                                        <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                        <Input
+                                            required
+                                            type="date"
+                                            className="w-full h-12 pl-12 pr-4 rounded-xl bg-slate-50 dark:bg-muted border-none font-bold text-slate-900 dark:text-foreground text-xs uppercase tracking-tight focus-visible:ring-2 focus-visible:ring-yellow-500 [color-scheme:light] dark:[color-scheme:dark] appearance-none"
+                                            value={formData.date}
+                                            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <Label className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground ml-2">Certificate (if any)</Label>
                                     <div className="relative group/upload">
                                         <input
                                             type="file"
@@ -182,18 +205,20 @@ export default function AchievementsPage() {
                                             onChange={(e) => setFormData({ ...formData, certificate: e.target.files?.[0] || null })}
                                         />
                                         <div className={cn(
-                                            "h-24 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all group-hover/upload:border-slate-300",
-                                            formData.certificate ? "border-emerald-200 bg-emerald-50" : "border-slate-100 bg-slate-50"
+                                            "h-24 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-1.5 transition-all group-hover/upload:bg-slate-100 dark:group-hover/upload:bg-muted/50",
+                                            formData.certificate 
+                                                ? "border-emerald-500 bg-emerald-500/5" 
+                                                : "border-slate-200 dark:border-border bg-slate-50 dark:bg-muted"
                                         )}>
                                             {formData.certificate ? (
                                                 <>
-                                                    <CheckCircle2 className="h-6 w-6 text-emerald-500" />
-                                                    <p className="text-[10px] font-bold text-emerald-700 uppercase truncate px-4">{formData.certificate.name}</p>
+                                                    <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                                                    <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase truncate px-6 tracking-widest">{formData.certificate.name}</p>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Upload className="h-6 w-6 text-slate-300" />
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tap to Upload</p>
+                                                    <Upload className="h-6 w-6 text-slate-300 dark:text-muted-foreground/30" />
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground/50 uppercase tracking-[0.3em]">upload</p>
                                                 </>
                                             )}
                                         </div>
@@ -201,9 +226,9 @@ export default function AchievementsPage() {
                                 </div>
                             </div>
 
-                            <DialogFooter className="pt-4">
-                                <Button type="submit" className="w-full h-12 rounded-2xl bg-slate-900 text-white font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-black transition-all">
-                                    Seal Achievement
+                            <DialogFooter className="pt-2">
+                                <Button type="submit" className="w-full h-14 rounded-2xl bg-slate-900 dark:bg-primary text-white font-black text-[11px] uppercase tracking-[0.4em] shadow-xl hover:scale-[0.98] transition-all">
+                                    submit
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -211,102 +236,160 @@ export default function AchievementsPage() {
                 </Dialog>
             </div>
 
-            {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                    { label: 'Gold Wins', value: achievements.filter(a => a.position === '1st').length, icon: Trophy, color: 'text-yellow-500' },
-                    { label: 'Total Events', value: achievements.length, icon: Award, color: 'text-blue-500' },
-                    { label: 'Participation', value: achievements.filter(a => a.position === 'PARTICIPATION').length, icon: Calendar, color: 'text-emerald-500' },
-                    { label: 'Top 3', value: achievements.filter(a => ['1st', '2nd', '3rd'].includes(a.position)).length, icon: CheckCircle2, color: 'text-rose-500' },
-                ].map((stat, i) => (
-                    <div key={i} className="p-4 bg-white border border-slate-100 rounded-3xl shadow-sm space-y-2">
-                        <div className={cn("p-2 rounded-xl w-fit bg-slate-50", stat.color)}>
-                            <stat.icon className="h-4 w-4" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-black text-slate-900 leading-none">{stat.value}</p>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{stat.label}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Achievements List */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between px-2">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Timeline</h3>
-                    <div className="flex items-center gap-2">
-                        <button className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
-                            <Search className="h-4 w-4" />
+            {/* Achievements List Container */}
+            <div className="flex-1 flex flex-col min-h-0 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2 shrink-0">
+                    <h3 className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-muted-foreground whitespace-nowrap">
+                        {activeFilter === 'ALL' ? 'ALL achievements' : `${activeFilter} milestone logs`}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <button 
+                            onClick={() => setActiveFilter('ALL')}
+                            className={cn(
+                                "px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest border transition-all",
+                                activeFilter === 'ALL' 
+                                    ? "bg-slate-900 dark:bg-primary text-white border-transparent shadow-md" 
+                                    : "bg-white dark:bg-card border-slate-100 dark:border-border text-slate-400 hover:text-indigo-600"
+                            )}
+                        >
+                            ALL
                         </button>
-                        <button className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
-                            <Filter className="h-4 w-4" />
-                        </button>
+                        {positionOptions.map(opt => (
+                            <button 
+                                key={opt.value}
+                                onClick={() => setActiveFilter(opt.value as Achievement['position'])}
+                                className={cn(
+                                    "px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest border transition-all",
+                                    activeFilter === opt.value 
+                                        ? "bg-slate-900 dark:bg-primary text-white border-transparent shadow-md" 
+                                        : "bg-white dark:bg-card border-slate-100 dark:border-border text-slate-400 hover:text-indigo-600"
+                                )}
+                            >
+                                {opt.value === 'PARTICIPATION' ? 'Entry' : opt.value}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
-                    <AnimatePresence mode="popLayout">
-                        {achievements.map((item, idx) => (
-                            <motion.div
-                                key={item.id}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: idx * 0.05 }}
-                                className="group relative bg-white border border-slate-100 rounded-[2rem] p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
-                            >
-                                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                                    <div className="flex items-center gap-5">
+                {/* Scrollable List */}
+                <div className="flex-1 overflow-y-auto pr-2 -mr-2 custom-scrollbar">
+                    <div className="grid grid-cols-1 gap-3 pb-8">
+                        <AnimatePresence mode="popLayout">
+                            {filteredAchievements.map((item, idx) => (
+                                <motion.div
+                                    key={item.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    onClick={() => setSelectedAchievement(item)}
+                                    className="group relative bg-white dark:bg-card border-0 dark:border dark:border-border rounded-2xl p-4 hover:bg-slate-50 dark:hover:bg-muted/30 transition-all duration-300 cursor-pointer overflow-hidden"
+                                >
+                                    <div className="flex items-center gap-3">
                                         <div className={cn(
-                                            "h-16 w-16 rounded-2xl flex items-center justify-center shadow-inner relative overflow-hidden",
-                                            item.position === '1st' ? "bg-yellow-50 text-yellow-600" :
-                                                item.position === '2nd' ? "bg-slate-50 text-slate-500" :
-                                                    item.position === '3rd' ? "bg-orange-50 text-orange-600" :
-                                                        "bg-blue-50 text-blue-600"
+                                            "h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
+                                            item.position === '1st' ? "bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" :
+                                                item.position === '2nd' ? "bg-slate-50 dark:bg-muted text-slate-500 dark:text-slate-400" :
+                                                    item.position === '3rd' ? "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400" :
+                                                        "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
                                         )}>
-                                            <Trophy className="h-8 w-8 stroke-[1.5]" />
-                                            <div className="absolute top-0 right-0 p-1">
-                                                <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
-                                            </div>
+                                            <Trophy className="h-5 w-5 stroke-[2]" />
                                         </div>
-                                        <div className="space-y-1">
+                                        <div className="flex-1 min-w-0 overflow-hidden">
                                             <div className="flex items-center gap-2">
-                                                <h4 className="text-lg font-black text-slate-900 tracking-tight leading-none group-hover:text-indigo-600 transition-colors">
+                                                <h4 className="text-sm font-black text-slate-900 dark:text-foreground tracking-tight uppercase truncate">
                                                     {item.eventName}
                                                 </h4>
-                                                {item.hasCertificate && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                                                {item.hasCertificate && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />}
                                             </div>
-                                            <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
-                                                <div className="flex items-center gap-1">
-                                                    <MapPin className="h-3 w-3" /> {item.venue}
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <Calendar className="h-3 w-3" /> {new Date(item.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                                                </div>
+                                            <div className="flex items-center gap-3 text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-wider mt-0.5">
+                                                <span className="flex items-center gap-1 truncate">
+                                                    <MapPin className="h-3 w-3 text-indigo-500 shrink-0" /> {item.venue}
+                                                </span>
+                                                <span className="flex items-center gap-1 shrink-0">
+                                                    <Calendar className="h-3 w-3 text-indigo-500 shrink-0" /> {new Date(item.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                                </span>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-4 w-full md:w-auto">
                                         <div className={cn(
-                                            "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border",
-                                            item.position === '1st' ? "bg-yellow-100/50 text-yellow-700 border-yellow-200" :
-                                                item.position === '2nd' ? "bg-slate-100/50 text-slate-700 border-slate-200" :
-                                                    item.position === '3rd' ? "bg-orange-100/50 text-orange-700 border-orange-200" :
-                                                        "bg-blue-100/50 text-blue-700 border-blue-200"
+                                            "px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border shrink-0 whitespace-nowrap",
+                                            item.position === '1st' ? "bg-yellow-100/50 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30" :
+                                                item.position === '2nd' ? "bg-slate-100/50 dark:bg-muted text-slate-700 dark:text-slate-300 border-slate-200 dark:border-border" :
+                                                    item.position === '3rd' ? "bg-orange-100/50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-500/30" :
+                                                        "bg-blue-100/50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/30"
                                         )}>
-                                            {item.position === 'PARTICIPATION' ? 'Participation' : `${item.position} Place`}
+                                            {item.position === 'PARTICIPATION' ? 'Entry' : item.position}
                                         </div>
-                                        <button className="h-10 w-10 md:h-12 md:w-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all ml-auto md:ml-0">
-                                            <ChevronRight className="h-5 w-5" />
-                                        </button>
                                     </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
                 </div>
             </div>
+
+            {/* Achievement Detail Modal */}
+            <Dialog open={!!selectedAchievement} onOpenChange={() => setSelectedAchievement(null)}>
+                <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[400px] rounded-[2.5rem] bg-white dark:bg-card border-0 dark:border dark:border-border shadow-2xl p-0 overflow-hidden">
+                    {selectedAchievement && (
+                        <>
+                            <div className="bg-slate-950 p-8 text-white relative">
+                                <div className={cn(
+                                    "absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px] -mr-24 -mt-24",
+                                    selectedAchievement.position === '1st' ? "bg-yellow-500/20" : "bg-indigo-500/20"
+                                )} />
+                                <div className="relative z-10 flex items-center justify-between">
+                                    <div className={cn(
+                                        "h-14 w-14 rounded-2xl flex items-center justify-center shadow-lg",
+                                        selectedAchievement.position === '1st' ? "bg-yellow-500/20 text-yellow-400" : "bg-indigo-500/20 text-indigo-400"
+                                    )}>
+                                        <Trophy className="h-8 w-8" />
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Entry ID</p>
+                                        <p className="text-xs font-mono text-slate-300 uppercase">{selectedAchievement.id}</p>
+                                    </div>
+                                </div>
+                                <DialogTitle className="text-2xl font-black uppercase tracking-tighter mt-6 leading-tight">
+                                    {selectedAchievement.eventName}
+                                </DialogTitle>
+                            </div>
+                            <div className="p-8 space-y-6">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Position</p>
+                                        <p className="text-sm font-black text-slate-900 dark:text-foreground uppercase italic tracking-tight">{selectedAchievement.position === 'PARTICIPATION' ? 'Entry' : selectedAchievement.position}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</p>
+                                        <p className="text-sm font-black text-slate-900 dark:text-foreground uppercase tracking-tight">{new Date(selectedAchievement.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric' })}</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Location Coordinates</p>
+                                    <div className="flex items-center gap-2 text-sm font-black text-slate-900 dark:text-foreground uppercase tracking-tight">
+                                        <MapPin className="h-4 w-4 text-indigo-500" />
+                                        {selectedAchievement.venue}
+                                    </div>
+                                </div>
+                                {selectedAchievement.hasCertificate && (
+                                    <div className="pt-4 border-t border-slate-100 dark:border-border">
+                                        <div className="flex items-center gap-3">
+                                            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                                            <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Certificate Verified</span>
+                                        </div>
+                                    </div>
+                                )}
+                                <Button 
+                                    onClick={() => setSelectedAchievement(null)}
+                                    className="w-full h-14 rounded-2xl bg-slate-900 dark:bg-muted text-white dark:text-foreground font-black text-xs uppercase tracking-[0.4em] hover:scale-[0.98] transition-all"
+                                >
+                                    Close Cache
+                                </Button>
+                            </div>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

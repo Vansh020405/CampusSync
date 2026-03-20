@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import {
@@ -9,18 +9,30 @@ import {
     Layers,
     Building2,
     MapPin,
-    ChevronRight,
     Search,
     Locate,
-    Globe
+    Globe,
+    BookOpen,
+    Coffee,
+    CalendarDays,
+    Stethoscope,
+    Home,
+    ChevronRight,
+    X,
+    ArrowUpRight,
+    LocateFixed,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useTheme } from 'next-themes'
+
+type Category = 'academic' | 'hostel' | 'canteen' | 'admin' | 'main'
+type FilterType = 'all' | 'academic' | 'canteen' | 'admin' | 'hostel'
 
 interface CampusLocation {
     id: string
     name: string
-    category: 'academic' | 'hostel' | 'canteen' | 'admin' | 'main'
-    coords: [number, number] // [lng, lat]
+    category: Category
+    coords: [number, number]
     description: string
 }
 
@@ -57,23 +69,61 @@ const LOCATIONS: CampusLocation[] = [
     { id: 'control-room', name: "Control Room", category: 'admin', coords: [76.660544878004, 30.516016983599542], description: 'Campus Security & Systems' },
 ]
 
+const getCategoryIcon = (category: Category) => {
+    switch (category) {
+        case 'academic': return BookOpen
+        case 'canteen': return Coffee
+        case 'admin': return Building2
+        case 'hostel': return Home
+        case 'main': return MapPin
+    }
+}
+
+const getCategoryColor = (category: Category) => {
+    switch (category) {
+        case 'academic': return { bg: 'bg-blue-100 dark:bg-blue-500/15', text: 'text-blue-600 dark:text-blue-400', dot: '#3b82f6' }
+        case 'canteen': return { bg: 'bg-amber-100 dark:bg-amber-500/15', text: 'text-amber-600 dark:text-amber-400', dot: '#f59e0b' }
+        case 'admin': return { bg: 'bg-emerald-100 dark:bg-emerald-500/15', text: 'text-emerald-600 dark:text-emerald-400', dot: '#10b981' }
+        case 'hostel': return { bg: 'bg-purple-100 dark:bg-purple-500/15', text: 'text-purple-600 dark:text-purple-400', dot: '#a855f7' }
+        case 'main': return { bg: 'bg-rose-100 dark:bg-rose-500/15', text: 'text-rose-600 dark:text-rose-400', dot: '#f43f5e' }
+    }
+}
+
+const FILTERS: { label: string; value: FilterType }[] = [
+    { label: 'All', value: 'all' },
+    { label: 'Academic', value: 'academic' },
+    { label: 'Food', value: 'canteen' },
+    { label: 'Services', value: 'admin' },
+    { label: 'Hostels', value: 'hostel' },
+]
 
 export default function MapLibreMap() {
     const mapContainer = useRef<HTMLDivElement>(null)
     const map = useRef<maplibregl.Map | null>(null)
-    const [activeLocation, setActiveLocation] = useState<CampusLocation>(LOCATIONS[0])
+    const { resolvedTheme } = useTheme()
+    const [activeLocation, setActiveLocation] = useState<CampusLocation | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
     const [isNavigating, setIsNavigating] = useState(false)
     const [mapError, setMapError] = useState<string | null>(null)
     const [initStatus, setInitStatus] = useState<string>('Initializing...')
-    const [currentStyle, setCurrentStyle] = useState('https://tiles.openfreemap.org/styles/positron')
     const [routeInfo, setRouteInfo] = useState<{ distance: string, duration: string } | null>(null)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [activeFilter, setActiveFilter] = useState<FilterType>('all')
     const isReadyRef = useRef(false)
     const startMarkerRef = useRef<maplibregl.Marker | null>(null)
     const animationTimerRef = useRef<NodeJS.Timeout | null>(null)
+    const cardRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
-    // Default starting point (main entrance)
+    const isDark = resolvedTheme === 'dark'
+    const defaultStyle = isDark ? 'https://tiles.openfreemap.org/styles/dark' : 'https://tiles.openfreemap.org/styles/positron'
+
     const startPoint: [number, number] = [76.65919385345458, 30.51794484908655]
+
+    const filteredLocations = LOCATIONS.filter(loc => {
+        const matchesFilter = activeFilter === 'all' || loc.category === activeFilter
+        const matchesSearch = searchQuery === '' || loc.name.toLowerCase().includes(searchQuery.toLowerCase()) || loc.description.toLowerCase().includes(searchQuery.toLowerCase())
+        return matchesFilter && matchesSearch
+    })
 
     useEffect(() => {
         if (!mapContainer.current || map.current) return
@@ -84,44 +134,22 @@ export default function MapLibreMap() {
                 if (!map.current.getSource('route')) {
                     map.current.addSource('route', {
                         type: 'geojson',
-                        data: {
-                            type: 'Feature',
-                            properties: {},
-                            geometry: {
-                                type: 'LineString',
-                                coordinates: []
-                            }
-                        }
+                        data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } }
                     })
                 }
-
-                if (!map.current.getLayer('route-line')) {
-                    map.current.addLayer({
-                        id: 'route-line',
-                        type: 'line',
-                        source: 'route',
-                        layout: { 'line-join': 'round', 'line-cap': 'round' },
-                        paint: {
-                            'line-color': '#10b981',
-                            'line-width': 6,
-                            'line-opacity': 0.8
-                        }
-                    })
-                }
-
                 if (!map.current.getLayer('route-glow')) {
                     map.current.addLayer({
-                        id: 'route-glow',
-                        type: 'line',
-                        source: 'route',
+                        id: 'route-glow', type: 'line', source: 'route',
                         layout: { 'line-join': 'round', 'line-cap': 'round' },
-                        paint: {
-                            'line-color': '#10b981',
-                            'line-width': 12,
-                            'line-opacity': 0.3,
-                            'line-blur': 4
-                        }
-                    }, 'route-line')
+                        paint: { 'line-color': '#10b981', 'line-width': 14, 'line-opacity': 0.15, 'line-blur': 6 }
+                    })
+                }
+                if (!map.current.getLayer('route-line')) {
+                    map.current.addLayer({
+                        id: 'route-line', type: 'line', source: 'route',
+                        layout: { 'line-join': 'round', 'line-cap': 'round' },
+                        paint: { 'line-color': '#10b981', 'line-width': 4, 'line-opacity': 0.9 }
+                    })
                 }
             } catch (error) {
                 console.warn('Layer initialization skipped:', error)
@@ -133,28 +161,25 @@ export default function MapLibreMap() {
             isReadyRef.current = true
             map.current.resize()
             setIsLoaded(true)
-            setInitStatus('Grid Ready')
+            setInitStatus('Ready')
             setupRouteLayers()
 
-            // Add starting point identity
-            startMarkerRef.current = new maplibregl.Marker({ color: '#6366f1', scale: 0.9 })
+            startMarkerRef.current = new maplibregl.Marker({ color: '#6366f1', scale: 0.8 })
                 .setLngLat(startPoint)
                 .setPopup(new maplibregl.Popup({ offset: 25, closeButton: false })
-                    .setHTML('<div style="padding: 4px 8px; font-weight: 800; font-size: 10px; color: #1e293b; text-transform: uppercase;">You are here</div>'))
+                    .setHTML('<div style="padding:4px 10px;font-weight:700;font-size:11px;color:#334155;border-radius:8px;">You are here</div>'))
                 .addTo(map.current)
 
             LOCATIONS.forEach(loc => {
                 if (!map.current) return
-                const marker = new maplibregl.Marker({ color: '#10b981', scale: 0.8 })
+                const colors = getCategoryColor(loc.category)
+                const marker = new maplibregl.Marker({ color: colors.dot, scale: 0.7 })
                     .setLngLat(loc.coords)
                     .setPopup(new maplibregl.Popup({ offset: 25, closeButton: false })
                         .setHTML(`
-                        <div style="padding: 12px; min-width: 180px; font-family: system-ui, -apple-system, sans-serif;">
-                            <h4 style="margin: 0 0 6px 0; font-weight: 900; text-transform: uppercase; font-size: 13px; color: #0f172a; letter-spacing: 0.5px;">${loc.name}</h4>
-                            <p style="margin: 0; color: #64748b; font-size: 11px; line-height: 1.5;">${loc.description}</p>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e2e8f0;">
-                                <span style="display: inline-block; padding: 2px 8px; background: #10b98120; color: #059669; font-size: 9px; font-weight: 700; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">${loc.category}</span>
-                            </div>
+                        <div style="padding:10px 14px;min-width:160px;border-radius:12px;font-family:system-ui,-apple-system,sans-serif;">
+                            <h4 style="margin:0 0 4px;font-weight:800;font-size:12px;color:#1e293b;letter-spacing:0.3px;">${loc.name}</h4>
+                            <p style="margin:0;color:#64748b;font-size:10px;line-height:1.4;">${loc.description}</p>
                         </div>
                     `))
                     .addTo(map.current)
@@ -163,37 +188,28 @@ export default function MapLibreMap() {
         }
 
         try {
-            const rect = mapContainer.current.getBoundingClientRect()
-            if (rect.width === 0 || rect.height === 0) console.warn('MapLibreMap: Container size warning')
             map.current = new maplibregl.Map({
                 container: mapContainer.current,
-                style: currentStyle,
+                style: defaultStyle,
                 center: [76.65919385345458, 30.51794484908655],
                 zoom: 16.5,
                 pitch: 45,
                 bearing: -15,
                 trackResize: true,
                 attributionControl: false,
-                maxBounds: [
-                    [76.650, 30.508], // Southwest corner expanded slightly
-                    [76.670, 30.528]  // Northeast corner expanded slightly
-                ],
-                minZoom: 15.5 // Prevent zooming out too far
+                maxBounds: [[76.650, 30.508], [76.670, 30.528]],
+                minZoom: 15.5
             })
-            setInitStatus('Loading Campus Grid...')
+            setInitStatus('Loading...')
             map.current.on('load', setupMapLayers)
             map.current.on('style.load', setupRouteLayers)
-            map.current.on('error', (e) => console.error('MapLibreMap Error:', e))
+            map.current.on('error', (e) => console.error('Map Error:', e))
         } catch (error) {
-            console.error('MapLibreMap: Failed to initialize map:', error)
+            console.error('Failed to initialize map:', error)
             setMapError(error instanceof Error ? error.message : 'Failed to initialize map')
-            setInitStatus('Error: Failed to initialize')
         }
 
-
-        const safetyTimer = setTimeout(() => {
-            if (!isReadyRef.current) setupMapLayers()
-        }, 4000)
+        const safetyTimer = setTimeout(() => { if (!isReadyRef.current) setupMapLayers() }, 4000)
         const resizeTimer = setTimeout(() => map.current?.resize(), 500)
 
         return () => {
@@ -204,243 +220,153 @@ export default function MapLibreMap() {
         }
     }, [])
 
-    const flyToLocation = (loc: CampusLocation) => {
+    // Sync map style with theme changes
+    useEffect(() => {
+        if (!map.current || !isLoaded) return
+        const style = isDark ? 'https://tiles.openfreemap.org/styles/dark' : 'https://tiles.openfreemap.org/styles/positron'
+        map.current.setStyle(style)
+    }, [isDark, isLoaded])
+
+    const flyToLocation = useCallback((loc: CampusLocation) => {
         setActiveLocation(loc)
         map.current?.flyTo({
-            center: loc.coords,
-            zoom: 18,
-            pitch: 60,
-            bearing: -20,
-            speed: 1.2,
-            curve: 1.5,
-            essential: true
+            center: loc.coords, zoom: 18, pitch: 60, bearing: -20,
+            speed: 1.2, curve: 1.5, essential: true
         })
-
-        // Automatically trigger navigation when a location is clicked
+        cardRefs.current[loc.id]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
         startNavigation(loc)
-    }
+    }, [])
 
     const startNavigation = async (destination: CampusLocation) => {
         if (!map.current) return
-
         setIsNavigating(true)
-        setInitStatus('Finding Campus Path...')
         setMapError(null)
 
         try {
-            // Ensure we always start from the Main Gate
             const mainGate = LOCATIONS.find(l => l.id === 'main')
             const startCoords = mainGate ? mainGate.coords : startPoint
-
-            // Fetch proper pathway routing (foot profile for walkways)
-            // Using FOSSGIS OSRM which often has better pedestrian data
             const response = await fetch(
                 `https://routing.openstreetmap.de/routed-foot/route/v1/foot/${startCoords[0]},${startCoords[1]};${destination.coords[0]},${destination.coords[1]}?overview=full&geometries=geojson&steps=true`
             )
 
             let data
             if (!response.ok) {
-                console.warn('Primary routing failed, trying fallback...')
                 const fallbackResponse = await fetch(
                     `https://router.project-osrm.org/route/v1/walking/${startCoords[0]},${startCoords[1]};${destination.coords[0]},${destination.coords[1]}?overview=full&geometries=geojson&steps=true`
                 )
-                if (!fallbackResponse.ok) throw new Error('Routing service unavailable')
+                if (!fallbackResponse.ok) throw new Error('Routing unavailable')
                 data = await fallbackResponse.json()
             } else {
                 data = await response.json()
             }
 
-            if (!data.routes || data.routes.length === 0) {
-                throw new Error('No internal pathways detected')
-            }
+            if (!data.routes || data.routes.length === 0) throw new Error('No route found')
 
             const route = data.routes[0]
             const fullRoute = route.geometry.coordinates as [number, number][]
-
-            // Set distance and duration from actual route data
-            const distInKm = (route.distance / 1000).toFixed(2)
-            const timeInMin = Math.ceil(route.duration / 60)
-
             setRouteInfo({
-                distance: `${distInKm} km`,
-                duration: `${timeInMin} min`
+                distance: `${(route.distance / 1000).toFixed(2)} km`,
+                duration: `${Math.ceil(route.duration / 60)} min`
             })
 
-            // Frame the full route with perspective
             const bounds = new maplibregl.LngLatBounds()
             fullRoute.forEach(coord => bounds.extend(coord))
             map.current.fitBounds(bounds, {
-                padding: { top: 120, bottom: 120, left: 120, right: 120 },
-                zoom: 17.5,
-                pitch: 50,
-                bearing: -15,
-                duration: 2000,
-                essential: true
+                padding: { top: 100, bottom: 100, left: 100, right: 100 },
+                zoom: 17.5, pitch: 50, bearing: -15, duration: 2000, essential: true
             })
-
-            // Execute path animation
             animateRoute(fullRoute)
-            setInitStatus('Navigator Active')
         } catch (error) {
-            console.error('Routing Error:', error)
-            setInitStatus('Navigation Restricted')
-
-            // Fallback to direct line if OSRM fails to find a path
             const fallbackRoute: [number, number][] = [startPoint, destination.coords]
             animateRoute(fallbackRoute)
             setRouteInfo(null)
-            setMapError('No specific walkway data found for this section. Showing direct path.')
         }
     }
 
     const animateRoute = (fullRoute: [number, number][]) => {
         if (!map.current) return
-
-        // Clear any existing animation
-        if (animationTimerRef.current) {
-            clearTimeout(animationTimerRef.current)
-        }
+        if (animationTimerRef.current) clearTimeout(animationTimerRef.current)
 
         let step = 0
         const animatedRoute: [number, number][] = []
         const interval = Math.max(8, Math.min(40, 1500 / fullRoute.length))
 
         const animate = () => {
-            if (!map.current) return
-
-            if (step < fullRoute.length) {
-                animatedRoute.push(fullRoute[step])
-
-                const source = map.current.getSource('route') as maplibregl.GeoJSONSource
-                if (source) {
-                    source.setData({
-                        type: 'Feature',
-                        properties: {},
-                        geometry: { type: 'LineString', coordinates: animatedRoute }
-                    })
-                }
-
-                step++
-                animationTimerRef.current = setTimeout(animate, interval)
+            if (!map.current || step >= fullRoute.length) return
+            animatedRoute.push(fullRoute[step])
+            const source = map.current.getSource('route') as maplibregl.GeoJSONSource
+            if (source) {
+                source.setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: animatedRoute } })
             }
+            step++
+            animationTimerRef.current = setTimeout(animate, interval)
         }
-
         animate()
     }
 
     const clearRoute = () => {
         if (!map.current) return
-
-        // Clear any existing animation
-        if (animationTimerRef.current) {
-            clearTimeout(animationTimerRef.current)
-        }
-
+        if (animationTimerRef.current) clearTimeout(animationTimerRef.current)
         const source = map.current.getSource('route') as maplibregl.GeoJSONSource
         if (source) {
-            source.setData({
-                type: 'Feature',
-                properties: {},
-                geometry: { type: 'LineString', coordinates: [] }
-            })
+            source.setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } })
         }
-
         setIsNavigating(false)
         setRouteInfo(null)
-        setInitStatus('Grid Ready')
+        setActiveLocation(null)
     }
 
     return (
-        <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-            {/* Map Container */}
-            <div className="flex-1 bg-slate-50 border border-slate-200 rounded-[3.5rem] shadow-2xl relative overflow-hidden min-h-[500px] lg:min-h-[750px]">
+        <div className="flex flex-col h-full w-full bg-slate-50 dark:bg-[#0A0A0A]">
+            {/* Map Section — top ~55% */}
+            <div className="relative w-full" style={{ height: '55%' }}>
                 {!isLoaded && (
-                    <div className="absolute inset-0 flex items-center justify-center z-20 bg-slate-50 flex-col gap-4">
+                    <div className="absolute inset-0 flex items-center justify-center z-20 bg-slate-50 dark:bg-[#0A0A0A] flex-col gap-3">
                         {mapError ? (
                             <>
-                                <div className="h-12 w-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-600">
-                                    <Globe className="h-8 w-8" />
-                                </div>
-                                <p className="text-xs font-black uppercase tracking-widest text-red-600">
-                                    Map Retrieval Error
-                                </p>
-                                <p className="text-xs text-slate-600 max-w-md text-center px-4">
-                                    {mapError}
-                                </p>
+                                <Globe className="h-10 w-10 text-red-500" />
+                                <p className="text-[10px] font-semibold uppercase tracking-widest text-red-400">{mapError}</p>
                             </>
                         ) : (
                             <>
-                                <Globe className="h-12 w-12 text-emerald-500 animate-pulse" />
-                                <div className="flex flex-col items-center gap-1">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
-                                        {initStatus}
-                                    </p>
-                                    <div className="w-48 h-1 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-emerald-500 animate-[loading_2s_ease-in-out_infinite]" style={{ width: '40%' }} />
-                                    </div>
-                                </div>
+                                <Globe className="h-10 w-10 text-emerald-500 animate-pulse" />
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400 dark:text-neutral-500">{initStatus}</p>
                             </>
                         )}
                     </div>
                 )}
-                <div
-                    ref={mapContainer}
-                    className="w-full h-[500px] lg:h-[750px] z-0 bg-[#F1F5F9] relative rounded-[3.5rem]"
-                />
-
-                {/* Status Badge */}
-                <div className="absolute top-4 left-4 md:top-10 md:left-10 z-10 flex flex-col gap-2">
-                    <div className="px-3 py-2 md:px-5 md:py-3 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-xl md:rounded-2xl shadow-xl flex items-center gap-2 md:gap-3 w-fit">
-                        <div className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-700">
-                            {initStatus}
-                        </p>
-                    </div>
-
-                    {routeInfo && (
-                        <div className="px-3 py-2 md:px-5 md:py-3 bg-indigo-600/90 backdrop-blur-xl border border-indigo-400 rounded-xl md:rounded-2xl shadow-xl flex items-center gap-4 text-white animate-in slide-in-from-left-4 duration-500">
-                            <div className="flex flex-col">
-                                <span className="text-[7px] font-bold uppercase opacity-70">Distance</span>
-                                <span className="text-xs font-black">{routeInfo.distance}</span>
-                            </div>
-                            <div className="w-px h-6 bg-white/20" />
-                            <div className="flex flex-col">
-                                <span className="text-[7px] font-bold uppercase opacity-70">Walking Time</span>
-                                <span className="text-xs font-black">{routeInfo.duration}</span>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                <div ref={mapContainer} className="w-full h-full" />
 
                 {/* Map Controls */}
-                <div className="absolute top-4 right-4 md:top-10 md:right-10 z-10 flex flex-col gap-2 md:gap-3">
+                <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
                     {[
                         {
-                            icon: Layers, label: 'Change Style', onClick: () => {
-                                const styles = [
+                            icon: Layers, label: 'Style', onClick: () => {
+                                const darkStyles = [
+                                    'https://tiles.openfreemap.org/styles/dark',
+                                    'https://tiles.openfreemap.org/styles/liberty',
+                                ]
+                                const lightStyles = [
                                     'https://tiles.openfreemap.org/styles/positron',
                                     'https://tiles.openfreemap.org/styles/bright',
                                     'https://tiles.openfreemap.org/styles/liberty',
-                                    'https://tiles.openfreemap.org/styles/dark'
                                 ]
-                                const nextIndex = (styles.indexOf(currentStyle) + 1) % styles.length
-                                const nextStyle = styles[nextIndex]
-                                setCurrentStyle(nextStyle)
+                                const styles = isDark ? darkStyles : lightStyles
+                                const currentMapStyle = map.current?.getStyle()?.name || ''
+                                // Cycle through styles
+                                const currentIdx = styles.findIndex(s => map.current?.getStyle() && true) 
+                                const nextStyle = styles[(currentIdx + 1) % styles.length]
                                 map.current?.setStyle(nextStyle)
                             }
                         },
                         {
-                            icon: Locate, label: 'Locate Active', onClick: () => {
-                                flyToLocation(activeLocation)
+                            icon: LocateFixed, label: 'Center', onClick: () => {
+                                map.current?.flyTo({ center: startPoint, zoom: 16.5, pitch: 45, bearing: -15, speed: 1.2 })
                             }
                         },
                         {
-                            icon: Navigation2, label: 'Reset Orientation', onClick: () => {
-                                map.current?.easeTo({
-                                    bearing: 0,
-                                    pitch: 0,
-                                    duration: 1000
-                                })
+                            icon: Navigation2, label: 'Reset', onClick: () => {
+                                map.current?.easeTo({ bearing: 0, pitch: 0, duration: 800 })
                             }
                         }
                     ].map((item, i) => {
@@ -450,103 +376,119 @@ export default function MapLibreMap() {
                                 key={i}
                                 onClick={item.onClick}
                                 title={item.label}
-                                className="h-10 w-10 md:h-12 md:w-12 bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl border border-slate-200 shadow-xl flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:scale-110 active:scale-95 transition-all"
+                                className="h-10 w-10 bg-white/90 dark:bg-[#1E1E1E]/90 backdrop-blur-sm rounded-xl flex items-center justify-center text-slate-500 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-[#2A2A2A] transition-all active:scale-95 shadow-sm dark:shadow-none"
                             >
-                                <Icon className="h-4 w-4 md:h-5 md:w-5" />
+                                <Icon className="h-4 w-4" />
                             </button>
                         )
                     })}
                 </div>
 
+                {/* Route Info Badge */}
+                {routeInfo && (
+                    <div className="absolute bottom-4 left-4 z-10 px-4 py-2.5 bg-white/90 dark:bg-[#1E1E1E]/90 backdrop-blur-sm rounded-xl flex items-center gap-4 shadow-sm dark:shadow-none animate-in slide-in-from-bottom-2 duration-300">
+                        <div>
+                            <p className="text-[8px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider">Distance</p>
+                            <p className="text-xs font-bold text-slate-900 dark:text-white">{routeInfo.distance}</p>
+                        </div>
+                        <div className="w-px h-6 bg-slate-200 dark:bg-[#2A2A2A]" />
+                        <div>
+                            <p className="text-[8px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider">Walk</p>
+                            <p className="text-xs font-bold text-slate-900 dark:text-white">{routeInfo.duration}</p>
+                        </div>
+                        <button onClick={clearRoute} className="ml-1 h-7 w-7 rounded-lg bg-slate-100 dark:bg-[#2A2A2A] flex items-center justify-center text-slate-400 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-white transition-colors">
+                            <X className="h-3 w-3" />
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {/* Sidebar Control Panel */}
-            <div className="w-full lg:w-96 shrink-0 space-y-6 z-10">
-                <div className="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-[2.5rem] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.06)] relative overflow-hidden">
-                    <header className="mb-8">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="h-10 w-10 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
-                                <Compass className="h-5 w-5" />
-                            </div>
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">
-                                Campus <span className="text-emerald-600 italic">Navigator</span>
-                            </h2>
-                        </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                            CHITKARA UNIVERSITY
-                        </p>
-                    </header>
-
-                    <div className="space-y-4">
-                        <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                            <input
-                                placeholder="Search Campus..."
-                                className="w-full h-12 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 ml-1">
-                                Key Landmarks ({LOCATIONS.length})
-                            </p>
-                            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
-                                {LOCATIONS.map((loc) => (
-                                    <button
-                                        key={loc.id}
-                                        onClick={() => flyToLocation(loc)}
-                                        className={cn(
-                                            "w-full flex items-center gap-4 p-4 rounded-3xl border transition-all group",
-                                            activeLocation.id === loc.id
-                                                ? "bg-emerald-600 border-emerald-600 text-white shadow-xl shadow-emerald-100"
-                                                : "bg-white border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/50 text-slate-600"
-                                        )}
-                                    >
-                                        <div className={cn(
-                                            "h-10 w-10 rounded-2xl flex items-center justify-center transition-all",
-                                            activeLocation.id === loc.id
-                                                ? "bg-white/20"
-                                                : "bg-slate-50 text-slate-400 group-hover:bg-emerald-100 group-hover:text-emerald-600"
-                                        )}>
-                                            <Building2 className="h-4 w-4" />
-                                        </div>
-                                        <div className="text-left flex-1 min-w-0">
-                                            <p className="text-[11px] font-black uppercase truncate tracking-tight">
-                                                {loc.name}
-                                            </p>
-                                            <p className={cn(
-                                                "text-[9px] font-medium truncate",
-                                                activeLocation.id === loc.id ? "text-emerald-50" : "text-slate-400"
-                                            )}>
-                                                {loc.description}
-                                            </p>
-                                        </div>
-                                        <ChevronRight className={cn(
-                                            "h-4 w-4 transition-all",
-                                            activeLocation.id === loc.id
-                                                ? "text-white translate-x-1"
-                                                : "text-slate-200 group-hover:text-emerald-500 group-hover:translate-x-1"
-                                        )} />
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Navigation Controls */}
-                        {isNavigating && (
-                            <div className="pt-6 border-t border-slate-100 space-y-3">
-                                <button
-                                    onClick={clearRoute}
-                                    className="w-full h-12 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-[1.5rem] font-bold text-xs uppercase tracking-[0.2em] transition-all active:scale-[0.98]"
-                                >
-                                    Clear Route
-                                </button>
-                            </div>
-                        )}
+            {/* Bottom Panel */}
+            <div className="flex-1 flex flex-col min-h-0 bg-slate-50 dark:bg-[#0A0A0A]">
+                {/* Search Bar */}
+                <div className="px-4 pt-4 pb-2 shrink-0">
+                    <div className="relative">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-neutral-500 pointer-events-none" />
+                        <input
+                            placeholder="Search campus locations..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full h-11 pl-10 pr-4 bg-white dark:bg-[#1E1E1E] rounded-xl text-sm font-medium text-slate-900 dark:text-neutral-200 placeholder:text-slate-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-neutral-600 transition-colors shadow-sm dark:shadow-none"
+                        />
                     </div>
                 </div>
-            </div>
 
+                {/* Filter Chips */}
+                <div className="px-4 pb-3 flex items-center gap-2 overflow-x-auto shrink-0 no-scrollbar">
+                    <div className="flex items-center gap-2 pr-4">
+                    {FILTERS.map(f => (
+                        <button
+                            key={f.value}
+                            onClick={() => setActiveFilter(f.value)}
+                            className={cn(
+                                "px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all",
+                                activeFilter === f.value
+                                    ? "bg-slate-900 dark:bg-white text-white dark:text-[#0A0A0A]"
+                                    : "bg-white dark:bg-[#1E1E1E] text-slate-500 dark:text-neutral-500 hover:text-slate-700 dark:hover:text-neutral-300 shadow-sm dark:shadow-none"
+                            )}
+                        >
+                            {f.label}
+                        </button>
+                    ))}
+                    </div>
+                </div>
+
+                {/* Location Cards */}
+                <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2">
+                    {filteredLocations.map(loc => {
+                        const Icon = getCategoryIcon(loc.category)
+                        const colors = getCategoryColor(loc.category)
+                        const isActive = activeLocation?.id === loc.id
+
+                        return (
+                            <button
+                                key={loc.id}
+                                ref={(el) => { cardRefs.current[loc.id] = el }}
+                                onClick={() => flyToLocation(loc)}
+                                className={cn(
+                                    "w-full flex items-center gap-3 p-3.5 rounded-xl transition-all duration-200 text-left group",
+                                    isActive
+                                        ? "bg-white dark:bg-[#1E1E1E] shadow-md dark:shadow-none"
+                                        : "bg-white/60 dark:bg-[#141414] hover:bg-white dark:hover:bg-[#1A1A1A] shadow-sm dark:shadow-none"
+                                )}
+                            >
+                                <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0", colors.bg)}>
+                                    <Icon className={cn("h-4 w-4", colors.text)} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className={cn(
+                                        "text-sm font-semibold truncate",
+                                        isActive ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-neutral-300"
+                                    )}>
+                                        {loc.name}
+                                    </p>
+                                    <p className="text-[11px] text-slate-400 dark:text-neutral-600 truncate">{loc.description}</p>
+                                </div>
+                                <div className={cn(
+                                    "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-all",
+                                    isActive
+                                        ? "bg-slate-900 dark:bg-white text-white dark:text-[#0A0A0A]"
+                                        : "bg-slate-100 dark:bg-[#1E1E1E] text-slate-400 dark:text-neutral-600 group-hover:text-slate-600 dark:group-hover:text-neutral-400"
+                                )}>
+                                    <ArrowUpRight className="h-3.5 w-3.5" />
+                                </div>
+                            </button>
+                        )
+                    })}
+
+                    {filteredLocations.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-neutral-600">
+                            <Search className="h-8 w-8 mb-3" />
+                            <p className="text-sm font-medium">No locations found</p>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     )
 }

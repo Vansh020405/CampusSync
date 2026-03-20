@@ -78,11 +78,11 @@ export default function StudentExamsPage() {
     const getStatusStyles = (status: string) => {
         switch (status) {
             case 'TODAY':
-                return "bg-amber-100 text-amber-700 border-amber-200"
+                return "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30"
             case 'COMPLETED':
-                return "bg-emerald-100 text-emerald-700 border-emerald-200"
+                return "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30"
             default:
-                return "bg-indigo-100 text-indigo-700 border-indigo-200"
+                return "bg-indigo-100 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/30"
         }
     }
 
@@ -92,134 +92,137 @@ export default function StudentExamsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-background">
             <header className="px-6 py-8 md:px-12 md:pt-12">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">
-                            <Monitor className="h-3 w-3" /> Examination Hub
+                        <div className="flex items-center gap-2 text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1.5 opacity-80">
+                            <Monitor className="h-4 w-4" />EXAMINATION HUB
                         </div>
-                        <h1 className="text-2xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-tight">
-                            Exam <span className="text-indigo-600 not-italic">Schedule</span>
+                        <h1 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-foreground tracking-tighter uppercase leading-tight">
+                            <span className="text-indigo-600 dark:text-indigo-400 not-italic">Evaluation</span> Schedule
                         </h1>
-                        <p className="text-slate-500 font-medium max-w-lg">
-                            Track your upcoming examinations, venue details, and seating arrangements in real-time.
+                        <p className="text-slate-500 dark:text-muted-foreground font-medium max-w-lg text-sm">
+                            Real-time synchronization of upcoming academic evaluations, venue, and institutional seating arrangements.
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-2xl border border-slate-100 shadow-sm">
-                        <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-                            <LayoutDashboard className="h-5 w-5" />
+                    <div className="flex items-center gap-4 bg-white dark:bg-card p-2 pr-6 rounded-[2rem] border border-slate-100 dark:border-border shadow-sm">
+                        <div className="h-12 w-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-200 dark:shadow-none transition-transform hover:scale-110">
+                            <LayoutDashboard className="h-6 w-6" />
                         </div>
                         <div>
-                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Exams</p>
-                            <p className="text-lg font-black text-slate-900 leading-none">{exams.length}</p>
+                            <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest leading-none mb-1.5">Scheduled Exams</p>
+                            <p className="text-xl font-black text-slate-900 dark:text-foreground leading-none">{exams.length}</p>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-6 pb-20">
+            <main className="max-w-7xl mx-auto px-6 pb-24">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20 gap-4">
-                        <div className="h-12 w-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Retrieving Exam Assets...</p>
+                    <div className="flex flex-col items-center justify-center py-24 gap-6">
+                        <div className="h-16 w-16 border-4 border-indigo-600 border-t-transparent rounded-[2rem] animate-spin shadow-xl"></div>
+                        <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.4em] animate-pulse">Loading Exams...</p>
                     </div>
                 ) : exams.length === 0 ? (
-                    <div className="bg-white border border-slate-100 rounded-[2.5rem] p-12 text-center shadow-sm">
-                        <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
-                            <Calendar className="h-10 w-10" />
+                    <div className="bg-white dark:bg-card border border-slate-100 dark:border-border rounded-[3.5rem] p-16 text-center shadow-2xl shadow-slate-200/50 dark:shadow-none">
+                        <div className="h-24 w-24 bg-slate-50 dark:bg-muted rounded-full flex items-center justify-center mx-auto mb-8 text-slate-300 dark:text-muted-foreground/30">
+                            <Calendar className="h-12 w-12" />
                         </div>
-                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">No Exams Found</h3>
-                        <p className="text-slate-500 max-w-xs mx-auto text-sm">
-                            There are currently no examinations scheduled for your section. Check back later for updates.
+                        <h3 className="text-2xl font-black text-slate-900 dark:text-foreground uppercase italic tracking-tight mb-3">Void Assessment Cache</h3>
+                        <p className="text-slate-500 dark:text-muted-foreground max-w-sm mx-auto text-sm leading-relaxed uppercase tracking-tight font-medium">
+                            No active examination protocols detected for your current sector. Authorization pending.
                         </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {exams.map((exam, index) => {
                             const status = getStatus(exam.date)
                             return (
                                 <motion.div
                                     key={exam.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    className="group bg-white border border-slate-100 rounded-[1.5rem] p-4 md:p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: index * 0.08 }}
+                                    className="group bg-white dark:bg-card border-0 dark:border dark:border-border rounded-[2.5rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] dark:shadow-none hover:shadow-2xl hover:shadow-indigo-500/10 dark:hover:bg-muted/50 transition-all duration-500 relative overflow-hidden active:scale-[0.98]"
                                 >
-                                    {/* Glass Decor */}
-                                    <div className="absolute -right-8 -top-8 h-24 w-24 bg-indigo-50 rounded-full blur-3xl group-hover:bg-indigo-100 transition-colors" />
-
-                                    <div className="relative space-y-4">
-                                        <div className="flex items-start justify-between">
+                                    <div className="relative space-y-6">
+                                        <div className="flex items-center justify-between">
                                             <div className={cn(
-                                                "px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest",
+                                                "px-5 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-[0.15em]",
                                                 getStatusStyles(status)
                                             )}>
                                                 {status}
                                             </div>
-                                            <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                                {exam.type}
-                                            </span>
+                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-muted rounded-xl border border-slate-100 dark:border-border">
+                                                <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                                                <span className="text-[9px] font-black text-slate-500 dark:text-muted-foreground uppercase tracking-wider">
+                                                    {exam.type}
+                                                </span>
+                                            </div>
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <h3 className="text-lg md:text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 uppercase tracking-tight">
+                                        <div className="space-y-2">
+                                            <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1 uppercase tracking-tighter">
                                                 {exam.subject}
                                             </h3>
-                                            <div className="flex items-center gap-2 text-slate-500">
-                                                <Calendar className="h-3.5 w-3.5 text-indigo-500" />
-                                                <span className="text-xs font-bold uppercase tracking-tight">
+                                            <div className="flex items-center gap-3 text-slate-400 dark:text-muted-foreground group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
+                                                <Calendar className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                                                <span className="text-xs font-black uppercase tracking-widest">
                                                     {new Date(exam.date).toLocaleDateString('en-US', {
                                                         weekday: 'short',
-                                                        month: 'long',
-                                                        day: 'numeric'
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        year: 'numeric'
                                                     })}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-3 py-4 border-y border-slate-50">
-                                            <div className="space-y-1">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Time</p>
-                                                <div className="flex items-center gap-1.5 text-slate-700">
-                                                    <Clock className="h-3.5 w-3.5 text-slate-400" />
-                                                    <span className="text-xs font-bold">{exam.startTime}</span>
+                                        <div className="grid grid-cols-2 gap-4 py-6 border-y border-slate-50 dark:border-border/50">
+                                            <div className="space-y-1.5">
+                                                <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em]">Time</p>
+                                                <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+                                                    <Clock className="h-4 w-4 text-indigo-500/50" />
+                                                    <span className="text-sm font-black ">{exam.startTime}</span>
                                                 </div>
                                             </div>
-                                            <div className="space-y-1">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Duration</p>
-                                                <div className="flex items-center gap-1.5 text-slate-700">
-                                                    <BadgeCheck className="h-3.5 w-3.5 text-slate-400" />
-                                                    <span className="text-xs font-bold">{exam.duration}</span>
+                                            <div className="space-y-1.5 text-right">
+                                                <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em]">Duration</p>
+                                                <div className="flex items-center gap-2 justify-end text-slate-700 dark:text-slate-200 font-black">
+                                                    <span className="text-sm">{exam.duration}</span>
+                                                    <BadgeCheck className="h-4 w-4 text-emerald-500" />
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
-                                                    <MapPin className="h-5 w-5" />
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-12 w-12 bg-slate-50 dark:bg-muted rounded-2xl flex items-center justify-center text-slate-400 dark:text-muted-foreground group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:bg-indigo-500 transition-all duration-300 shadow-inner">
+                                                    <MapPin className="h-6 w-6" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Venue</p>
-                                                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-tight">
-                                                        {exam.room} <span className="text-indigo-200 mx-1">/</span> {exam.hall || 'Main'}
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5">Information</p>
+                                                    <p className="text-xs font-black text-slate-900 dark:text-foreground uppercase tracking-tight">
+                                                        {exam.room} <span className="text-indigo-300 dark:text-indigo-500 mx-1">/</span> {exam.hall || 'MAIN'}
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Seat</p>
-                                                <p className="text-lg font-black text-indigo-600 leading-none">{exam.seatNo}</p>
+                                                <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5">Room</p>
+                                                <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400 leading-none tracking-tighter ">{exam.seatNo}</p>
                                             </div>
                                         </div>
 
                                         <button
                                             onClick={() => openSeatingPlan(exam)}
-                                            className="w-full py-3 md:py-4 bg-slate-50 hover:bg-slate-900 text-slate-500 hover:text-white rounded-xl md:rounded-[1.25rem] text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
+                                            className="w-full py-4 bg-slate-900 dark:bg-muted dark:hover:bg-primary dark:hover:text-white text-white dark:text-foreground rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden relative shadow-xl shadow-slate-200 dark:shadow-none"
                                         >
-                                            View Seating Plan
-                                            <ChevronRight className="h-3 w-3 group-hover/btn:translate-x-1 transition-transform" />
+                                            <span className="relative z-10 flex items-center gap-2">
+                                                expand seating plan
+                                                <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                            </span>
                                         </button>
                                     </div>
                                 </motion.div>
@@ -238,91 +241,91 @@ export default function StudentExamsPage() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setIsModalOpen(false)}
-                            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+                            className="absolute inset-0 bg-slate-900/80 backdrop-blur-xl"
                         />
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 40 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="relative w-full max-w-lg bg-white rounded-3xl md:rounded-[3rem] shadow-2xl overflow-hidden"
+                            exit={{ opacity: 0, scale: 0.9, y: 40 }}
+                            className="relative w-full max-w-lg bg-white dark:bg-card border-0 dark:border dark:border-border rounded-[4rem] shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-hidden"
                         >
-                            <div className="p-6 md:p-10">
-                                <header className="flex items-center justify-between mb-8">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Seating Asset #104</p>
-                                        <h3 className="text-xl md:text-3xl font-black text-slate-900 uppercase italic tracking-tighter">
-                                            Venue <span className="text-indigo-600 not-italic">Intelligence</span>
+                            <div className="p-8 md:p-12">
+                                <header className="flex items-center justify-between mb-10">
+                                    <div className="space-y-2">
+                                        <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.3em]">Institutional Asset #104</p>
+                                        <h3 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-foreground uppercase italic tracking-tighter leading-none">
+                                            Venue <span className="text-indigo-600 dark:text-indigo-400 not-italic">Intel</span>
                                         </h3>
                                     </div>
                                     <button
                                         onClick={() => setIsModalOpen(false)}
-                                        className="h-12 w-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                                        className="h-14 w-14 bg-slate-50 dark:bg-muted rounded-[2rem] flex items-center justify-center text-slate-400 dark:text-muted-foreground hover:bg-rose-50 dark:hover:bg-rose-500/20 hover:text-rose-500 transition-all active:scale-90"
                                     >
-                                        <AlertCircle className="h-6 w-6" />
+                                        <AlertCircle className="h-7 w-7" />
                                     </button>
                                 </header>
 
-                                <div className="space-y-4 md:space-y-6">
-                                    <div className="bg-slate-50 rounded-2xl md:rounded-[2rem] p-4 md:p-6 grid grid-cols-2 gap-4 md:gap-6">
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-indigo-500">
-                                                    <Building2 className="h-5 w-5" />
+                                <div className="space-y-6 md:space-y-8">
+                                    <div className="bg-slate-50 dark:bg-muted/50 rounded-[3rem] p-6 md:p-8 grid grid-cols-2 gap-8 shadow-inner">
+                                        <div className="space-y-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-12 w-12 bg-white dark:bg-card rounded-2xl shadow-sm flex items-center justify-center text-indigo-500">
+                                                    <Building2 className="h-6 w-6" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Block</p>
-                                                    <p className="text-sm font-bold text-slate-900 uppercase tracking-tight">{selectedExam.block || 'N/A'}</p>
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Block</p>
+                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight italic">{selectedExam.block || 'INT'}</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-indigo-500">
-                                                    <Layers className="h-5 w-5" />
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-12 w-12 bg-white dark:bg-card rounded-2xl shadow-sm flex items-center justify-center text-indigo-500">
+                                                    <Layers className="h-6 w-6" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Floor</p>
-                                                    <p className="text-sm font-bold text-slate-900 uppercase tracking-tight">{selectedExam.floor || 'N/A'}</p>
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Floor</p>
+                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight italic">{selectedExam.floor || 'G'}</p>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-emerald-500">
-                                                    <MapPin className="h-5 w-5" />
+                                        <div className="space-y-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-12 w-12 bg-white dark:bg-card rounded-2xl shadow-sm flex items-center justify-center text-emerald-500">
+                                                    <MapPin className="h-6 w-6" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Room #</p>
-                                                    <p className="text-sm font-bold text-slate-900 uppercase tracking-tight">{selectedExam.room}</p>
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Sector</p>
+                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight italic">{selectedExam.room}</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-amber-500">
-                                                    <User className="h-5 w-5" />
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-12 w-12 bg-white dark:bg-card rounded-2xl shadow-sm flex items-center justify-center text-amber-500">
+                                                    <User className="h-6 w-6" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Position</p>
-                                                    <p className="text-sm font-bold text-slate-900 uppercase tracking-tight">Seat {selectedExam.seatNo}</p>
+                                                    <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Position</p>
+                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight italic">{selectedExam.seatNo}</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="bg-indigo-600 rounded-2xl md:rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 h-32 w-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+                                    <div className="bg-indigo-600 rounded-[3rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl shadow-indigo-500/20">
+                                        <div className="absolute top-0 right-0 h-40 w-40 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
                                         <div className="relative flex items-center justify-between">
-                                            <div>
-                                                <h4 className="text-base md:text-lg font-black uppercase tracking-tight leading-none mb-1">{selectedExam.subject}</h4>
-                                                <p className="text-[8px] md:text-[10px] font-bold text-indigo-100 uppercase tracking-widest opacity-80">Final Verification Complete</p>
+                                            <div className="space-y-2">
+                                                <h4 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none italic">{selectedExam.subject}</h4>
+                                                <p className="text-[9px] md:text-[10px] font-black text-indigo-100 uppercase tracking-[0.4em] opacity-80">Verification Secured</p>
                                             </div>
-                                            <CheckCircle2 className="h-8 w-8 md:h-10 md:w-10 text-white opacity-40" />
+                                            <CheckCircle2 className="h-10 w-10 md:h-12 md:w-12 text-white/50" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <button
                                     onClick={() => setIsModalOpen(false)}
-                                    className="w-full mt-6 md:mt-10 py-4 md:py-5 bg-slate-900 text-white rounded-2xl md:rounded-[1.5rem] text-[10px] md:text-xs font-black uppercase tracking-[0.3em] shadow-2xl shadow-slate-200 hover:scale-[0.98] transition-all"
+                                    className="w-full mt-10 py-5 bg-slate-900 dark:bg-primary text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:translate-y-px transition-all duration-300"
                                 >
-                                    Dismiss Portal
+                                    AUTHORIZE DISMISSAL
                                 </button>
                             </div>
                         </motion.div>

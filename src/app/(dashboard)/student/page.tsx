@@ -42,14 +42,14 @@ export default function StudentDashboard() {
     }, [session]);
 
     const tabs = [
-        { href: "/student/internships", label: "Internships", icon: Briefcase, color: "text-blue-600 bg-blue-100" },
-        { href: "/student/faculty", label: "Faculty", icon: Users, color: "text-green-600 bg-green-100" },
-        { href: "/student/resume", label: "Resume", icon: FileText, color: "text-purple-600 bg-purple-100" },
-        { href: "/student/skills", label: "Skill Gap", icon: BarChart, color: "text-orange-600 bg-orange-100" },
-        { href: "/student/syllabus", label: "Syllabus", icon: BookOpen, color: "text-rose-600 bg-rose-100" },
-        { href: "/student/classes", label: "Classes", icon: GraduationCap, color: "text-teal-600 bg-teal-100" },
-        { href: "/student/attendance", label: "Attendance", icon: Clock, color: "text-emerald-600 bg-emerald-100" },
-        { href: "/student/research", label: "Research", icon: Search, color: "text-indigo-600 bg-indigo-100" },
+        { href: "/student/internships", label: "Internships", icon: Briefcase, color: "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/10" },
+        { href: "/student/faculty", label: "Faculty", icon: Users, color: "text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-500/10" },
+        { href: "/student/resume", label: "Resume", icon: FileText, color: "text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/10" },
+        { href: "/student/skills", label: "Skill Gap", icon: BarChart, color: "text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/10" },
+        { href: "/student/syllabus", label: "Syllabus", icon: BookOpen, color: "text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-500/10" },
+        { href: "/student/classes", label: "Classes", icon: GraduationCap, color: "text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-500/10" },
+        { href: "/student/attendance", label: "Attendance", icon: Clock, color: "text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10" },
+        { href: "/student/research", label: "Research", icon: Search, color: "text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-500/10" },
     ]
 
     const handleAcknowledge = async (announcementId: string) => {
@@ -74,8 +74,8 @@ export default function StudentDashboard() {
     return (
         <div className="space-y-6 pb-20 animate-in fade-in zoom-in duration-500">
             {/* ... Premium Header ... */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 p-6 shadow-xl shadow-blue-500/20">
-                <div className="absolute top-0 right-0 -m-4 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 dark:from-card dark:via-card dark:to-card dark:border dark:border-border p-6 shadow-xl shadow-blue-500/20 dark:shadow-none">
+                <div className="absolute top-0 right-0 -m-4 h-32 w-32 rounded-full bg-white/10 blur-2xl dark:hidden"></div>
                 <div className="relative z-10 flex flex-col gap-6">
                     <div className="flex items-center justify-between">
                         <div>
@@ -110,8 +110,8 @@ export default function StudentDashboard() {
             {announcements.length > 0 && (
                 <div className="space-y-4 pt-2 px-1">
                     <div className="flex items-center justify-between px-1">
-                        <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 uppercase tracking-tight">
-                            <Megaphone className="h-5 w-5 text-rose-600" />
+                        <h2 className="text-lg font-black text-slate-800 dark:text-foreground flex items-center gap-2 uppercase tracking-tight">
+                            <Megaphone className="h-5 w-5 text-rose-600 dark:text-primary" />
                             Notice Board
                         </h2>
                     </div>
@@ -121,8 +121,8 @@ export default function StudentDashboard() {
 
                             return (
                                 <Card key={ann.id} className={cn(
-                                    "border-none shadow-sm rounded-2xl overflow-hidden transition-all relative",
-                                    isAcknowledged ? "opacity-60 bg-white" : idx === 0 ? "bg-slate-900 text-white shadow-xl shadow-slate-200" : "bg-white"
+                                    "border-none dark:border dark:border-border shadow-sm dark:shadow-none rounded-2xl overflow-hidden transition-all relative",
+                                    isAcknowledged ? "opacity-60 bg-white dark:bg-card" : idx === 0 ? "bg-slate-900 dark:bg-secondary text-white dark:text-foreground shadow-xl shadow-slate-200 dark:shadow-black/10" : "bg-white dark:bg-card"
                                 )}>
                                     {!isAcknowledged && (
                                         <div className="absolute top-0 right-0 p-2">
@@ -133,7 +133,7 @@ export default function StudentDashboard() {
                                         <div className="flex gap-4">
                                             <div className={cn(
                                                 "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center",
-                                                idx === 0 && !isAcknowledged ? "bg-white/10" : "bg-slate-50"
+                                                idx === 0 && !isAcknowledged ? "bg-white/10 dark:bg-card" : "bg-slate-50 dark:bg-card dark:border dark:border-border"
                                             )}>
                                                 <Bell className={cn("h-5 w-5", idx === 0 && !isAcknowledged ? "text-emerald-400" : "text-slate-400")} />
                                             </div>
@@ -143,7 +143,7 @@ export default function StudentDashboard() {
                                                         {new Date(ann.createdAt).toLocaleDateString()} • {ann.senderId === 'admin' ? 'SYSTEM CORE' : 'FACULTY'}
                                                     </p>
                                                 </div>
-                                                <p className="text-sm font-bold leading-relaxed">{ann.content}</p>
+                                                <p className="text-sm font-bold leading-relaxed dark:text-foreground">{ann.content}</p>
                                             </div>
                                         </div>
 
@@ -158,8 +158,8 @@ export default function StudentDashboard() {
                                                     className={cn(
                                                         "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95",
                                                         idx === 0
-                                                            ? "bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20"
-                                                            : "bg-slate-900 text-white"
+                                                            ? "bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20 dark:shadow-none dark:bg-primary dark:hover:bg-primary/80 dark:text-primary-foreground"
+                                                            : "bg-slate-900 text-white dark:bg-card dark:border dark:border-border dark:text-foreground dark:hover:bg-secondary"
                                                     )}
                                                 >
                                                     Acknowledge Access
@@ -177,8 +177,8 @@ export default function StudentDashboard() {
             {/* Quick Actions Grid */}
             <div className="space-y-4 pt-2">
                 <div className="flex items-center justify-between px-1">
-                    <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 uppercase tracking-tight">
-                        <LayoutDashboard className="h-5 w-5 text-indigo-600" />
+                    <h2 className="text-lg font-black text-slate-800 dark:text-foreground flex items-center gap-2 uppercase tracking-tight">
+                        <LayoutDashboard className="h-5 w-5 text-indigo-600 dark:text-primary" />
                         Academic Terminal
                     </h2>
                 </div>
@@ -187,7 +187,7 @@ export default function StudentDashboard() {
                         const Icon = tab.icon
                         return (
                             <Link key={tab.href} href={tab.href} className="group transition-all active:scale-95">
-                                <Card className="p-0 border-none shadow-md bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-shadow">
+                                <Card className="p-0 border-none dark:border dark:border-border shadow-md dark:shadow-none bg-white dark:bg-card rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/20 transition-shadow">
                                     <CardContent className="flex flex-col items-center justify-center p-5 gap-3">
                                         <div className={cn(
                                             "rounded-2xl p-4 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 shadow-sm",
@@ -196,7 +196,7 @@ export default function StudentDashboard() {
                                             <Icon className="h-7 w-7" />
                                         </div>
                                         <div className="text-center">
-                                            <span className="font-black text-xs text-slate-800 uppercase tracking-tighter">{tab.label}</span>
+                                            <span className="font-black text-xs text-slate-800 dark:text-foreground uppercase tracking-tighter">{tab.label}</span>
                                         </div>
                                     </CardContent>
                                 </Card>

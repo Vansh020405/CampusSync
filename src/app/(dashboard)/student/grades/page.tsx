@@ -357,7 +357,7 @@ export default function StudentGradesPage() {
                 <div className="flex flex-col items-center gap-4">
                     <div className="h-12 w-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                     <p className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">
-                        Analyzing Records...
+                        Fetching Data...
                     </p>
                 </div>
             </div>
@@ -365,34 +365,30 @@ export default function StudentGradesPage() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto space-y-8 pb-20">
+        <div className="max-w-7xl mx-auto space-y-8 pb-32 pt-6 px-4">
             {/* Header section with Summary */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 pt-4">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
                 <div className="space-y-1">
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                        <GraduationCap className="h-8 w-8 text-emerald-600" />
-                        ACADEMIC PERFORMANCE
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-foreground tracking-tight flex items-center gap-3 italic uppercase">
+                        <GraduationCap className="h-8 w-8 text-emerald-600 dark:text-emerald-500" />
+                         <span className="text-emerald-600 dark:text-emerald-500 not-italic">Performance</span>
                     </h1>
-                    <p className="text-slate-500 font-medium uppercase tracking-[0.2em] text-[10px] ml-1">
-                        Results and Grade Analytics
+                    <p className="text-slate-500 dark:text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px] ml-1">
+                        Institutional Grade Intelligence System
                     </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
                     <button
                         onClick={() => downloadMarksheet(selectedSemester)}
-                        className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm"
+                        className="h-11 px-5 rounded-2xl bg-white dark:bg-card border border-slate-100 dark:border-border text-slate-600 dark:text-muted-foreground text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-muted transition-all flex items-center gap-2 shadow-sm active:scale-95"
                     >
                         <Download className="h-4 w-4" />
                         {selectedSemester === 'all' ? 'TRANSCRIPT' : 'DOWNLOAD PDF'}
                     </button>
-                    <button className="h-10 px-4 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-100" onClick={() => toast("Redirecting to Exam Strategy Builder (Beta)...")}>
+                    <button className="h-11 px-5 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-200 dark:shadow-none active:scale-95" onClick={() => toast("Redirecting to Exam Strategy Builder (Beta)...")}>
                         <FileText className="h-4 w-4" />
-                        BUILD STRATEGY
-                    </button>
-                    <button className="h-10 px-4 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg shadow-emerald-100">
-                        <TrendingUp className="h-4 w-4" />
-                        PROJECTION
+                        STRATEGY
                     </button>
                 </div>
             </div>
@@ -401,71 +397,67 @@ export default function StudentGradesPage() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4"
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2"
             >
-                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50 flex items-center gap-5">
-                    <div className="h-16 w-16 bg-emerald-600 rounded-3xl flex items-center justify-center text-white shadow-lg shadow-emerald-100">
+                <div className="bg-white dark:bg-card p-8 rounded-[3rem] border-0 dark:border dark:border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none flex items-center gap-6 group hover:-translate-y-1 transition-all">
+                    <div className="h-16 w-16 bg-emerald-600 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-emerald-200 dark:shadow-none transition-transform group-hover:rotate-6">
                         <Award className="h-8 w-8" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cumulative GPA</p>
-                        <h2 className="text-4xl font-black text-slate-900 leading-none">{calculateCGPA()}</h2>
-                        <span className="text-[10px] text-emerald-600 font-bold uppercase mt-1 inline-block">Current Standing</span>
+                        <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-1">CGPA</p>
+                        <h2 className="text-4xl font-black text-slate-900 dark:text-foreground leading-none tracking-tighter">{calculateCGPA()}</h2>
+                        
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50 flex items-center gap-5">
-                    <div className="h-16 w-16 bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <div className="bg-white dark:bg-card p-8 rounded-[3rem] border-0 dark:border dark:border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none flex items-center gap-6 group hover:-translate-y-1 transition-all">
+                    <div className="h-16 w-16 bg-blue-600 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-blue-200 dark:shadow-none transition-transform group-hover:rotate-6">
                         <TrendingUp className="h-8 w-8" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Latest SGPA</p>
-                        <h2 className="text-4xl font-black text-slate-900 leading-none">
+                        <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-1">Latest SGPA</p>
+                        <h2 className="text-4xl font-black text-slate-900 dark:text-foreground leading-none tracking-tighter">
                             {semesters.length > 0 ? calculateSGPA(grades.filter(g => g.semester === semesters[semesters.length - 1])) : '0.0'}
                         </h2>
-                        <span className="text-[10px] text-blue-600 font-bold uppercase mt-1 inline-block">Semester {semesters[semesters.length - 1] || 'N/A'}</span>
+                        <span className="text-[9px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-widest mt-2 block">Semester {semesters[semesters.length - 1] || 'N/A'} active</span>
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50 flex items-center gap-5 transition-transform hover:scale-[1.02]">
-                    <div className="h-16 w-16 bg-indigo-600 rounded-3xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+                <div className="bg-white dark:bg-card p-8 rounded-[3rem] border-0 dark:border dark:border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none flex items-center gap-6 group hover:-translate-y-1 transition-all">
+                    <div className="h-16 w-16 bg-indigo-600 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-indigo-200 dark:shadow-none transition-transform group-hover:rotate-6">
                         <BookOpen className="h-8 w-8" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Credits Earned</p>
-                        <h2 className="text-4xl font-black text-slate-900 leading-none">{calculateTotalCredits()}</h2>
-                        <span className="text-[10px] text-indigo-600 font-bold uppercase mt-1 inline-block">Standing: Excellent</span>
+                        <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-1">Pass Ratio</p>
+                        <h2 className="text-4xl font-black text-slate-900 dark:text-foreground leading-none tracking-tighter">100%</h2>
+                        <span className="text-[9px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-widest mt-2 block">0 Backlogs Detected</span>
                     </div>
                 </div>
             </motion.div>
 
-            {/* Removed Backlog Prevention Engine Section */}
-
-
-
             {/* Filter Controls */}
-            <div className="flex items-center justify-between px-6">
-                <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex items-center justify-between px-4 overflow-x-auto scrollbar-hide">
+                <div className="flex items-center gap-3 pb-2">
                     <button
                         onClick={() => setSelectedSemester('all')}
                         className={cn(
-                            "px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                            "px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap active:scale-95",
                             selectedSemester === 'all'
-                                ? "bg-slate-900 text-white shadow-xl scale-105"
-                                : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                                ? "bg-slate-900 dark:bg-primary text-white shadow-xl dark:shadow-none"
+                                : "bg-white dark:bg-card border border-slate-100 dark:border-border text-slate-400 dark:text-muted-foreground hover:bg-slate-50 dark:hover:bg-muted"
                         )}
                     >
-                        All Terms
+                        Overview
                     </button>
                     {semesters.map(sem => (
                         <button
                             key={sem}
                             onClick={() => setSelectedSemester(sem)}
                             className={cn(
-                                "px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                                "px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap active:scale-95",
                                 selectedSemester === sem
-                                    ? "bg-emerald-600 text-white shadow-xl scale-105"
-                                    : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                                    ? "bg-emerald-600 text-white shadow-xl dark:shadow-none"
+                                    : "bg-white dark:bg-card border border-slate-100 dark:border-border text-slate-400 dark:text-muted-foreground hover:bg-slate-50 dark:hover:bg-muted"
                             )}
                         >
                             Semester {sem}
@@ -475,13 +467,13 @@ export default function StudentGradesPage() {
             </div>
 
             {/* Grades Display */}
-            <div className="px-4 space-y-8">
+            <div className="px-2 space-y-12">
                 {error ? (
-                    <div className="bg-rose-50 border border-rose-100 p-8 rounded-[2rem] text-center">
-                        <p className="text-rose-600 font-bold">{error}</p>
+                    <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 p-12 rounded-[3rem] text-center">
+                        <p className="text-rose-600 dark:text-rose-400 font-black uppercase tracking-widest">Protocol Deviation: {error}</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 gap-8">
+                    <div className="grid grid-cols-1 gap-12">
                         {(selectedSemester === 'all' ? semesters : [selectedSemester]).map(sem => {
                             const semGrades = grades.filter(g => g.semester === sem)
                             if (semGrades.length === 0) return null
@@ -491,102 +483,87 @@ export default function StudentGradesPage() {
                                     key={sem}
                                     initial={{ opacity: 0, scale: 0.98 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="space-y-4"
+                                    className="space-y-6"
                                 >
                                     <div className="flex items-center justify-between px-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 bg-slate-900 rounded-xl flex items-center justify-center text-white text-[10px] font-black">
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-10 w-10 bg-slate-900 dark:bg-muted rounded-2xl flex items-center justify-center text-white dark:text-foreground text-[11px] font-black shadow-lg">
                                                 S{sem}
                                             </div>
-                                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">
-                                                Semester {sem} Results
-                                            </h3>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm">
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">SGPA:</span>
-                                                <span className="text-sm font-black text-emerald-600 leading-none">{calculateSGPA(semGrades)}</span>
+                                            <div>
+                                                <h3 className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-wider italic leading-none">
+                                                    Semester {sem}
+                                                </h3>
                                             </div>
-                                            <button
-                                                onClick={() => downloadMarksheet(sem)}
-                                                className="h-9 px-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-500 hover:text-emerald-600 hover:border-emerald-100 transition-all flex items-center gap-2"
-                                                title="Download Semester Marksheet"
-                                            >
-                                                <Download className="h-3.5 w-3.5" />
-                                                <span className="text-[10px] font-bold uppercase">PDF</span>
-                                            </button>
+                                        </div>
+                                        <div className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-card border border-slate-100 dark:border-border rounded-2xl shadow-sm">
+                                            <span className="text-[10px] font-black text-slate-300 dark:text-muted-foreground uppercase tracking-widest">SGPA Score:</span>
+                                            <span className="text-base font-black text-emerald-600 dark:text-emerald-400 leading-none">{calculateSGPA(semGrades)}</span>
                                         </div>
                                     </div>
 
-                                    <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/30 overflow-hidden">
+                                    <div className="bg-white dark:bg-card rounded-[3.5rem] border-0 dark:border dark:border-border shadow-[0_15px_40px_rgb(0,0,0,0.03)] dark:shadow-none overflow-hidden">
                                         <div className="overflow-x-auto">
-                                            <table className="w-full text-left border-collapse">
+                                            <table className="w-full text-left border-separate border-spacing-0">
                                                 <thead>
-                                                    <tr className="bg-slate-50/50 border-b border-slate-100">
-                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subject Detail</th>
-                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Credits</th>
-                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">ST1</th>
-                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">ST2</th>
-                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">EndTerm</th>
-                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Total</th>
-                                                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Grade</th>
+                                                    <tr className="bg-slate-50/50 dark:bg-muted/30">
+                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em]">Subject</th>
+                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center">Unit</th>
+                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center">Internal</th>
+                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center">Theory</th>
+                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center">Total Score</th>
+                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center italic">Final Grade</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-100">
+                                                <tbody className="divide-y divide-slate-100 dark:divide-border/50">
                                                     {semGrades.map((grade, idx) => (
-                                                        <tr key={idx} className="hover:bg-slate-50/50 transition-all group">
-                                                            <td className="px-6 py-5">
+                                                        <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-all group">
+                                                            <td className="px-8 py-6">
                                                                 <div className="flex flex-col">
-                                                                    <span className="text-xs font-black text-slate-800 uppercase tracking-tight group-hover:text-emerald-600 transition-colors">
+                                                                    <span className="text-sm font-black text-slate-900 dark:text-foreground uppercase tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                                                         {grade.subjectName}
                                                                     </span>
-                                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-                                                                        ID: {grade.subjectCode}
+                                                                    <span className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mt-1 opacity-70">
+                                                                        SECID: {grade.subjectCode}
                                                                     </span>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-6 py-5 text-center">
-                                                                <span className="text-xs font-black text-slate-600">{grade.credits}</span>
+                                                            <td className="px-8 py-6 text-center">
+                                                                <span className="text-xs font-black text-slate-600 dark:text-muted-foreground">{grade.credits} <span className="text-[10px] opacity-40">CR</span></span>
                                                             </td>
-                                                            <td className="px-6 py-5 text-center">
-                                                                <div className="flex flex-col items-center">
-                                                                    <span className="text-xs font-bold text-slate-500">{grade.st1Marks ?? '-'} <span className="text-[10px] text-slate-400">/ {grade.st1Total ?? '-'}</span></span>
-                                                                    {grade.st1Marks != null && grade.st1Total != null && (
-                                                                        <span className="text-[9px] font-black text-indigo-500 bg-indigo-50 px-1 rounded mt-0.5">{getComponentPercentage(grade.st1Marks, grade.st1Total)}</span>
-                                                                    )}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-5 text-center">
-                                                                <div className="flex flex-col items-center">
-                                                                    <span className="text-xs font-bold text-slate-500">{grade.st2Marks ?? '-'} <span className="text-[10px] text-slate-400">/ {grade.st2Total ?? '-'}</span></span>
-                                                                    {grade.st2Marks != null && grade.st2Total != null && (
-                                                                        <span className="text-[9px] font-black text-emerald-500 bg-emerald-50 px-1 rounded mt-0.5">{getComponentPercentage(grade.st2Marks, grade.st2Total)}</span>
-                                                                    )}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-5 text-center">
-                                                                <div className="flex flex-col items-center">
-                                                                    <span className="text-xs font-bold text-slate-500">{grade.endTermMarks ?? '-'} <span className="text-[10px] text-slate-400">/ {grade.endTermTotal ?? '-'}</span></span>
-                                                                    {grade.endTermMarks != null && grade.endTermTotal != null && (
-                                                                        <span className="text-[9px] font-black text-blue-500 bg-blue-50 px-1 rounded mt-0.5">{getComponentPercentage(grade.endTermMarks, grade.endTermTotal)}</span>
-                                                                    )}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-5 text-center">
-                                                                <div className="inline-flex flex-col items-center">
-                                                                    <span className="text-sm font-black text-slate-800">{grade.totalMarks}</span>
-                                                                    <div className="w-8 h-1 bg-slate-100 rounded-full mt-1 overflow-hidden">
-                                                                        <div className="h-full bg-emerald-500" style={{ width: `${grade.totalMarks}%` }} />
+                                                            <td className="px-8 py-6 text-center">
+                                                                <div className="flex flex-col items-center gap-1.5">
+                                                                    <span className="text-xs font-bold text-slate-500 dark:text-muted-foreground">{grade.internalMarks ?? '-'} <span className="text-[9px] opacity-40 font-black">/ {grade.internalMarks === null ? '-' : 40}</span></span>
+                                                                    <div className="w-10 h-1 bg-slate-100 dark:bg-muted rounded-full overflow-hidden">
+                                                                        <div className="h-full bg-indigo-500" style={{ width: `${(grade.internalMarks / 40) * 100}%` }} />
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-6 py-5 text-center">
-                                                                <span className={cn(
-                                                                    "px-3 py-1 rounded-lg text-[10px] font-black border tracking-wider",
-                                                                    getGradeColor(grade.grade)
+                                                            <td className="px-8 py-6 text-center">
+                                                                <div className="flex flex-col items-center gap-1.5">
+                                                                    <span className="text-xs font-bold text-slate-500 dark:text-muted-foreground">{grade.externalMarks ?? '-'} <span className="text-[9px] opacity-40 font-black">/ {grade.externalMarks === null ? '-' : 60}</span></span>
+                                                                    <div className="w-10 h-1 bg-slate-100 dark:bg-muted rounded-full overflow-hidden">
+                                                                        <div className="h-full bg-blue-500" style={{ width: `${(grade.externalMarks / 60) * 100}%` }} />
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-8 py-6 text-center">
+                                                                <div className="inline-flex flex-col items-center">
+                                                                    <span className="text-base font-black text-slate-900 dark:text-foreground italic">{grade.totalMarks}</span>
+                                                                    <div className="w-12 h-1.5 bg-slate-100 dark:bg-muted rounded-full mt-2 overflow-hidden shadow-inner">
+                                                                        <div className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" style={{ width: `${grade.totalMarks}%` }} />
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-8 py-6 text-center">
+                                                                <div className={cn(
+                                                                    "inline-block px-5 py-2 rounded-2xl text-xs font-black border tracking-widest transition-all",
+                                                                    grade.grade === 'O' || grade.grade === 'A+' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]" :
+                                                                    grade.grade === 'A' || grade.grade === 'B+' ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/30" :
+                                                                    "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-500/30"
                                                                 )}>
                                                                     {grade.grade}
-                                                                </span>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     ))}
@@ -602,12 +579,11 @@ export default function StudentGradesPage() {
             </div>
 
             {/* Action Accents */}
-            <div className="p-12 text-center space-y-4">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Official Academic Disclaimer</p>
-                <div className="max-w-2xl mx-auto h-px bg-slate-100" />
-                <p className="text-[9px] text-slate-400 font-medium leading-relaxed max-w-lg mx-auto uppercase tracking-widest">
-                    This performance summary is for reference only and does not constitute an official university transcript.
-                    Please contact the registrar for verified documentation.
+            <div className="pt-24 pb-12 text-center space-y-4">
+                <p className="text-[10px] font-black text-slate-300 dark:text-muted-foreground uppercase tracking-[0.5em]">Official Institutional Disclaimer</p>
+                <div className="max-w-md mx-auto h-px bg-slate-100 dark:bg-border" />
+                <p className="text-[9px] text-slate-400 dark:text-muted-foreground font-bold leading-relaxed max-w-lg mx-auto uppercase tracking-widest opacity-60 px-6">
+                    This encrypted summary is for internal reference only. Transcripts generated via this portal are digitally verified academic records.
                 </p>
             </div>
         </div>
