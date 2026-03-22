@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -306,8 +306,8 @@ export default function AdminExamsPage() {
             <div className="max-w-7xl mx-auto py-32 px-4 text-center">
                 <div className="bg-white rounded-[3rem] border border-slate-200 p-20 shadow-2xl">
                     <ShieldAlert className="h-20 w-20 text-rose-100 mx-auto mb-8" />
-                    <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4 italic">
-                        Access <span className="text-rose-600 not-italic">Restricted</span>
+                    <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4 ">
+                        Access <span className="text-rose-600 not-">Restricted</span>
                     </h1>
                     <p className="text-slate-500 font-medium max-w-sm mx-auto mb-10">
                         You are currently authenticated with a non-privileged account. Please switch to an Administrative Protocol to access this hub.
@@ -482,7 +482,7 @@ export default function AdminExamsPage() {
                             <div>
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Scheduled</p>
                                 <h2 className="text-4xl font-black text-slate-900 leading-none">{exams.length}</h2>
-                                <span className="text-[10px] text-rose-600 font-bold uppercase mt-1 inline-block italic">Academic Session 2024</span>
+                                <span className="text-[10px] text-rose-600 font-bold uppercase mt-1 inline-block ">Academic Session 2024</span>
                             </div>
                         </div>
 
@@ -495,7 +495,7 @@ export default function AdminExamsPage() {
                                 <h2 className="text-4xl font-black text-slate-900 leading-none">
                                     {exams.reduce((acc, curr) => acc + (curr._count?.seating || 0), 0)}
                                 </h2>
-                                <span className="text-[10px] text-indigo-600 font-bold uppercase mt-1 inline-block italic">Students Allotted</span>
+                                <span className="text-[10px] text-indigo-600 font-bold uppercase mt-1 inline-block ">Students Allotted</span>
                             </div>
                         </div>
 
@@ -508,7 +508,7 @@ export default function AdminExamsPage() {
                                 <h2 className="text-4xl font-black text-slate-900 leading-none">
                                     {new Set(exams.map(e => e.room)).size}
                                 </h2>
-                                <span className="text-[10px] text-amber-600 font-bold uppercase mt-1 inline-block italic">Classrooms Utilized</span>
+                                <span className="text-[10px] text-amber-600 font-bold uppercase mt-1 inline-block ">Classrooms Utilized</span>
                             </div>
                         </div>
                     </div>
@@ -577,7 +577,7 @@ export default function AdminExamsPage() {
                                                             <Building2 className="h-3.5 w-3.5 text-indigo-500" />
                                                             Room {exam.room}
                                                         </div>
-                                                        <span className="text-[9px] font-bold text-slate-400 uppercase ml-5 opacity-60">{exam.block} • {exam.floor}</span>
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase ml-5 opacity-60">{exam.block} â€¢ {exam.floor}</span>
                                                         {exam.invigilator && (
                                                             <div className="flex items-center gap-1.5 text-[9px] font-black text-rose-500 uppercase mt-2 ml-5 bg-rose-50 px-2 py-0.5 rounded-md w-fit">
                                                                 <Users className="h-2.5 w-2.5" />

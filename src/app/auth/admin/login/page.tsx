@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
@@ -173,7 +173,7 @@ export default function AdminLoginPage() {
                                     <Input
                                         id="password"
                                         type="password"
-                                        placeholder="••••••••"
+                                        placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="h-14 bg-slate-50/50 border-none rounded-2xl focus-visible:ring-slate-900 font-bold placeholder:text-slate-200 transition-all group-hover:bg-slate-50"
@@ -260,7 +260,7 @@ export default function AdminLoginPage() {
                                     <Label className="text-[9px] uppercase font-black tracking-widest text-slate-400 px-1">Password</Label>
                                     <Input
                                         type="password"
-                                        placeholder="••••••••"
+                                        placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                         value={formData.password}
                                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                         className="h-12 bg-slate-50/50 border-none rounded-xl focus-visible:ring-slate-900 font-bold text-xs"
@@ -280,7 +280,7 @@ export default function AdminLoginPage() {
 
                         <div className="mt-10 pt-8 border-t border-slate-50 text-center">
                             <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                                CampusSync © 2026
+                                CampusSync Â© 2026
                             </span>
                         </div>
                     </CardContent>

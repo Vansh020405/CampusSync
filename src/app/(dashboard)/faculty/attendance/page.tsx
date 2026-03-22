@@ -266,27 +266,27 @@ export default function FacultyAttendancePage() {
     const lowAttendanceStudents = currentStudents.filter(s => s.attendance < 75);
 
     return (
-        <div className="space-y-4 pb-20 max-w-7xl mx-auto p-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="space-y-4 pb-20 max-w-7xl mx-auto p-4 animate-in fade-in slide-in-from-bottom-2 duration-500 min-h-screen bg-slate-50/30 dark:bg-background font-sans">
             {/* Extremely Compact Header & Toolbar */}
-            <div className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+            <div className="bg-white dark:bg-card rounded-2xl p-3 shadow-sm border border-slate-100 dark:border-border flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3 shrink-0">
+                    <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-500/20">
                         <FileCheck className="h-5 w-5" />
                     </div>
                     <div>
-                        <h1 className="text-lg font-black text-slate-800 tracking-tight leading-none">Attendance</h1>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Quick Marking Console</p>
+                        <h1 className="text-lg font-black text-slate-800 dark:text-foreground tracking-tight leading-none uppercase ">Attendance</h1>
+                        <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mt-1 opacity-60">Digital Ledger Console</p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-grow justify-end">
+                <div className="flex flex-wrap items-center gap-2 flex-grow justify-start md:justify-end min-w-0">
                     <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                        <SelectTrigger className="h-9 w-40 text-xs font-bold bg-slate-50 border-slate-200">
+                        <SelectTrigger className="h-9 w-full md:w-40 text-[10px] font-black uppercase tracking-widest bg-slate-50 dark:bg-muted border-slate-200 dark:border-border text-slate-600 dark:text-foreground">
                             <SelectValue placeholder="Subject" />
                         </SelectTrigger>
-                        <SelectContent className="max-h-[200px]">
+                        <SelectContent className="max-h-[200px] border-slate-100 dark:border-border">
                             {facultySubjects.map((subject: string) => (
-                                <SelectItem key={subject} value={subject.trim()} className="text-xs font-bold">
+                                <SelectItem key={subject} value={subject.trim()} className="text-[10px] font-black uppercase tracking-wider">
                                     {subject.trim()}
                                 </SelectItem>
                             ))}
@@ -294,12 +294,12 @@ export default function FacultyAttendancePage() {
                     </Select>
 
                     <Select value={selectedSection} onValueChange={setSelectedSection}>
-                        <SelectTrigger className="h-9 w-32 text-xs font-bold bg-slate-50 border-slate-200">
+                        <SelectTrigger className="h-9 w-32 md:w-32 text-[10px] font-black uppercase tracking-widest bg-slate-50 dark:bg-muted border-slate-200 dark:border-border text-slate-600 dark:text-foreground">
                             <SelectValue placeholder="Section" />
                         </SelectTrigger>
-                        <SelectContent className="max-h-[200px]">
+                        <SelectContent className="max-h-[200px] border-slate-100 dark:border-border">
                             {getSectionsList().map((section: string) => (
-                                <SelectItem key={section} value={section} className="text-xs font-bold">
+                                <SelectItem key={section} value={section} className="text-[10px] font-black uppercase tracking-wider">
                                     Section {section}
                                 </SelectItem>
                             ))}
@@ -310,12 +310,12 @@ export default function FacultyAttendancePage() {
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
-                        className="h-9 w-36 px-2 rounded-md border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-300"
+                        className="h-9 w-36 px-2 rounded-md border border-slate-200 dark:border-border bg-slate-50 dark:bg-muted text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-foreground focus:outline-none focus:ring-1 focus:ring-slate-300"
                     />
 
-                    <div className="h-8 w-px bg-slate-200 mx-1 hidden md:block" />
+                    <div className="h-8 w-px bg-slate-200 dark:bg-border mx-1 hidden lg:block" />
 
-                    <div className="flex bg-slate-100/80 p-1 rounded-xl gap-1">
+                    <div className="flex bg-slate-100/80 dark:bg-muted/50 p-1 rounded-xl gap-1">
                         {[1, 2, 3, 4, 5, 6, 7].map((p) => {
                             const isSelected = selectedPeriods.includes(p);
                             return (
@@ -357,18 +357,18 @@ export default function FacultyAttendancePage() {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Main List */}
                 <div className="lg:col-span-3 space-y-3">
-                    <Card className="border border-slate-100 shadow-sm overflow-hidden bg-white rounded-2xl">
+                    <Card className="border border-slate-100 dark:border-border shadow-sm overflow-hidden bg-white dark:bg-card rounded-2xl">
                         {/* List Header */}
-                        <div className="bg-slate-50/50 border-b border-slate-100 px-4 py-2 flex items-center justify-between sticky top-0 z-10">
+                        <div className="bg-slate-50/50 dark:bg-muted/20 border-b border-slate-100 dark:border-border px-4 py-2 flex items-center justify-between sticky top-0 z-10">
                             <div className="flex items-center gap-4">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest w-8">Roll</span>
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Student Name</span>
+                                <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest w-8">Roll</span>
+                                <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest">Student Name</span>
                             </div>
                             <div className="flex gap-1">
-                                <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" onClick={() => handleMarkAll('PRESENT')}>
+                                <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:text-emerald-700 uppercase" onClick={() => handleMarkAll('PRESENT')}>
                                     ALL PRESENT
                                 </Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => handleMarkAll('ABSENT')}>
+                                <Button size="sm" variant="ghost" className="h-7 text-[9px] font-black text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 uppercase" onClick={() => handleMarkAll('ABSENT')}>
                                     ALL ABSENT
                                 </Button>
                             </div>
@@ -376,27 +376,31 @@ export default function FacultyAttendancePage() {
 
                         <div className="max-h-[60vh] overflow-y-auto">
                             {currentStudents.length === 0 ? (
-                                <div className="p-8 text-center text-slate-400 text-xs font-bold">
-                                    <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 opacity-50" />
-                                    Loading roster...
+                                <div className="p-8 text-center text-slate-400 dark:text-muted-foreground text-xs font-black uppercase tracking-widest opacity-50">
+                                    <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
+                                    Synchronizing Roster...
                                 </div>
                             ) : (
                                 currentStudents.map((student, idx) => {
                                     const status = attendance[student.id];
                                     return (
                                         <div key={student.id} className={cn(
-                                            "flex items-center justify-between px-4 py-2 border-b border-slate-50 hover:bg-slate-50/50 transition-colors last:border-0",
-                                            idx % 2 === 0 ? "bg-white" : "bg-[#fafafa]"
+                                            "flex items-center justify-between px-4 py-2 border-b border-slate-50 dark:border-border/50 hover:bg-slate-50/50 dark:hover:bg-muted/30 transition-colors last:border-0",
+                                            idx % 2 === 0 ? "bg-white dark:bg-card" : "bg-[#fafafa] dark:bg-muted/10"
                                         )}>
                                             <div className="flex items-center gap-4 flex-grow min-w-0">
-                                                <Badge variant="outline" className="w-12 justify-center font-mono text-[9px] border-slate-200 text-slate-500 bg-white shadow-sm">
+                                                <Badge variant="outline" className="w-12 justify-center font-mono text-[9px] border-slate-200 dark:border-border text-slate-500 dark:text-muted-foreground bg-white dark:bg-muted shadow-sm uppercase">
                                                     {student.rollNo.slice(-3)}
                                                 </Badge>
                                                 <div className="min-w-0">
-                                                    <p className="text-xs font-bold text-slate-800 truncate">{student.name}</p>
-                                                    {student.attendance < 75 && (
-                                                        <span className="text-[8px] font-black text-red-500 flex items-center gap-0.5 leading-none mt-0.5">
-                                                            <AlertTriangle className="h-2 w-2" /> {student.attendance}% ATT
+                                                    <p className="text-xs font-bold text-slate-800 dark:text-foreground truncate uppercase">{student.name}</p>
+                                                    {student.attendance < 75 ? (
+                                                        <span className="text-[8px] font-black text-red-500 dark:text-red-400 flex items-center gap-0.5 leading-none mt-1 uppercase tracking-widest">
+                                                            <AlertTriangle className="h-2 w-2" /> {student.attendance}% ATT RISK
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-[8px] font-black text-emerald-500 dark:text-emerald-400 flex items-center gap-0.5 leading-none mt-1 uppercase tracking-widest">
+                                                            <CheckCircle2 className="h-2 w-2" /> {student.attendance}%
                                                         </span>
                                                     )}
                                                 </div>
@@ -436,24 +440,24 @@ export default function FacultyAttendancePage() {
 
                 {/* Sidebar Stats & Actions */}
                 <div className="space-y-3">
-                    <Card className="border-none shadow-md bg-slate-900 text-white rounded-2xl overflow-hidden">
+                    <Card className="border-none shadow-md bg-slate-900 dark:bg-muted text-white rounded-2xl overflow-hidden">
                         <CardContent className="p-5">
-                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Session Stats</h3>
+                            <h3 className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-3">Intelligence Summary</h3>
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-xs font-bold text-slate-300">Present</span>
+                                    <span className="text-xs font-bold text-slate-300 dark:text-muted-foreground uppercase tracking-widest">Present</span>
                                     <span className="text-sm font-black text-emerald-400">{stats.present}</span>
                                 </div>
-                                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div className="w-full bg-slate-800 dark:bg-background h-1.5 rounded-full overflow-hidden">
                                     <div className="bg-emerald-500 h-full transition-all duration-500" style={{ width: `${stats.percentage}%` }} />
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-xs font-bold text-slate-300">Absent</span>
+                                    <span className="text-xs font-bold text-slate-300 dark:text-muted-foreground uppercase tracking-widest">Absent</span>
                                     <span className="text-sm font-black text-red-400">{stats.absent}</span>
                                 </div>
-                                <div className="pt-2 mt-2 border-t border-slate-800">
+                                <div className="pt-2 mt-2 border-t border-slate-800 dark:border-border">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-xs font-bold text-slate-300">Total Rate</span>
+                                        <span className="text-xs font-bold text-slate-300 dark:text-muted-foreground uppercase tracking-widest">Efficiency</span>
                                         <span className={cn(
                                             "text-lg font-black",
                                             stats.percentage >= 75 ? "text-emerald-400" : "text-amber-400"

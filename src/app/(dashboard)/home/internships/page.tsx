@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import InternshipDashboard from "@/components/dashboards/InternshipDashboard";
 import { useMode } from "@/contexts/ModeContext";

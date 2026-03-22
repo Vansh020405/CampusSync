@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
@@ -6,25 +6,25 @@ export async function POST(req: Request) {
     try {
         const { username, password } = await req.json();
 
-        console.log('🔍 Testing admin login for:', username);
+        console.log('ðŸ” Testing admin login for:', username);
 
         const admin = await prisma.admin.findUnique({
             where: { username }
         });
 
         if (!admin) {
-            console.log('❌ Admin not found');
+            console.log('âŒ Admin not found');
             return NextResponse.json({
                 success: false,
                 error: 'Admin not found'
             });
         }
 
-        console.log('✅ Admin found:', admin.username);
+        console.log('âœ… Admin found:', admin.username);
 
         const isPasswordValid = await bcrypt.compare(password, admin.password);
 
-        console.log('🔐 Password valid:', isPasswordValid);
+        console.log('ðŸ” Password valid:', isPasswordValid);
 
         if (!isPasswordValid) {
             return NextResponse.json({

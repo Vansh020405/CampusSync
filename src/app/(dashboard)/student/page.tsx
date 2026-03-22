@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useSession } from "next-auth/react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -72,35 +72,35 @@ export default function StudentDashboard() {
     };
 
     return (
-        <div className="space-y-6 pb-20 animate-in fade-in zoom-in duration-500">
+        <div className="space-y-4 pb-20 animate-in fade-in zoom-in duration-500">
             {/* ... Premium Header ... */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 dark:from-card dark:via-card dark:to-card dark:border dark:border-border p-6 shadow-xl shadow-blue-500/20 dark:shadow-none">
+            <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 dark:from-card dark:via-card dark:to-card dark:border dark:border-border p-4 md:p-6 shadow-xl shadow-blue-500/10 dark:shadow-none">
                 <div className="absolute top-0 right-0 -m-4 h-32 w-32 rounded-full bg-white/10 blur-2xl dark:hidden"></div>
-                <div className="relative z-10 flex flex-col gap-6">
+                <div className="relative z-10 flex flex-col gap-3 md:gap-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-black text-white tracking-tighter">
+                            <h1 className="text-xl md:text-3xl font-black text-white tracking-tighter uppercase ">
                                 Hello, {studentData.name.split(' ')[0]}!
                             </h1>
-                            <p className="text-blue-100 text-sm font-bold opacity-80 uppercase tracking-widest mt-1">
-                                {studentData.rollNo} • Section {studentData.section}
+                            <p className="text-blue-100 text-[9px] md:text-sm font-black opacity-80 uppercase tracking-widest mt-0.5">
+                                {studentData.rollNo} â€¢ Section {studentData.section}
                             </p>
                         </div>
                         <Link href="/student/profile">
-                            <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-white/30 transition-all cursor-pointer group">
-                                <UserCheck className="h-8 w-8 text-white group-hover:scale-110 transition-transform" />
+                            <div className="h-9 w-9 md:h-14 md:w-14 rounded-xl md:rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-white/30 transition-all cursor-pointer group">
+                                <UserCheck className="h-4 w-4 md:h-8 md:w-8 text-white group-hover:scale-110 transition-transform" />
                             </div>
                         </Link>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-blue-100 uppercase tracking-widest">Branch</p>
-                            <p className="text-lg font-black text-white">{studentData.branch}</p>
+                        <div className="flex flex-col gap-0">
+                            <p className="text-[8px] md:text-[9px] font-black text-blue-100/60 uppercase tracking-widest">Branch</p>
+                            <p className="text-[12px] md:text-lg font-black text-white uppercase tracking-tight leading-none">{studentData.branch.split(' ')[0]}</p>
                         </div>
-                        <div className="flex flex-col gap-1">
-                            <p className="text-[10px] font-black text-blue-100 uppercase tracking-widest">Academic Year</p>
-                            <p className="text-lg font-black text-white">{studentData.year}rd Year</p>
+                        <div className="flex flex-col gap-0">
+                            <p className="text-[8px] md:text-[9px] font-black text-blue-100/60 uppercase tracking-widest">Year</p>
+                            <p className="text-[12px] md:text-lg font-black text-white uppercase tracking-tight leading-none">{studentData.year}rd Phase</p>
                         </div>
                     </div>
                 </div>
@@ -129,21 +129,21 @@ export default function StudentDashboard() {
                                             <div className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
                                         </div>
                                     )}
-                                    <CardContent className="p-5 flex flex-col gap-3">
-                                        <div className="flex gap-4">
+                                    <CardContent className="p-4 flex flex-col gap-3">
+                                        <div className="flex gap-3">
                                             <div className={cn(
-                                                "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center",
+                                                "h-9 w-9 shrink-0 rounded-xl flex items-center justify-center",
                                                 idx === 0 && !isAcknowledged ? "bg-white/10 dark:bg-card" : "bg-slate-50 dark:bg-card dark:border dark:border-border"
                                             )}>
-                                                <Bell className={cn("h-5 w-5", idx === 0 && !isAcknowledged ? "text-emerald-400" : "text-slate-400")} />
+                                                <Bell className={cn("h-4 w-4", idx === 0 && !isAcknowledged ? "text-emerald-400" : "text-slate-400")} />
                                             </div>
-                                            <div className="space-y-1 flex-1">
+                                            <div className="space-y-0.5 flex-1">
                                                 <div className="flex items-center justify-between">
                                                     <p className={cn("text-[8px] font-black uppercase tracking-widest opacity-60")}>
-                                                        {new Date(ann.createdAt).toLocaleDateString()} • {ann.senderId === 'admin' ? 'SYSTEM CORE' : 'FACULTY'}
+                                                        {new Date(ann.createdAt).toLocaleDateString()} â€¢ {ann.senderId === 'admin' ? 'SYSTEM CORE' : 'FACULTY'}
                                                     </p>
                                                 </div>
-                                                <p className="text-sm font-bold leading-relaxed dark:text-foreground">{ann.content}</p>
+                                                <p className="text-xs md:text-sm font-bold leading-tight dark:text-foreground">{ann.content}</p>
                                             </div>
                                         </div>
 
@@ -182,21 +182,21 @@ export default function StudentDashboard() {
                         Academic Terminal
                     </h2>
                 </div>
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
                     {tabs.map((tab) => {
                         const Icon = tab.icon
                         return (
                             <Link key={tab.href} href={tab.href} className="group transition-all active:scale-95">
                                 <Card className="p-0 border-none dark:border dark:border-border shadow-md dark:shadow-none bg-white dark:bg-card rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/20 transition-shadow">
-                                    <CardContent className="flex flex-col items-center justify-center p-5 gap-3">
+                                    <CardContent className="flex flex-col items-center justify-center p-4 gap-2">
                                         <div className={cn(
-                                            "rounded-2xl p-4 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 shadow-sm",
+                                            "rounded-[1.25rem] p-3 md:p-4 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 shadow-sm",
                                             tab.color
                                         )}>
-                                            <Icon className="h-7 w-7" />
+                                            <Icon className="h-5 w-5 md:h-7 md:w-7" />
                                         </div>
                                         <div className="text-center">
-                                            <span className="font-black text-xs text-slate-800 dark:text-foreground uppercase tracking-tighter">{tab.label}</span>
+                                            <span className="font-black text-[10px] md:text-xs text-slate-800 dark:text-foreground uppercase tracking-tight">{tab.label}</span>
                                         </div>
                                     </CardContent>
                                 </Card>

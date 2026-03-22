@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 const pdfParse = require("pdf-parse/lib/pdf-parse.js");
 
 // 1. Clean fragmented words

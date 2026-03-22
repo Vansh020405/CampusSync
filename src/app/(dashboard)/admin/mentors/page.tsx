@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import {
@@ -313,7 +313,7 @@ export default function AdminMentorsPage() {
                 {/* Header */}
                 <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 h-16 flex items-center justify-between px-8 shrink-0 z-10">
                     <div className="flex items-baseline gap-3">
-                        <h1 className="text-xl font-black text-slate-900 tracking-tight italic leading-none">Allotment Console</h1>
+                        <h1 className="text-xl font-black text-slate-900 tracking-tight  leading-none">Allotment Console</h1>
                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Faculty-Student Mapping</span>
                     </div>
 
@@ -376,7 +376,7 @@ export default function AdminMentorsPage() {
                                     {/* Section Identity */}
                                     <div className="flex items-center gap-4 shrink-0 min-w-[180px]">
                                         <div className="h-11 w-11 bg-slate-900 rounded-xl flex items-center justify-center shadow-sm">
-                                            <span className="text-sm font-black text-white italic tracking-tighter">{sectionLabel}</span>
+                                            <span className="text-sm font-black text-white  tracking-tighter">{sectionLabel}</span>
                                         </div>
                                         <div className="overflow-hidden">
                                             <div className="flex items-center gap-1.5 mb-1 text-[8px] font-black uppercase tracking-widest">
@@ -417,7 +417,7 @@ export default function AdminMentorsPage() {
                                             <select
                                                 className={cn(
                                                     "w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-10 py-3 text-xs font-bold transition-all appearance-none outline-none focus:border-slate-400 focus:bg-white cursor-pointer",
-                                                    pendingMentorId ? "text-slate-900" : "text-slate-400 italic"
+                                                    pendingMentorId ? "text-slate-900" : "text-slate-400 "
                                                 )}
                                                 value={pendingMentorId || ''}
                                                 onChange={(e) => setPendingAssignments(prev => ({ ...prev, [key]: e.target.value }))}

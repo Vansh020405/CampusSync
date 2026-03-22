@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
@@ -137,7 +137,7 @@ export default function FacultyDirectory() {
                                 <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching</span>
                                     <span className="text-[11px] font-black text-slate-900 uppercase">
-                                        {member.sections.length > 0 ? member.sections.join(' • ') : "Pending"}
+                                        {member.sections.length > 0 ? member.sections.join(' â€¢ ') : "Pending"}
                                     </span>
                                 </div>
                             </div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
@@ -64,13 +64,13 @@ export default function StudentBookingsPage() {
 
     const getAgendaIcon = (type: string) => {
         const icons: Record<string, string> = {
-            INTERNSHIP: "💼",
-            RESUME: "📄",
-            DOUBT: "❓",
-            RESEARCH: "🔬",
-            OTHER: "📝"
+            INTERNSHIP: "ðŸ’¼",
+            RESUME: "ðŸ“„",
+            DOUBT: "â“",
+            RESEARCH: "ðŸ”¬",
+            OTHER: "ðŸ“"
         };
-        return icons[type] || "📝";
+        return icons[type] || "ðŸ“";
     };
 
     const BookingCard = ({ booking }: { booking: Booking }) => {
@@ -137,7 +137,7 @@ export default function StudentBookingsPage() {
                             {booking.status === "APPROVED" && (
                                 <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2">
                                     <p className="text-xs text-emerald-700 font-medium">
-                                        ✓ Confirmed - Please arrive 5 minutes early
+                                        âœ“ Confirmed - Please arrive 5 minutes early
                                     </p>
                                 </div>
                             )}

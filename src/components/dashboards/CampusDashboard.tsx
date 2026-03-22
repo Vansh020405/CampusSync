@@ -225,33 +225,33 @@ export default function CampusDashboard() {
                                     cls.status === "Live" ? "ring-2 ring-emerald-500 dark:ring-primary" :
                                         cls.status === "Next Up" ? "ring-1 ring-indigo-500/20 dark:ring-border" : ""
                                 )}>
-                                    <div className="p-4 md:p-5 flex flex-col gap-4">
+                                    <div className="p-3.5 flex flex-col gap-2.5">
                                         {/* Top Row: Icon and Subject */}
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-3">
                                             <div className={cn(
-                                                "h-12 w-12 rounded-[1rem] flex items-center justify-center shrink-0 transition-all duration-300",
+                                                "h-10 w-10 rounded-[0.75rem] flex items-center justify-center shrink-0 transition-all duration-300",
                                                 cls.status === "Live"
                                                     ? "bg-emerald-500 dark:bg-primary text-white dark:text-primary-foreground"
                                                     : cls.status === "Next Up"
                                                         ? "bg-indigo-500 dark:bg-secondary text-white dark:text-foreground"
                                                         : "bg-slate-100 dark:bg-muted/50 text-slate-400 dark:text-muted-foreground"
                                             )}>
-                                                {cls.status === "Completed" ? <CheckCircle2 className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}
+                                                {cls.status === "Completed" ? <CheckCircle2 className="h-4.5 w-4.5" /> : <BookOpen className="h-4.5 w-4.5" />}
                                             </div>
-                                            <div className="space-y-1 min-w-0">
+                                            <div className="space-y-0.5 min-w-0">
                                                 <h3 className={cn(
-                                                    "text-base md:text-lg font-black tracking-tight truncate",
+                                                    "text-sm md:text-base font-black tracking-tight truncate",
                                                     cls.status === "Live" ? "text-emerald-600 dark:text-primary" : "text-slate-800 dark:text-foreground"
                                                 )}>
                                                     {cls.subject}
                                                 </h3>
-                                                <div className="flex flex-wrap items-center gap-3 text-slate-400 dark:text-muted-foreground font-bold">
-                                                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide">
-                                                        <Clock className="h-3.5 w-3.5" />
+                                                <div className="flex flex-wrap items-center gap-2.5 text-slate-400 dark:text-muted-foreground font-bold">
+                                                    <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-wide">
+                                                        <Clock className="h-3 w-3" />
                                                         {cls.time}
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide">
-                                                        <MapPin className="h-3.5 w-3.5" />
+                                                    <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-wide">
+                                                        <MapPin className="h-3 w-3" />
                                                         ROOM {cls.room}
                                                     </div>
                                                 </div>
@@ -259,22 +259,24 @@ export default function CampusDashboard() {
                                         </div>
 
                                         {/* Bottom Row: Faculty and Actions */}
-                                        <div className="flex items-center justify-between border-t border-slate-100 dark:border-border/50 pt-4">
-                                            <div className="flex flex-col">
-                                                <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest">Faculty</p>
-                                                <p className="text-[11px] font-bold text-slate-800 dark:text-foreground/80">{cls.faculty}</p>
+                                        <div className="flex items-center justify-between border-t border-slate-100 dark:border-border/50 pt-2.5">
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex flex-col">
+                                                    <p className="text-[8px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest leading-none">Faculty</p>
+                                                    <p className="text-[10px] font-bold text-slate-800 dark:text-foreground/80">{cls.faculty}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-2.5">
+                                            <div className="flex items-center gap-2">
                                                 <Badge className={cn(
-                                                    "rounded-xl px-3 py-1 text-[9px] font-black uppercase tracking-[0.1em] border-0 shadow-none",
+                                                    "rounded-xl px-2.5 py-0.5 text-[8px] font-black uppercase tracking-[0.1em] border-0 shadow-none",
                                                     cls.status === "Live" ? "bg-emerald-500 dark:bg-primary text-white dark:text-primary-foreground animate-pulse" :
                                                         cls.status === "Next Up" ? "bg-indigo-500 dark:bg-secondary text-white dark:text-foreground" :
                                                             "bg-slate-100 dark:bg-muted/50 text-slate-500 dark:text-muted-foreground"
                                                 )}>
                                                     {cls.status}
                                                 </Badge>
-                                                <Link href={`/student/classes/${cls.id}`} className="h-8 w-8 rounded-full bg-slate-50 dark:bg-muted/80 flex items-center justify-center text-slate-400 dark:text-muted-foreground hover:bg-slate-200 dark:hover:bg-muted transition-colors">
-                                                    <ChevronRight className="h-4 w-4" />
+                                                <Link href={`/student/classes/${cls.id}`} className="h-7 w-7 rounded-full bg-slate-50 dark:bg-muted/80 flex items-center justify-center text-slate-400 dark:text-muted-foreground hover:bg-slate-200 dark:hover:bg-muted transition-colors">
+                                                    <ChevronRight className="h-3.5 w-3.5" />
                                                 </Link>
                                             </div>
                                         </div>
@@ -358,9 +360,9 @@ export default function CampusDashboard() {
                     </Link>
                 </div>
                 <div className="bg-white dark:bg-card border border-slate-100 dark:border-border rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-6 shadow-sm dark:shadow-black/20 overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 h-32 w-32 bg-sky-50 dark:hidden rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-sky-100 transition-colors" />
+                    <div className="absolute top-0 right-0 h-32 w-32 bg-sky-50 dark:bg-sky-900/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-sky-100 dark:group-hover:bg-sky-900/20 transition-colors" />
                     <div className="relative flex flex-col md:flex-row items-center gap-4 md:gap-6">
-                        <div className="h-12 w-12 md:h-16 md:w-16 rounded-[1rem] md:rounded-[1.5rem] bg-sky-100 text-sky-600 flex items-center justify-center shadow-inner shrink-0">
+                        <div className="h-12 w-12 md:h-16 md:w-16 rounded-[1rem] md:rounded-[1.5rem] bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 flex items-center justify-center shadow-inner shrink-0">
                             <Clock className="h-6 w-6 md:h-8 md:w-8" />
                         </div>
                         <div className="flex-1 text-center md:text-left">
@@ -382,50 +384,6 @@ export default function CampusDashboard() {
 
 
 
-            {/* Broadcast Hub - Messages from Teachers */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between px-2">
-                    <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4 text-indigo-500" />
-                        Academic Broadcasts
-                    </h2>
-                </div>
-
-                <Card className="border-0 rounded-[2.5rem] bg-indigo-50/50 dark:bg-card border-2 border-dashed border-indigo-100/50 dark:border-border overflow-hidden dark:shadow-none">
-                    <CardContent className="p-8">
-                        {liveMessage ? (
-                            <div className="flex flex-col md:flex-row gap-6 items-start">
-                                <div className="h-14 w-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200 dark:shadow-none">
-                                    <Zap className="h-7 w-7" />
-                                </div>
-                                <div className="space-y-3 flex-1">
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-xs font-black text-indigo-400 dark:text-primary uppercase tracking-widest">Incoming from {liveMessage.sender}</p>
-                                        <Badge className="bg-indigo-100 text-indigo-600 dark:bg-secondary dark:text-foreground border-0 text-[10px] font-black uppercase tracking-widest px-3 py-1">{liveMessage.time}</Badge>
-                                    </div>
-                                    <p className="text-xl font-bold text-slate-800 dark:text-foreground leading-snug">
-                                        "{liveMessage.message}"
-                                    </p>
-                                    <div className="pt-4 flex items-center gap-4">
-                                        <Button className="rounded-2xl bg-slate-900 text-white hover:bg-indigo-600 px-6 font-bold text-xs h-10 shadow-lg">Acknowledged</Button>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Protocol Verified • End of Transmission</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center text-center py-6 space-y-4">
-                                <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center shadow-md">
-                                    <Bell className="h-6 w-6 text-slate-300" />
-                                </div>
-                                <div className="space-y-1">
-                                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">No Active Broadcasts</h3>
-                                    <p className="text-xs font-bold text-slate-400">System is idle. You'll see transmissions from faculty here.</p>
-                                </div>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
         </div>
     );
 }

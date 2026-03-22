@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -51,52 +51,52 @@ export default function StudentNotificationsPage() {
     ]
 
     return (
-        <div className="max-w-2xl mx-auto space-y-8 pb-32 pt-6 px-4">
-            <header className="px-2 space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="h-10 w-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-200 dark:shadow-none">
-                        <Bell className="h-5 w-5" />
+        <div className="max-w-2xl mx-auto space-y-6 pb-24 pt-4 px-4">
+            <header className="px-1 space-y-1">
+                <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 md:h-10 md:w-10 rounded-xl md:rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-200 dark:shadow-none shrink-0">
+                        <Bell className="h-4 w-4 md:h-5 md:w-5" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase">Alerts</h1>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Real-time institutional intelligence</p>
+                        <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase  mt-0.5">Intelligence</h1>
+                        <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest opacity-60  leading-none">Real-time alert protocol active</p>
                     </div>
                 </div>
             </header>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {alerts.map((alert) => (
                     <Card key={alert.id} className={cn(
-                        "border-0 dark:border dark:border-border rounded-[2.5rem] bg-white dark:bg-card shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none overflow-hidden transition-all duration-300 hover:scale-[1.01] group",
+                        "border-0 dark:border dark:border-border rounded-2xl bg-white dark:bg-card shadow-sm dark:shadow-none overflow-hidden transition-all duration-300 group",
                         alert.isNew && "ring-1 ring-amber-500/20"
                     )}>
-                        <CardContent className="p-6 md:p-8">
-                            <div className="flex items-start gap-6">
+                        <CardContent className="p-4 md:p-6">
+                            <div className="flex items-start gap-4">
                                 <div className={cn(
-                                    "h-14 w-14 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg transition-transform group-hover:rotate-6",
+                                    "h-10 w-10 md:h-12 md:w-12 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm transition-transform group-hover:rotate-6",
                                     alert.color
                                 )}>
-                                    <alert.icon className="h-7 w-7" />
+                                    <alert.icon className="h-5 w-5 md:h-6 md:w-6" />
                                 </div>
-                                <div className="flex-1 space-y-2">
-                                    <div className="flex items-center justify-between">
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-2 mb-1">
                                         <Badge variant="outline" className={cn(
-                                            "rounded-full text-[9px] font-black px-3 py-0.5 border-slate-100 dark:border-border",
+                                            "rounded-lg text-[7px] md:text-[8px] font-black px-2 py-0.5 border-slate-100 dark:border-border uppercase tracking-widest",
                                             alert.isNew ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10" : "text-slate-400"
                                         )}>
-                                            {alert.type} {alert.isNew && "• NEW"}
+                                            {alert.type} {alert.isNew && "â€¢ NEW"}
                                         </Badge>
-                                        <span className="text-[10px] font-bold text-slate-300 dark:text-muted-foreground">{alert.time}</span>
+                                        <span className="text-[8px] font-black text-slate-300 dark:text-muted-foreground uppercase opacity-70 shrink-0">{alert.time}</span>
                                     </div>
-                                    <h3 className="text-lg font-black text-slate-900 dark:text-foreground leading-tight tracking-tight">
+                                    <h3 className="text-sm md:text-base font-black text-slate-900 dark:text-foreground leading-tight tracking-tight uppercase ">
                                         {alert.title}
                                     </h3>
-                                    <p className="text-sm font-medium text-slate-500 dark:text-muted-foreground leading-relaxed">
+                                    <p className="text-[11px] md:text-xs font-black text-slate-400 dark:text-muted-foreground leading-relaxed mt-1 line-clamp-2 uppercase tracking-tight opacity-80">
                                         {alert.message}
                                     </p>
                                     <div className="pt-2">
                                         <Button variant="ghost" className="h-auto p-0 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-transparent dark:text-primary flex items-center gap-1 group/btn">
-                                            View Details <ChevronRight className="h-3 w-3 group-hover/btn:translate-x-1 transition-transform" />
+                                            Execute <ChevronRight className="h-3 w-3 group-hover/btn:translate-x-1 transition-transform" />
                                         </Button>
                                     </div>
                                 </div>
@@ -106,9 +106,9 @@ export default function StudentNotificationsPage() {
                 ))}
             </div>
 
-            <div className="flex justify-center pt-8">
-                <Button variant="ghost" className="text-[11px] font-black uppercase tracking-widest text-slate-400">
-                    Archive older transmissions
+            <div className="flex justify-center pt-6">
+                <Button variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-slate-300 dark:text-muted-foreground hover:bg-transparent hover:text-indigo-500 transition-colors">
+                    Archive Transmission History
                 </Button>
             </div>
         </div>

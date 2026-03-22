@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
                 <div className="space-y-1">
                     <h1 className="text-3xl font-extrabold text-[#020617] tracking-tighter">Admin Hub</h1>
                     <p className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">
-                        {session?.user?.name?.toUpperCase() || "ADMINISTRATOR"} <span className="mx-1 text-slate-300">•</span> LEVEL 4 AUTHORIZED
+                        {session?.user?.name?.toUpperCase() || "ADMINISTRATOR"} <span className="mx-1 text-slate-300">â€¢</span> LEVEL 4 AUTHORIZED
                     </p>
                 </div>
                 <div className="flex items-center gap-6">

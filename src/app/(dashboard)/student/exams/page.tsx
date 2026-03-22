@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useEffect, useState } from 'react'
 import {
@@ -92,51 +92,49 @@ export default function StudentExamsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] dark:bg-background">
-            <header className="px-6 py-8 md:px-12 md:pt-12">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1.5 opacity-80">
-                            <Monitor className="h-4 w-4" />EXAMINATION HUB
-                        </div>
-                        <h1 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-foreground tracking-tighter uppercase leading-tight">
-                            <span className="text-indigo-600 dark:text-indigo-400 not-italic">Evaluation</span> Schedule
-                        </h1>
-                        <p className="text-slate-500 dark:text-muted-foreground font-medium max-w-lg text-sm">
-                            Real-time synchronization of upcoming academic evaluations, venue, and institutional seating arrangements.
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-4 bg-white dark:bg-card p-2 pr-6 rounded-[2rem] border border-slate-100 dark:border-border shadow-sm">
-                        <div className="h-12 w-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-200 dark:shadow-none transition-transform hover:scale-110">
-                            <LayoutDashboard className="h-6 w-6" />
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0A0A] pb-24">
+            <header className="px-4 py-6 md:px-12 md:pt-10">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none shrink-0">
+                            <Monitor className="h-5 w-5 md:h-6 md:w-6" />
                         </div>
                         <div>
-                            <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest leading-none mb-1.5">Scheduled Exams</p>
-                            <p className="text-xl font-black text-slate-900 dark:text-foreground leading-none">{exams.length}</p>
+                            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase  mt-0.5">Examination</h1>
+                            <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest opacity-60 ">Evaluation Hub â€¢ Sync Active</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 bg-white dark:bg-card p-2 pr-6 rounded-2xl border border-slate-100 dark:border-border shadow-sm">
+                        <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-xl shadow-indigo-200 dark:shadow-none transition-transform hover:scale-110">
+                            <Layers className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <p className="text-[8px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest leading-none mb-1">Total Exams</p>
+                            <p className="text-lg font-black text-slate-900 dark:text-foreground leading-none">{exams.length}</p>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-6 pb-24">
+            <main className="max-w-7xl mx-auto px-4">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-24 gap-6">
-                        <div className="h-16 w-16 border-4 border-indigo-600 border-t-transparent rounded-[2rem] animate-spin shadow-xl"></div>
+                    <div className="flex flex-col items-center justify-center py-24 gap-4">
+                        <div className="h-12 w-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                         <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.4em] animate-pulse">Loading Exams...</p>
                     </div>
                 ) : exams.length === 0 ? (
-                    <div className="bg-white dark:bg-card border border-slate-100 dark:border-border rounded-[3.5rem] p-16 text-center shadow-2xl shadow-slate-200/50 dark:shadow-none">
-                        <div className="h-24 w-24 bg-slate-50 dark:bg-muted rounded-full flex items-center justify-center mx-auto mb-8 text-slate-300 dark:text-muted-foreground/30">
-                            <Calendar className="h-12 w-12" />
+                    <div className="bg-white dark:bg-card border border-slate-100 dark:border-border rounded-3xl p-12 text-center shadow-sm dark:shadow-none">
+                        <div className="h-20 w-20 bg-slate-50 dark:bg-muted rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300 dark:text-muted-foreground/30">
+                            <Calendar className="h-10 w-10" />
                         </div>
-                        <h3 className="text-2xl font-black text-slate-900 dark:text-foreground uppercase italic tracking-tight mb-3">Void Assessment Cache</h3>
-                        <p className="text-slate-500 dark:text-muted-foreground max-w-sm mx-auto text-sm leading-relaxed uppercase tracking-tight font-medium">
-                            No active examination protocols detected for your current sector. Authorization pending.
+                        <h3 className="text-xl font-black text-slate-900 dark:text-foreground uppercase  tracking-tight mb-2">Void Assessment Cache</h3>
+                        <p className="text-slate-500 dark:text-muted-foreground max-w-sm mx-auto text-[10px] leading-relaxed uppercase tracking-tight font-medium opacity-70">
+                            No active examination protocols detected for your current sector.
                         </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                         {exams.map((exam, index) => {
                             const status = getStatus(exam.date)
                             return (
@@ -145,9 +143,9 @@ export default function StudentExamsPage() {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: index * 0.08 }}
-                                    className="group bg-white dark:bg-card border-0 dark:border dark:border-border rounded-[2.5rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] dark:shadow-none hover:shadow-2xl hover:shadow-indigo-500/10 dark:hover:bg-muted/50 transition-all duration-500 relative overflow-hidden active:scale-[0.98]"
+                                    className="group bg-white dark:bg-card border-0 dark:border dark:border-border rounded-2xl p-5 shadow-sm dark:shadow-none hover:shadow-xl hover:shadow-indigo-500/5 dark:hover:bg-muted/50 transition-all duration-300 relative overflow-hidden"
                                 >
-                                    <div className="relative space-y-6">
+                                    <div className="relative space-y-4">
                                         <div className="flex items-center justify-between">
                                             <div className={cn(
                                                 "px-5 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-[0.15em]",
@@ -253,8 +251,8 @@ export default function StudentExamsPage() {
                                 <header className="flex items-center justify-between mb-10">
                                     <div className="space-y-2">
                                         <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.3em]">Institutional Asset #104</p>
-                                        <h3 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-foreground uppercase italic tracking-tighter leading-none">
-                                            Venue <span className="text-indigo-600 dark:text-indigo-400 not-italic">Intel</span>
+                                        <h3 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-foreground uppercase  tracking-tighter leading-none">
+                                            Venue <span className="text-indigo-600 dark:text-indigo-400 not-">Intel</span>
                                         </h3>
                                     </div>
                                     <button
@@ -274,7 +272,7 @@ export default function StudentExamsPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Block</p>
-                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight italic">{selectedExam.block || 'INT'}</p>
+                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight ">{selectedExam.block || 'INT'}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
@@ -283,7 +281,7 @@ export default function StudentExamsPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Floor</p>
-                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight italic">{selectedExam.floor || 'G'}</p>
+                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight ">{selectedExam.floor || 'G'}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -294,7 +292,7 @@ export default function StudentExamsPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Sector</p>
-                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight italic">{selectedExam.room}</p>
+                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight ">{selectedExam.room}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
@@ -303,7 +301,7 @@ export default function StudentExamsPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5 opacity-60">Position</p>
-                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight italic">{selectedExam.seatNo}</p>
+                                                    <p className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-tight ">{selectedExam.seatNo}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -313,7 +311,7 @@ export default function StudentExamsPage() {
                                         <div className="absolute top-0 right-0 h-40 w-40 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
                                         <div className="relative flex items-center justify-between">
                                             <div className="space-y-2">
-                                                <h4 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none italic">{selectedExam.subject}</h4>
+                                                <h4 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none ">{selectedExam.subject}</h4>
                                                 <p className="text-[9px] md:text-[10px] font-black text-indigo-100 uppercase tracking-[0.4em] opacity-80">Verification Secured</p>
                                             </div>
                                             <CheckCircle2 className="h-10 w-10 md:h-12 md:w-12 text-white/50" />

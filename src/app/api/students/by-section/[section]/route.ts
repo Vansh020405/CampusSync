@@ -46,7 +46,9 @@ export async function GET(
 
             return {
                 ...student,
-                attendance: totalClasses > 0 ? Math.round((presentClasses / totalClasses) * 100) : 0
+                attendance: totalClasses > 0 ? Math.round((presentClasses / totalClasses) * 100) : 0,
+                presentClasses,
+                totalClasses
             };
         });
 

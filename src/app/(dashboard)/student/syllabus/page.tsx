@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
@@ -85,9 +85,9 @@ export default function StudentSyllabusPage() {
                 <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                         <Zap className="h-3 w-3 text-emerald-500" />
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground font-mono">Academic Status</span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground/60 font-mono">Curriculum Node</span>
                     </div>
-                    <h1 className="text-2xl font-black text-slate-900 dark:text-foreground tracking-tight italic">Curriculum Matrix</h1>
+                    <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase ">Curriculum Matrix</h1>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button
@@ -102,15 +102,15 @@ export default function StudentSyllabusPage() {
             </div>
 
             {/* Premium Subject Navigation */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-hide -mx-2 px-2">
                 {syllabusData.map(subject => (
                     <button
                         key={subject.subjectName}
                         onClick={() => setSelectedSubject(subject)}
                         className={cn(
-                            "group flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
+                            "group flex items-center gap-2 px-3.5 py-2 rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
                             selectedSubject?.subjectName === subject.subjectName
-                                ? "bg-slate-900 dark:bg-primary border-slate-900 dark:border-primary text-white dark:text-primary-foreground shadow-lg dark:shadow-none scale-105"
+                                ? "bg-slate-900 dark:bg-primary border-slate-900 dark:border-primary text-white dark:text-primary-foreground shadow-lg dark:shadow-none scale-[1.03]"
                                 : "bg-white dark:bg-card border-white dark:border-border text-slate-400 dark:text-muted-foreground hover:border-slate-100 dark:hover:border-primary/50"
                         )}
                     >
@@ -137,15 +137,15 @@ export default function StudentSyllabusPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
                     {/* Left Panel: Stats & Context */}
-                    <div className="lg:col-span-3 space-y-4">
-                        <Card className="border-none shadow-sm dark:shadow-none rounded-3xl bg-white dark:bg-card overflow-hidden ring-1 ring-slate-100 dark:ring-border">
-                            <CardContent className="p-6 space-y-6">
+                    <div className="lg:col-span-3 space-y-3">
+                        <Card className="border-none shadow-sm dark:shadow-none rounded-[2rem] bg-white dark:bg-card overflow-hidden ring-1 ring-slate-100 dark:ring-border">
+                            <CardContent className="p-5 md:p-6 space-y-6">
                                 <div className="space-y-4">
                                     <div className="flex items-baseline justify-between">
-                                        <h2 className="text-2xl font-black text-slate-900 dark:text-foreground tracking-tighter italic">{selectedSubject.percentage}%</h2>
-                                        <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Complete</span>
+                                        <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-foreground tracking-tighter ">{selectedSubject.percentage}%</h2>
+                                        <span className="text-[8px] md:text-[9px] font-black text-emerald-500 uppercase tracking-widest">Complete</span>
                                     </div>
-                                    <div className="h-2 w-full bg-slate-100 dark:bg-muted rounded-full overflow-hidden">
+                                    <div className="h-1.5 md:h-2 w-full bg-slate-100 dark:bg-muted rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-1000 ease-out"
                                             style={{ width: `${selectedSubject.percentage}%` }}
@@ -160,18 +160,18 @@ export default function StudentSyllabusPage() {
                                     </div>
                                 </div>
 
-                                <div className="pt-4 border-t border-slate-100 dark:border-border">
-                                    <h4 className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-3">Milestones</h4>
-                                    <div className="space-y-1.5">
+                                <div className="pt-4 border-t border-slate-50 dark:border-border">
+                                    <h4 className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-3">Milestones</h4>
+                                    <div className="space-y-1">
                                         {Object.entries(selectedSubject.examMapping || {})
                                             .sort(([a], [b]) => {
                                                 const priority: Record<string, number> = { "ST1": 1, "ST2": 2, "ST3": 3 };
                                                 return (priority[a] || 99) - (priority[b] || 99) || a.localeCompare(b);
                                             })
                                             .map(([exam, topics]: [any, any]) => (
-                                                <div key={exam} className="flex items-center justify-between p-2 rounded-xl bg-slate-50/50 dark:bg-muted/30 border border-slate-100 dark:border-border">
-                                                    <span className="text-[8px] font-black text-slate-600 dark:text-muted-foreground uppercase tracking-widest">{exam}</span>
-                                                    <Badge className="bg-white dark:bg-card text-slate-400 dark:text-muted-foreground border-slate-100 dark:border-border text-[8px] font-black px-1.5 h-4">{topics.length}</Badge>
+                                                <div key={exam} className="flex items-center justify-between p-2 rounded-xl bg-slate-50/50 dark:bg-muted/30 border border-slate-50 dark:border-border/50">
+                                                    <span className="text-[7.5px] md:text-[8px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest">{exam}</span>
+                                                    <Badge className="bg-white dark:bg-card text-slate-400 dark:text-muted-foreground border-slate-100 dark:border-border text-[7px] md:text-[8px] font-black px-1.5 h-3.5 shadow-none">{topics.length}</Badge>
                                                 </div>
                                             ))}
                                     </div>
@@ -201,10 +201,10 @@ export default function StudentSyllabusPage() {
                                         {topics.map((topic: any, idx: number) => (
                                             <div key={topic.id} className="group">
                                                 <div className={cn(
-                                                    "p-4 rounded-2xl border transition-all duration-300",
+                                                    "p-3 md:p-4 rounded-2xl border transition-all duration-300",
                                                     topic.status === 'COMPLETED'
-                                                        ? "bg-white dark:bg-card border-emerald-100 dark:border-emerald-500/20 shadow-sm dark:shadow-none"
-                                                        : "bg-white dark:bg-card border-slate-100 dark:border-border hover:border-slate-200 dark:hover:border-primary/50"
+                                                        ? "bg-white dark:bg-card border-emerald-50 dark:border-emerald-500/10 shadow-sm dark:shadow-none"
+                                                        : "bg-white dark:bg-card border-slate-50 dark:border-border hover:border-indigo-50 dark:hover:border-primary/30"
                                                 )}>
                                                     <div className="flex items-center justify-between gap-4">
                                                         <div className="flex items-center gap-3 min-w-0">
@@ -222,7 +222,7 @@ export default function StudentSyllabusPage() {
                                                                     {topic.title}
                                                                 </h4>
                                                                 {topic.notes && (
-                                                                    <p className="text-[9px] text-slate-400 truncate italic">Remark added</p>
+                                                                    <p className="text-[9px] text-slate-400 truncate ">Remark added</p>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -246,7 +246,7 @@ export default function StudentSyllabusPage() {
             ) : (
                 <div className="py-32 text-center bg-white dark:bg-card rounded-[3rem] border-2 border-dashed border-slate-100 dark:border-border shadow-sm dark:shadow-none animate-in fade-in zoom-in duration-700">
                     <Info className="h-12 w-12 text-slate-200 dark:text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-black text-slate-900 dark:text-foreground uppercase tracking-tight italic">No Protocol Found</h3>
+                    <h3 className="text-lg font-black text-slate-900 dark:text-foreground uppercase tracking-tight ">No Protocol Found</h3>
                     <p className="text-xs font-bold text-slate-400 dark:text-muted-foreground mt-1 uppercase tracking-widest opacity-60">No curriculum data detected for your current credentials.</p>
                 </div>
             )}

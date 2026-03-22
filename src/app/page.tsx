@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -434,7 +434,7 @@ export default function AuthPage() {
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 dark:text-zinc-500 transition-colors group-focus-within:text-slate-900 dark:group-focus-within:text-white" />
                     <Input
                       type="password"
-                      placeholder="••••••••"
+                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                       className="pl-12 h-14 rounded-2xl bg-white dark:bg-black/40 border-slate-100 dark:border-white/10 focus-visible:ring-slate-900 dark:focus-visible:ring-teal-500/50 font-bold placeholder:text-slate-200 dark:placeholder:text-zinc-600 transition-all text-slate-900 dark:text-white"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}

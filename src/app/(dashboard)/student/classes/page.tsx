@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
@@ -99,19 +99,19 @@ export default function StudentClassesPage() {
     return (
         <div className="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header Section */}
-            <div className="bg-white dark:bg-card rounded-3xl p-6 shadow-sm dark:shadow-none border border-slate-100 dark:border-border relative overflow-hidden">
+            <div className="bg-white dark:bg-card rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-sm dark:shadow-none border border-slate-100 dark:border-border relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-5">
-                    <Calendar className="h-20 w-20 rotate-12" />
+                    <Calendar className="h-12 w-12 md:h-20 md:w-20 rotate-12" />
                 </div>
                 <div className="relative z-10">
-                    <Badge className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/20 mb-2 px-3 py-0.5 rounded-full font-bold text-[10px]">
-                        AY 2025-26 • SEM 4
+                    <Badge className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/20 mb-1 px-3 py-0.5 rounded-full font-black text-[8px] md:text-[9px] uppercase tracking-widest shadow-none">
+                        AY 2025-26 â€¢ SEM 4
                     </Badge>
-                    <h1 className="text-2xl font-black text-slate-800 dark:text-foreground tracking-tight">
+                    <h1 className="text-lg md:text-2xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase  mt-1">
                         CSE AI ML {section}
                     </h1>
-                    <p className="text-slate-500 dark:text-muted-foreground text-xs font-medium flex items-center gap-1.5 mt-1">
-                        <MapPin className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" /> Chitkara University
+                    <p className="text-slate-400 dark:text-muted-foreground text-[9px] md:text-xs font-black flex items-center gap-1.5 mt-0.5 uppercase tracking-widest opacity-60">
+                        <MapPin className="h-3 w-3 text-blue-500 dark:text-blue-400" /> Chitkara University
                     </p>
                 </div>
             </div>
@@ -249,7 +249,7 @@ export default function StudentClassesPage() {
                                     <span className="text-[10px] font-bold text-slate-400 dark:text-muted-foreground">{end}</span>
                                 </div>
                                 <div className={cn(
-                                    "flex-1 rounded-[1.5rem] p-4 shadow-sm dark:shadow-none border-2 relative overflow-hidden",
+                                    "flex-1 rounded-[1.25rem] p-3.5 md:p-4 shadow-sm dark:shadow-none border-2 relative overflow-hidden",
                                     color === 'blue' ? "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-700 dark:text-blue-400" :
                                         color === 'emerald' ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400" :
                                             color === 'rose' ? "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-700 dark:text-rose-400" :
@@ -260,18 +260,18 @@ export default function StudentClassesPage() {
                                 )}>
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="font-black text-lg tracking-tight leading-none mb-2">{entry.subject}</h3>
-                                            <p className="text-[9px] font-black uppercase tracking-widest opacity-70 flex items-center gap-1">
-                                                <User className="h-3 w-3" /> {entry.faculty?.name || 'TBA'}
+                                            <h3 className="font-black text-base md:text-lg tracking-tight leading-none mb-1.5">{entry.subject}</h3>
+                                            <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest opacity-70 flex items-center gap-1">
+                                                <User className="h-2.5 w-2.5" /> {entry.faculty?.name || 'TBA'}
                                             </p>
                                         </div>
-                                        <Badge variant="outline" className="bg-white/50 dark:bg-background/20 border-transparent text-[8px] font-black rounded-lg">
-                                            PERIOD {p.id}
+                                        <Badge variant="outline" className="bg-white/50 dark:bg-background/20 border-transparent text-[7px] md:text-[8px] font-black rounded-lg">
+                                            P{p.id}
                                         </Badge>
                                     </div>
-                                    <div className="mt-3 flex items-center gap-2 pt-3 border-t border-current/5">
-                                        <MapPin className="h-3 w-3 opacity-60" />
-                                        <span className="text-[9px] font-black uppercase tracking-widest opacity-60">{entry.classroom || 'TBA'}</span>
+                                    <div className="mt-2.5 flex items-center gap-2 pt-2.5 border-t border-current/5">
+                                        <MapPin className="h-2.5 w-2.5 opacity-60" />
+                                        <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest opacity-60">{entry.classroom || 'TBA'}</span>
                                     </div>
                                     <GraduationCap className="absolute -bottom-2 -right-2 opacity-5 h-12 w-12" />
                                 </div>

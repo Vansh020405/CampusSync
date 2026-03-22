@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -181,7 +181,7 @@ export default function FacultySignupPage() {
                                                 <X className="h-2.5 w-2.5 cursor-pointer opacity-50 group-hover:opacity-100" onClick={() => removeDepartment(d)} />
                                             </Badge>
                                         )) : (
-                                            <p className="text-[9px] font-bold text-slate-300 italic">No departments added yet</p>
+                                            <p className="text-[9px] font-bold text-slate-300 ">No departments added yet</p>
                                         )}
                                     </div>
                                 </div>
@@ -251,7 +251,7 @@ export default function FacultySignupPage() {
                                                     <X className="h-2.5 w-2.5 cursor-pointer opacity-50 group-hover:opacity-100" onClick={() => removeSubject(s)} />
                                                 </Badge>
                                             )) : (
-                                                <p className="text-[9px] font-bold text-slate-300 italic">No subjects added yet</p>
+                                                <p className="text-[9px] font-bold text-slate-300 ">No subjects added yet</p>
                                             )}
                                         </div>
                                     </div>

@@ -33,7 +33,6 @@ export function BottomNav() {
     const internshipsLinks = [
         { href: "/home/internships", label: "Home", icon: Home },
         { href: "/student/internships", label: "Jobs", icon: Briefcase },
-        { href: "/student/menu", label: "Apps", icon: LayoutGrid },
         { href: "/student/resume", label: "Resume", icon: FileText },
         { href: "/student/applications", label: "Track", icon: CheckCircle },
     ]

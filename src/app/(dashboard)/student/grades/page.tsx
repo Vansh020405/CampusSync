@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -365,29 +365,29 @@ export default function StudentGradesPage() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto space-y-8 pb-32 pt-6 px-4">
+        <div className="max-w-7xl mx-auto space-y-6 pb-24 pt-4 md:pt-6 px-3 md:px-4">
             {/* Header section with Summary */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
-                <div className="space-y-1">
-                    <h1 className="text-3xl font-black text-slate-900 dark:text-foreground tracking-tight flex items-center gap-3 italic uppercase">
-                        <GraduationCap className="h-8 w-8 text-emerald-600 dark:text-emerald-500" />
-                         <span className="text-emerald-600 dark:text-emerald-500 not-italic">Performance</span>
-                    </h1>
-                    <p className="text-slate-500 dark:text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px] ml-1">
-                        Institutional Grade Intelligence System
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
+                <div className="flex items-center gap-2.5">
+                    <div className="h-9 w-9 md:h-10 md:w-10 rounded-xl md:rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-200 dark:shadow-none shrink-0">
+                        <GraduationCap className="h-4 w-4 md:h-5 md:w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase  mt-0.5">Performance</h1>
+                        <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest opacity-60">Grade Intelligence System</p>
+                    </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex gap-2">
                     <button
                         onClick={() => downloadMarksheet(selectedSemester)}
-                        className="h-11 px-5 rounded-2xl bg-white dark:bg-card border border-slate-100 dark:border-border text-slate-600 dark:text-muted-foreground text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-muted transition-all flex items-center gap-2 shadow-sm active:scale-95"
+                        className="flex-1 md:flex-none h-10 px-4 rounded-xl bg-white dark:bg-card border border-slate-100 dark:border-border text-slate-600 dark:text-muted-foreground text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-muted transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95"
                     >
-                        <Download className="h-4 w-4" />
-                        {selectedSemester === 'all' ? 'TRANSCRIPT' : 'DOWNLOAD PDF'}
+                        <Download className="h-3.5 w-3.5" />
+                        {selectedSemester === 'all' ? 'TRANSCRIPT' : 'DOWNLOAD'}
                     </button>
-                    <button className="h-11 px-5 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-200 dark:shadow-none active:scale-95" onClick={() => toast("Redirecting to Exam Strategy Builder (Beta)...")}>
-                        <FileText className="h-4 w-4" />
+                    <button className="flex-1 md:flex-none h-10 px-4 rounded-xl bg-indigo-600 text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 dark:shadow-none active:scale-95" onClick={() => toast("Exam Strategy Builder...")}>
+                        <FileText className="h-3.5 w-3.5" />
                         STRATEGY
                     </button>
                 </div>
@@ -397,40 +397,37 @@ export default function StudentGradesPage() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2"
+                className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 px-1"
             >
-                <div className="bg-white dark:bg-card p-8 rounded-[3rem] border-0 dark:border dark:border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none flex items-center gap-6 group hover:-translate-y-1 transition-all">
-                    <div className="h-16 w-16 bg-emerald-600 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-emerald-200 dark:shadow-none transition-transform group-hover:rotate-6">
-                        <Award className="h-8 w-8" />
+                <div className="bg-white dark:bg-card p-4 md:p-8 rounded-2xl md:rounded-[3rem] border-0 dark:border dark:border-border shadow-sm dark:shadow-none flex items-center gap-3 md:gap-6 group hover:-translate-y-1 transition-all">
+                    <div className="h-10 w-10 md:h-16 md:w-16 bg-emerald-600 rounded-xl md:rounded-[2rem] flex items-center justify-center text-white shadow-lg md:shadow-xl shadow-emerald-200 dark:shadow-none shrink-0 group-hover:rotate-6">
+                        <Award className="h-5 w-5 md:h-8 md:w-8" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-1">CGPA</p>
-                        <h2 className="text-4xl font-black text-slate-900 dark:text-foreground leading-none tracking-tighter">{calculateCGPA()}</h2>
-                        
+                        <p className="text-[8px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5">CGPA</p>
+                        <h2 className="text-xl md:text-4xl font-black text-slate-900 dark:text-foreground leading-none tracking-tighter ">{calculateCGPA()}</h2>
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-card p-8 rounded-[3rem] border-0 dark:border dark:border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none flex items-center gap-6 group hover:-translate-y-1 transition-all">
-                    <div className="h-16 w-16 bg-blue-600 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-blue-200 dark:shadow-none transition-transform group-hover:rotate-6">
-                        <TrendingUp className="h-8 w-8" />
+                <div className="bg-white dark:bg-card p-4 md:p-8 rounded-2xl md:rounded-[3rem] border-0 dark:border dark:border-border shadow-sm dark:shadow-none flex items-center gap-3 md:gap-6 group hover:-translate-y-1 transition-all">
+                    <div className="h-10 w-10 md:h-16 md:w-16 bg-blue-600 rounded-xl md:rounded-[2rem] flex items-center justify-center text-white shadow-lg md:shadow-xl shadow-blue-200 dark:shadow-none shrink-0 group-hover:rotate-6">
+                        <TrendingUp className="h-5 w-5 md:h-8 md:w-8" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-1">Latest SGPA</p>
-                        <h2 className="text-4xl font-black text-slate-900 dark:text-foreground leading-none tracking-tighter">
+                        <p className="text-[8px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-0.5">Latest</p>
+                        <h2 className="text-xl md:text-4xl font-black text-slate-900 dark:text-foreground leading-none tracking-tighter ">
                             {semesters.length > 0 ? calculateSGPA(grades.filter(g => g.semester === semesters[semesters.length - 1])) : '0.0'}
                         </h2>
-                        <span className="text-[9px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-widest mt-2 block">Semester {semesters[semesters.length - 1] || 'N/A'} active</span>
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-card p-8 rounded-[3rem] border-0 dark:border dark:border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none flex items-center gap-6 group hover:-translate-y-1 transition-all">
+                <div className="hidden md:flex bg-white dark:bg-card p-8 rounded-[3rem] border-0 dark:border dark:border-border shadow-sm dark:shadow-none items-center gap-6 group hover:-translate-y-1 transition-all">
                     <div className="h-16 w-16 bg-indigo-600 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-indigo-200 dark:shadow-none transition-transform group-hover:rotate-6">
                         <BookOpen className="h-8 w-8" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mb-1">Pass Ratio</p>
-                        <h2 className="text-4xl font-black text-slate-900 dark:text-foreground leading-none tracking-tighter">100%</h2>
-                        <span className="text-[9px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-widest mt-2 block">0 Backlogs Detected</span>
+                        <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-1">Pass Ratio</p>
+                        <h2 className="text-4xl font-black text-slate-900 dark:text-foreground leading-none tracking-tighter ">100%</h2>
                     </div>
                 </div>
             </motion.div>
@@ -491,7 +488,7 @@ export default function StudentGradesPage() {
                                                 S{sem}
                                             </div>
                                             <div>
-                                                <h3 className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-wider italic leading-none">
+                                                <h3 className="text-base font-black text-slate-900 dark:text-foreground uppercase tracking-wider  leading-none">
                                                     Semester {sem}
                                                 </h3>
                                             </div>
@@ -502,90 +499,72 @@ export default function StudentGradesPage() {
                                         </div>
                                     </div>
 
-                                    <div className="bg-white dark:bg-card rounded-[3.5rem] border-0 dark:border dark:border-border shadow-[0_15px_40px_rgb(0,0,0,0.03)] dark:shadow-none overflow-hidden">
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left border-separate border-spacing-0">
-                                                <thead>
-                                                    <tr className="bg-slate-50/50 dark:bg-muted/30">
-                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em]">Subject</th>
-                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center">Unit</th>
-                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center">Internal</th>
-                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center">Theory</th>
-                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center">Total Score</th>
-                                                        <th className="px-8 py-6 text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em] text-center italic">Final Grade</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-slate-100 dark:divide-border/50">
-                                                    {semGrades.map((grade, idx) => (
-                                                        <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-all group">
-                                                            <td className="px-8 py-6">
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-sm font-black text-slate-900 dark:text-foreground uppercase tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                                                                        {grade.subjectName}
-                                                                    </span>
-                                                                    <span className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mt-1 opacity-70">
-                                                                        SECID: {grade.subjectCode}
-                                                                    </span>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-8 py-6 text-center">
-                                                                <span className="text-xs font-black text-slate-600 dark:text-muted-foreground">{grade.credits} <span className="text-[10px] opacity-40">CR</span></span>
-                                                            </td>
-                                                            <td className="px-8 py-6 text-center">
-                                                                <div className="flex flex-col items-center gap-1.5">
-                                                                    <span className="text-xs font-bold text-slate-500 dark:text-muted-foreground">{grade.internalMarks ?? '-'} <span className="text-[9px] opacity-40 font-black">/ {grade.internalMarks === null ? '-' : 40}</span></span>
-                                                                    <div className="w-10 h-1 bg-slate-100 dark:bg-muted rounded-full overflow-hidden">
-                                                                        <div className="h-full bg-indigo-500" style={{ width: `${(grade.internalMarks / 40) * 100}%` }} />
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-8 py-6 text-center">
-                                                                <div className="flex flex-col items-center gap-1.5">
-                                                                    <span className="text-xs font-bold text-slate-500 dark:text-muted-foreground">{grade.externalMarks ?? '-'} <span className="text-[9px] opacity-40 font-black">/ {grade.externalMarks === null ? '-' : 60}</span></span>
-                                                                    <div className="w-10 h-1 bg-slate-100 dark:bg-muted rounded-full overflow-hidden">
-                                                                        <div className="h-full bg-blue-500" style={{ width: `${(grade.externalMarks / 60) * 100}%` }} />
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-8 py-6 text-center">
-                                                                <div className="inline-flex flex-col items-center">
-                                                                    <span className="text-base font-black text-slate-900 dark:text-foreground italic">{grade.totalMarks}</span>
-                                                                    <div className="w-12 h-1.5 bg-slate-100 dark:bg-muted rounded-full mt-2 overflow-hidden shadow-inner">
-                                                                        <div className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" style={{ width: `${grade.totalMarks}%` }} />
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-8 py-6 text-center">
-                                                                <div className={cn(
-                                                                    "inline-block px-5 py-2 rounded-2xl text-xs font-black border tracking-widest transition-all",
-                                                                    grade.grade === 'O' || grade.grade === 'A+' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]" :
-                                                                    grade.grade === 'A' || grade.grade === 'B+' ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/30" :
-                                                                    "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-500/30"
-                                                                )}>
-                                                                    {grade.grade}
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )
-                        })}
-                    </div>
-                )}
-            </div>
+                                    <div className="bg-white dark:bg-card rounded-2xl md:rounded-[3.5rem] border-0 dark:border dark:border-border shadow-sm dark:shadow-none overflow-hidden">
+                                         <div className="overflow-x-auto">
+                                             <table className="w-full text-left border-separate border-spacing-0">
+                                                 <thead>
+                                                     <tr className="bg-slate-50/50 dark:bg-muted/30">
+                                                         <th className="px-3 md:px-8 py-3 md:py-6 text-[8px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest md:tracking-[0.25em]">Subject</th>
+                                                         <th className="px-3 md:px-8 py-3 md:py-6 text-[8px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest md:tracking-[0.25em] text-center">Unit</th>
+                                                         <th className="px-3 md:px-8 py-3 md:py-6 text-[8px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest md:tracking-[0.25em] text-center">Score</th>
+                                                         <th className="px-3 md:px-8 py-3 md:py-6 text-[8px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest md:tracking-[0.25em] text-center ">Grade</th>
+                                                     </tr>
+                                                 </thead>
+                                                 <tbody className="divide-y divide-slate-100 dark:divide-border/50">
+                                                     {semGrades.map((grade, idx) => (
+                                                         <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-all group">
+                                                             <td className="px-3 md:px-8 py-4 md:py-6">
+                                                                 <div className="flex flex-col">
+                                                                     <span className="text-[11px] md:text-sm font-black text-slate-900 dark:text-foreground uppercase tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1">
+                                                                         {grade.subjectName}
+                                                                     </span>
+                                                                     <span className="text-[7px] md:text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mt-0.5 opacity-70">
+                                                                         {grade.subjectCode}
+                                                                     </span>
+                                                                 </div>
+                                                             </td>
+                                                             <td className="px-3 md:px-8 py-4 md:py-6 text-center">
+                                                                 <span className="text-[10px] md:text-xs font-black text-slate-600 dark:text-muted-foreground">{grade.credits} <span className="text-[8px] opacity-40">CR</span></span>
+                                                             </td>
+                                                             <td className="px-3 md:px-8 py-4 md:py-6 text-center">
+                                                                 <div className="inline-flex flex-col items-center">
+                                                                     <span className="text-sm md:text-base font-black text-slate-900 dark:text-foreground ">{grade.totalMarks}</span>
+                                                                     <div className="w-8 md:w-12 h-1 bg-slate-100 dark:bg-muted rounded-full mt-1 overflow-hidden">
+                                                                         <div className="h-full bg-emerald-500" style={{ width: `${grade.totalMarks}%` }} />
+                                                                     </div>
+                                                                 </div>
+                                                             </td>
+                                                             <td className="px-3 md:px-8 py-4 md:py-6 text-center">
+                                                                 <div className={cn(
+                                                                     "inline-block px-3 py-1 md:px-5 md:py-2 rounded-lg md:rounded-2xl text-[10px] md:text-xs font-black border tracking-widest transition-all",
+                                                                     grade.grade === 'O' || grade.grade === 'A+' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/30" :
+                                                                     grade.grade === 'A' || grade.grade === 'B+' ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/30" :
+                                                                     "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-500/30"
+                                                                 )}>
+                                                                     {grade.grade}
+                                                                 </div>
+                                                             </td>
+                                                         </tr>
+                                                     ))}
+                                                 </tbody>
+                                             </table>
+                                         </div>
+                                     </div>
+                                 </motion.div>
+                             )
+                         })}
+                     </div>
+                 )}
+             </div>
 
-            {/* Action Accents */}
-            <div className="pt-24 pb-12 text-center space-y-4">
-                <p className="text-[10px] font-black text-slate-300 dark:text-muted-foreground uppercase tracking-[0.5em]">Official Institutional Disclaimer</p>
-                <div className="max-w-md mx-auto h-px bg-slate-100 dark:bg-border" />
-                <p className="text-[9px] text-slate-400 dark:text-muted-foreground font-bold leading-relaxed max-w-lg mx-auto uppercase tracking-widest opacity-60 px-6">
-                    This encrypted summary is for internal reference only. Transcripts generated via this portal are digitally verified academic records.
-                </p>
-            </div>
+             {/* Action Accents */}
+             <div className="pt-12 pb-8 text-center space-y-3">
+                 <p className="text-[8px] md:text-[10px] font-black text-slate-300 dark:text-muted-foreground uppercase tracking-[0.4em]">Official Disclaimer</p>
+                 <div className="max-w-xs mx-auto h-px bg-slate-100 dark:bg-border" />
+                 <p className="text-[8px] text-slate-400 dark:text-muted-foreground font-bold leading-relaxed max-w-xs mx-auto uppercase tracking-widest opacity-60">
+                     Internal Reference Only â€¢ Digitally Verified
+                 </p>
+             </div>
         </div>
     )
 }

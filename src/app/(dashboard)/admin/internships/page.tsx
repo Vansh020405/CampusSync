@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
@@ -145,7 +145,7 @@ export default function AdminInternships() {
                                     <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">Compensation (Stipend)</label>
                                     <Input
                                         required
-                                        placeholder="e.g. ₹50k/month"
+                                        placeholder="e.g. â‚¹50k/month"
                                         className="h-14 rounded-2xl border-slate-100 bg-slate-50/30 focus:bg-white focus:ring-indigo-500 transition-all font-bold"
                                         value={form.stipend}
                                         onChange={e => setForm({ ...form, stipend: e.target.value })}

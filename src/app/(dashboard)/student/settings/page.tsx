@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -45,16 +45,14 @@ export default function StudentSettingsPage() {
     ]
 
     return (
-        <div className="max-w-2xl mx-auto space-y-8 pb-32 pt-6 px-4">
-            <header className="px-2 space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="h-10 w-10 rounded-2xl bg-slate-900 dark:bg-card border border-slate-100 dark:border-border flex items-center justify-center shadow-lg">
-                        <Settings className="h-5 w-5 text-white dark:text-foreground" />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase">Settings</h1>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Manage your institutional digital profile</p>
-                    </div>
+        <div className="max-w-2xl mx-auto space-y-6 pb-24 pt-4 md:pt-6 px-3 md:px-4">
+            <header className="px-1 md:px-2 flex items-center gap-2.5">
+                <div className="h-9 w-9 md:h-10 md:w-10 rounded-xl md:rounded-2xl bg-white dark:bg-card border border-slate-100 dark:border-border flex items-center justify-center shadow-sm dark:shadow-none shrink-0">
+                    <Settings className="h-4 w-4 md:h-5 md:w-5 text-slate-900 dark:text-foreground" />
+                </div>
+                <div>
+                    <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase  mt-0.5">Settings</h1>
+                    <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest opacity-60">Manage your institutional digital profile</p>
                 </div>
             </header>
 
@@ -75,8 +73,8 @@ export default function StudentSettingsPage() {
                                                 <item.icon className="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <h3 className="text-sm font-black text-slate-900 dark:text-foreground leading-tight tracking-tight">{item.label}</h3>
-                                                <p className="text-[11px] font-medium text-slate-400 dark:text-muted-foreground mt-1">{item.description}</p>
+                                                <h3 className="text-[13px] md:text-sm font-black text-slate-900 dark:text-foreground leading-tight tracking-tight uppercase ">{item.label}</h3>
+                                                <p className="text-[10px] md:text-[11px] font-bold text-slate-400 dark:text-muted-foreground mt-0.5 opacity-60 tracking-tight">{item.description}</p>
                                             </div>
                                         </div>
                                         {'action' in item && item.action ? (
@@ -95,26 +93,26 @@ export default function StudentSettingsPage() {
                     </section>
                 ))}
 
-                <section className="space-y-4">
-                    <div className="flex items-center gap-2 px-2">
-                        <Info className="h-3.5 w-3.5 text-slate-400" />
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-muted-foreground">About App</h2>
+                <section className="space-y-3">
+                    <div className="flex items-center gap-2 px-1">
+                        <Info className="h-3 w-3 text-slate-400" />
+                        <h2 className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-muted-foreground opacity-60">About System</h2>
                     </div>
-                    <Card className="border-0 dark:border dark:border-border rounded-[2.5rem] bg-indigo-950/5 dark:bg-card shadow-sm overflow-hidden p-8 flex items-center justify-between">
+                    <Card className="border-0 dark:border dark:border-border rounded-2xl md:rounded-[2.5rem] bg-indigo-950/5 dark:bg-card shadow-sm dark:shadow-none overflow-hidden p-5 md:p-8 flex items-center justify-between">
                         <div>
-                            <h3 className="text-sm font-black text-slate-900 dark:text-foreground">CampusSync Enterprise</h3>
-                            <p className="text-[11px] font-medium text-slate-400 mt-1">Version 2.4.0 • Build 2026.18.03</p>
+                            <h3 className="text-xs md:text-sm font-black text-slate-900 dark:text-foreground uppercase tracking-tight ">CampusSync Enterprise</h3>
+                            <p className="text-[9px] md:text-[11px] font-black text-slate-400 dark:text-muted-foreground mt-0.5 opacity-60">Version 2.4.0 â€¢ Build 2026.18.03</p>
                         </div>
-                        <Badge variant="outline" className="rounded-full border-slate-200 text-slate-400 text-[10px] font-black px-4 py-1">STABLE</Badge>
+                        <Badge variant="outline" className="rounded-full border-slate-200 dark:border-border text-slate-400 dark:text-muted-foreground text-[8px] md:text-[10px] font-black px-3 py-0.5">STABLE</Badge>
                     </Card>
                 </section>
 
                 <Button 
                     onClick={() => signOut({ callbackUrl: '/' })}
                     variant="ghost" 
-                    className="w-full h-20 rounded-[2.5rem] text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 font-black tracking-[0.2em] uppercase text-xs flex items-center justify-center gap-3 mt-8 border-2 border-dashed border-rose-100 dark:border-rose-900/30"
+                    className="w-full h-14 md:h-16 rounded-2xl md:rounded-[2.5rem] text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 font-black tracking-widest uppercase text-[10px] md:text-xs flex items-center justify-center gap-2.5 mt-6 border border-dashed border-rose-200 dark:border-rose-900/40"
                 >
-                    <LogOut className="h-4 w-4" /> Sign Out from Instance
+                    <LogOut className="h-4 w-4" /> Shutdown Session
                 </Button>
             </div>
         </div>

@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
     Upload, Download, FileSpreadsheet, Loader2,
     CheckCircle2, Users, BookOpen, ArrowLeft,
@@ -57,7 +58,6 @@ export default function FacultyGradesPage() {
                 } catch (e) { }
             }
 
-            // Re-fetch dynamics
             fetch('/api/faculty/mentored-sections')
                 .then(res => res.json())
                 .then(data => {
@@ -74,9 +74,6 @@ export default function FacultyGradesPage() {
     const [selectedSection, setSelectedSection] = useState<any | null>(null);
     const [sectionGrades, setSectionGrades] = useState<any[]>([]);
     const [loadingSection, setLoadingSection] = useState(false);
-
-    // Mentor view specific states
-    // mentorViewMode removed as per request
     const [mentorSelectedSubject, setMentorSelectedSubject] = useState<string | null>(null);
 
     const [parsedData, setParsedData] = useState<GradeRow[]>([]);
@@ -111,14 +108,6 @@ export default function FacultyGradesPage() {
         } finally {
             setLoadingSection(false);
         }
-    };
-
-    const getComponentPercentage = (marks: string, total: string) => {
-        if (!marks || !total) return '-';
-        const m = parseFloat(marks);
-        const t = parseFloat(total);
-        if (t === 0) return '-';
-        return ((m / t) * 100).toFixed(1) + '%';
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -198,35 +187,35 @@ export default function FacultyGradesPage() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto p-6 pb-24 space-y-8 animate-in fade-in duration-500">
+        <div className="max-w-7xl mx-auto p-4 pb-32 space-y-6 animate-in fade-in duration-500 min-h-screen bg-white dark:bg-background font-sans transition-colors">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-border pb-6">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Academic Grading</h1>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
-                        <Activity className="h-3 w-3 text-indigo-500" /> Data Management & Section Intelligence
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-foreground tracking-tighter uppercase  leading-none mt-1">Academic Grading</h1>
+                    <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2 opacity-60">
+                        <Activity className="h-3 w-3 text-indigo-500 dark:text-indigo-400" /> Data Management & Intelligence
                     </p>
                 </div>
 
-                <div className="flex bg-slate-100 p-1.5 rounded-2xl gap-1 shrink-0 self-start">
+                <div className="flex bg-slate-100 dark:bg-muted p-1 rounded-2xl gap-1 shrink-0">
                     <button
                         onClick={() => { setActiveTab('SUBJECTS'); setSelectedSubject(null); setSelectedSection(null); }}
                         className={cn(
-                            "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2",
-                            activeTab === 'SUBJECTS' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                            "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ",
+                            activeTab === 'SUBJECTS' ? "bg-white dark:bg-card text-slate-900 dark:text-foreground shadow-xl" : "text-slate-500 dark:text-muted-foreground hover:bg-white/50 dark:hover:bg-card/50"
                         )}
                     >
-                        <BookOpen className="h-3.5 w-3.5" /> Grading Pipeline
+                        <BookOpen className="h-3.5 w-3.5" /> Pipeline
                     </button>
                     {mentoredSections.length > 0 && (
                         <button
                             onClick={() => { setActiveTab('MENTOR'); setSelectedSubject(null); setSelectedSection(null); }}
                             className={cn(
-                                "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2",
-                                activeTab === 'MENTOR' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ",
+                                activeTab === 'MENTOR' ? "bg-white dark:bg-card text-indigo-600 dark:text-indigo-400 shadow-xl" : "text-slate-500 dark:text-muted-foreground hover:bg-white/50 dark:hover:bg-card/50"
                             )}
                         >
-                            <ShieldCheck className="h-3.5 w-3.5" /> Section Intel
+                            <ShieldCheck className="h-3.5 w-3.5" /> Intelligence
                         </button>
                     )}
                 </div>
@@ -234,41 +223,42 @@ export default function FacultyGradesPage() {
 
             {/* Main Content Area */}
             {activeTab === 'SUBJECTS' ? (
-                // --- GRADING PIPELINE (EXISTING LOGIC) ---
                 !selectedSubject ? (
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3">
-                            <div className="h-4 w-1 bg-indigo-500 rounded-full" />
-                            <h2 className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">Select Active Subject</h2>
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 opacity-60">
+                            <div className="h-4 w-1 bg-indigo-500 dark:bg-indigo-400 rounded-full" />
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground ">Target Subject Selection</h2>
                         </div>
                         {facultySubjects.length === 0 ? (
-                            <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white/50 backdrop-blur-sm">
-                                <CardContent className="p-12 flex flex-col items-center justify-center text-center">
-                                    <BookOpen className="h-12 w-12 text-slate-200 mb-4" />
-                                    <h3 className="text-lg font-black text-slate-700">No Subjects Assigned</h3>
-                                    <p className="text-sm font-medium text-slate-500 mt-2 max-w-sm">
-                                        You have not been assigned any subjects yet.
+                            <Card className="border-none shadow-xl shadow-slate-200/40 dark:shadow-black/20 rounded-[2.5rem] overflow-hidden bg-white/50 dark:bg-card/50 backdrop-blur-sm border border-slate-100 dark:border-border transition-all">
+                                <CardContent className="p-16 flex flex-col items-center justify-center text-center">
+                                    <div className="h-20 w-20 rounded-[2rem] bg-slate-50 dark:bg-muted flex items-center justify-center mb-6">
+                                        <BookOpen className="h-8 w-8 text-slate-200 dark:text-muted-foreground opacity-30" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-slate-700 dark:text-muted-foreground uppercase  tracking-tighter">No Subjects Assigned</h3>
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest mt-2 max-w-sm">
+                                        Data Synchronisation Required
                                     </p>
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 {facultySubjects.map((sub, idx) => (
                                     <button
                                         key={idx}
                                         onClick={() => setSelectedSubject(sub.trim())}
-                                        className="text-left w-full group"
+                                        className="text-left w-full group focus:outline-none"
                                     >
-                                        <Card className="border-none shadow-xl shadow-slate-200/40 hover:shadow-indigo-500/10 transition-all duration-300 rounded-[2.5rem] overflow-hidden bg-white hover:-translate-y-1">
-                                            <CardContent className="p-8">
-                                                <div className="h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center mb-8 group-hover:bg-indigo-600 group-hover:rotate-6 transition-all duration-500">
-                                                    <BookOpen className="h-7 w-7 text-slate-400 group-hover:text-white transition-colors" />
+                                        <Card className="border-none shadow-lg shadow-slate-200/30 dark:shadow-black/10 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 rounded-[2rem] overflow-hidden bg-white dark:bg-card hover:-translate-y-1.5 border border-slate-50 dark:border-border/50">
+                                            <CardContent className="p-6">
+                                                <div className="h-12 w-12 rounded-2xl bg-slate-50 dark:bg-muted flex items-center justify-center mb-6 group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500 group-hover:rotate-12 transition-all duration-500 group-hover:scale-110">
+                                                    <BookOpen className="h-6 w-6 text-slate-400 group-hover:text-white transition-colors" />
                                                 </div>
-                                                <h3 className="text-xl font-black text-slate-900 line-clamp-2 leading-[1.1] mb-2">
+                                                <h3 className="text-sm font-black text-slate-900 dark:text-foreground line-clamp-2 leading-[1.1] mb-2 uppercase  tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                                                     {sub.trim()}
                                                 </h3>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                    Academic Upload
+                                                <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.15em] opacity-60">
+                                                    Deploy Payload
                                                 </p>
                                             </CardContent>
                                         </Card>
@@ -278,112 +268,115 @@ export default function FacultyGradesPage() {
                         )}
                     </div>
                 ) : (
-                    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-                        <div className="flex items-center gap-5">
+                    <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex items-center gap-5 border-b border-slate-100 dark:border-border pb-4">
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className="bg-white hover:bg-slate-50 rounded-2xl h-12 w-12 border-slate-200 shadow-sm"
+                                className="bg-white dark:bg-card hover:bg-slate-50 dark:hover:bg-muted rounded-2xl h-11 w-11 border-slate-200 dark:border-border shadow-sm transition-all hover:scale-105"
                                 onClick={() => { setSelectedSubject(null); setParsedData([]); }}
                             >
-                                <ArrowLeft className="h-5 w-5 text-slate-600" />
+                                <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-muted-foreground" />
                             </Button>
                             <div>
-                                <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">{selectedSubject}</h2>
-                                <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] mt-1.5">Deployment Framework</p>
+                                <h2 className="text-xl font-black text-slate-900 dark:text-foreground tracking-tighter uppercase  leading-none">{selectedSubject}</h2>
+                                <p className="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.25em] mt-1.5 opacity-80">Operational Framework 404</p>
                             </div>
                         </div>
 
                         {/* Control Panel */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <Card className="lg:col-span-2 border-none shadow-xl shadow-slate-200/40 rounded-[2.5rem] bg-white overflow-hidden p-8 flex flex-col md:flex-row items-center justify-between gap-8">
-                                <div className="space-y-2">
-                                    <h3 className="text-lg font-black text-slate-900 uppercase">Data Operations</h3>
-                                    <p className="text-sm font-bold text-slate-400 leading-snug max-w-sm">Use the system template to ensure schema validation before deployment.</p>
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                            <Card className="lg:col-span-2 border-none shadow-xl shadow-slate-200/40 dark:shadow-black/20 rounded-[2rem] bg-white dark:bg-card border border-slate-50 dark:border-border overflow-hidden p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all">
+                                <div className="space-y-1.5 text-center md:text-left">
+                                    <h3 className="text-base font-black text-slate-900 dark:text-foreground uppercase  tracking-tight">Transmission Protocol</h3>
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest opacity-60 leading-snug max-w-xs">Schema validation required for cloud sync.</p>
                                 </div>
-                                <div className="flex items-center gap-4 shrink-0">
+                                <div className="flex items-center gap-3 shrink-0 w-full md:w-auto">
                                     <Button
                                         onClick={handleDownloadTemplate}
                                         variant="outline"
-                                        className="h-14 px-6 rounded-2xl border-slate-200 text-slate-600 font-black uppercase text-[10px] tracking-widest hover:bg-slate-50"
+                                        className="h-11 px-5 rounded-xl border-slate-200 dark:border-border text-slate-600 dark:text-muted-foreground font-black uppercase text-[9px] tracking-widest hover:bg-slate-50 dark:hover:bg-muted flex-1 md:flex-none transition-all "
                                     >
-                                        <Download className="h-4 w-4 mr-2" /> Template
+                                        <Download className="h-3.5 w-3.5 mr-2" /> Template
                                     </Button>
-                                    <div className="relative">
+                                    <div className="relative flex-1 md:flex-none">
                                         <input
                                             type="file"
                                             accept=".csv"
                                             onChange={handleFileUpload}
-                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                             disabled={isParsing || isDeploying}
                                         />
-                                        <Button className="h-14 px-8 rounded-2xl bg-indigo-600 text-white font-black uppercase text-[10px] tracking-widest hover:bg-indigo-700 shadow-xl shadow-indigo-200 pointer-events-none">
-                                            {isParsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} Upload CSV
+                                        <Button className="h-11 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-black uppercase text-[9px] tracking-widest shadow-xl shadow-indigo-500/20 w-full md:w-auto transition-all ">
+                                            {isParsing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5 mr-2" />} Import Payload
                                         </Button>
                                     </div>
                                 </div>
                             </Card>
 
-                            <Card className="border-none shadow-xl shadow-slate-200/40 rounded-[2.5rem] bg-slate-900 p-8 text-white">
-                                <div className="h-full flex flex-col justify-between space-y-4">
+                            <Card className="border-none shadow-xl shadow-indigo-500/20 rounded-[2rem] bg-slate-900 dark:bg-slate-950 p-6 text-white group overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[50px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-500/20 transition-all duration-700" />
+                                <div className="h-full flex flex-col justify-between space-y-4 relative z-10">
                                     <div className="flex items-center justify-between">
-                                        <Users className="h-6 w-6 text-indigo-400" />
-                                        <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                                        <div className="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center">
+                                            <Activity className="h-5 w-5 text-indigo-400" />
+                                        </div>
+                                        <Badge variant="outline" className="border-white/20 text-white/60 text-[8px] font-black uppercase tracking-widest whitespace-nowrap">Status: Ready</Badge>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Pipeline</p>
-                                        <h4 className="text-2xl font-black">{parsedData.length} Valid Entries</h4>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest opacity-60">Pending Buffering</p>
+                                        <h4 className="text-xl font-black  tracking-tighter">{parsedData.length} Valid Records</h4>
                                     </div>
                                     <Button
                                         onClick={handleDeploy}
                                         disabled={isDeploying || parsedData.length === 0}
-                                        className="w-full h-12 rounded-xl bg-white text-slate-900 font-black uppercase text-[10px] tracking-widest hover:bg-slate-100 disabled:opacity-30"
+                                        className="w-full h-10 rounded-xl bg-white text-slate-900 font-black uppercase text-[9px] tracking-widest hover:bg-indigo-50 disabled:opacity-30 disabled:grayscale transition-all hover:scale-[1.02] shadow-xl"
                                     >
-                                        Commit to Cloud
+                                        Commit to Mainframe
                                     </Button>
                                 </div>
                             </Card>
                         </div>
 
                         {parsedData.length > 0 && (
-                            <Card className="border-none shadow-2xl shadow-slate-200/60 rounded-[2.5rem] overflow-hidden bg-white">
-                                <div className="p-0 overflow-x-auto">
-                                    <table className="w-full text-left text-sm whitespace-nowrap">
-                                        <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                                            <tr>
-                                                <th className="px-8 py-5">SNo</th>
-                                                <th className="px-8 py-5">Roll ID</th>
-                                                <th className="px-8 py-5">Student Identity</th>
-                                                <th className="px-8 py-5">ST1</th>
-                                                <th className="px-8 py-5">ST2</th>
-                                                <th className="px-8 py-5">ETM</th>
-                                                <th className="px-8 py-5">Category</th>
+                            <Card className="border-none shadow-2xl shadow-slate-200/60 dark:shadow-black/40 rounded-[2rem] overflow-hidden bg-white dark:bg-card border border-slate-100 dark:border-border transition-all">
+                                <div className="p-0 overflow-x-auto no-scrollbar">
+                                    <table className="w-full text-left text-xs whitespace-nowrap">
+                                        <thead className="bg-slate-50 dark:bg-muted/50 text-slate-400 dark:text-muted-foreground text-[9px] font-black uppercase tracking-[0.2em]">
+                                            <tr className="border-b border-slate-100 dark:border-border">
+                                                <th className="px-6 py-4">Index</th>
+                                                <th className="px-6 py-4">ID Profile</th>
+                                                <th className="px-6 py-4">Identity Matrix</th>
+                                                <th className="px-6 py-4">ST1 Value</th>
+                                                <th className="px-6 py-4">ST2 Value</th>
+                                                <th className="px-6 py-4">End Term</th>
+                                                <th className="px-6 py-4">Grade Alpha</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-50 font-bold">
+                                        <tbody className="divide-y divide-slate-50 dark:divide-border/50 font-bold">
                                             {parsedData.map((row, idx) => (
-                                                <tr key={idx} className="group hover:bg-slate-50/50 transition-colors">
-                                                    <td className="px-8 py-5 text-slate-400">{row.Sno}</td>
-                                                    <td className="px-8 py-5 text-slate-900">{row.RollNumber}</td>
-                                                    <td className="px-8 py-5">
+                                                <tr key={idx} className="group hover:bg-slate-50/50 dark:hover:bg-muted/30 transition-colors">
+                                                    <td className="px-6 py-4 text-slate-300 dark:text-muted-foreground/40 font-mono ">{row.Sno}</td>
+                                                    <td className="px-6 py-4 text-slate-900 dark:text-foreground font-black tracking-tight ">{row.RollNumber}</td>
+                                                    <td className="px-6 py-4">
                                                         <div className="flex flex-col">
-                                                            <span>{row.Name}</span>
-                                                            <span className="text-[9px] text-slate-400 uppercase tracking-widest">{row.Subject}</span>
+                                                            <span className="text-slate-800 dark:text-foreground uppercase  tracking-tight">{row.Name}</span>
+                                                            <span className="text-[8px] text-slate-400 dark:text-muted-foreground/60 uppercase tracking-[0.1em] opacity-60">{row.Subject}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-8 py-5">
-                                                        {row.ST1Marks} <span className="text-slate-300 font-medium">/{row.ST1TotalMarks}</span>
+                                                    <td className="px-6 py-4 text-slate-600 dark:text-muted-foreground">
+                                                        <span className="text-slate-900 dark:text-foreground">{row.ST1Marks}</span> <span className="text-slate-200 dark:text-muted-foreground opacity-30 font-medium">/ {row.ST1TotalMarks}</span>
                                                     </td>
-                                                    <td className="px-8 py-5">
-                                                        {row.ST2Marks} <span className="text-slate-300 font-medium">/{row.ST2TotalMarks}</span>
+                                                    <td className="px-6 py-4 text-slate-600 dark:text-muted-foreground">
+                                                        <span className="text-slate-900 dark:text-foreground">{row.ST2Marks}</span> <span className="text-slate-200 dark:text-muted-foreground opacity-30 font-medium">/ {row.ST2TotalMarks}</span>
                                                     </td>
-                                                    <td className="px-8 py-5">
-                                                        {row.EndTermMarks} <span className="text-slate-300 font-medium">/{row.EndTermTotalMarks}</span>
+                                                    <td className="px-6 py-4 text-slate-600 dark:text-muted-foreground">
+                                                        <span className="text-slate-900 dark:text-foreground">{row.EndTermMarks}</span> <span className="text-slate-200 dark:text-muted-foreground opacity-30 font-medium">/ {row.EndTermTotalMarks}</span>
                                                     </td>
-                                                    <td className="px-8 py-5">
+                                                    <td className="px-6 py-4">
                                                         {row.Grade ? (
-                                                            <span className="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider">{row.Grade}</span>
-                                                        ) : '-'}
+                                                            <span className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-500/20 ">{row.Grade}</span>
+                                                        ) : <span className="opacity-20">â€”</span>}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -395,94 +388,95 @@ export default function FacultyGradesPage() {
                     </div>
                 )
             ) : (
-                // --- SECTION INTELLIGENCE (MENTOR VIEW) ---
                 !selectedSection ? (
-                    <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
-                        <div className="flex items-center gap-3">
-                            <div className="h-4 w-1 bg-emerald-500 rounded-full" />
-                            <h2 className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">Your Mentored Cohorts</h2>
+                    <div className="space-y-4 animate-in slide-in-from-right-4 duration-500">
+                        <div className="flex items-center gap-3 opacity-60">
+                            <div className="h-4 w-1 bg-emerald-500 dark:bg-emerald-400 rounded-full" />
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground ">Mentored Cohorts Matrix</h2>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {mentoredSections.map((sec: any, idx: number) => (
                                 <button
                                     key={idx}
                                     onClick={() => setSelectedSection(sec)}
-                                    className="text-left w-full group"
+                                    className="text-left w-full group focus:outline-none"
                                 >
-                                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/30 hover:shadow-emerald-500/10 transition-all duration-300 relative overflow-hidden group hover:-translate-y-1">
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
-                                        <div className="flex items-center justify-between mb-10">
-                                            <div className="h-16 w-16 rounded-[1.5rem] bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-500 transition-colors duration-500">
-                                                <Users className="h-8 w-8 text-emerald-600 group-hover:text-white transition-colors" />
+                                    <div className="bg-white dark:bg-card p-6 rounded-[2rem] border border-slate-100 dark:border-border shadow-xl shadow-slate-200/30 dark:shadow-black/10 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 relative overflow-hidden group hover:-translate-y-1.5 border-b-4 border-b-emerald-500/20">
+                                        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 dark:bg-emerald-500/10 blur-[40px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-all duration-700" />
+                                        <div className="flex items-center justify-between mb-8 relative z-10">
+                                            <div className="h-12 w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500 dark:group-hover:bg-emerald-600 transition-all duration-500 group-hover:rotate-6">
+                                                <Users className="h-6 w-6 text-emerald-600 dark:text-emerald-400 group-hover:text-white transition-colors" />
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase">{sec.batch}</span>
-                                                <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase">Sem {sec.semester}</span>
+                                            <div className="flex flex-col items-end gap-1">
+                                                <span className="bg-slate-100 dark:bg-muted text-slate-500 dark:text-muted-foreground px-2 py-0.5 rounded-lg text-[8px] font-black tracking-widest uppercase ">{sec.batch}</span>
+                                                <span className="bg-slate-900 dark:bg-primary text-white px-2 py-0.5 rounded-lg text-[8px] font-black tracking-widest uppercase ">Sem {sec.semester}</span>
                                             </div>
                                         </div>
-                                        <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-1 uppercase group-hover:text-emerald-700 transition-colors">Section {sec.section}</h3>
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.1em]">{sec.department}</p>
+                                        <h3 className="text-xl font-black text-slate-900 dark:text-foreground tracking-tighter mb-1 uppercase  group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors relative z-10">Section {sec.section}</h3>
+                                        <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest opacity-60 relative z-10">{sec.department}</p>
                                     </div>
                                 </button>
                             ))}
                         </div>
                     </div>
                 ) : (
-                    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2 border-b border-slate-100">
-                            <div className="flex items-center gap-5">
+                    <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-border transition-all">
+                            <div className="flex items-center gap-4">
                                 <Button
                                     variant="outline"
                                     size="icon"
-                                    className="bg-white hover:bg-slate-50 rounded-2xl h-12 w-12 border-slate-200 shadow-sm"
+                                    className="bg-white dark:bg-card hover:bg-slate-50 dark:hover:bg-muted rounded-2xl h-11 w-11 border-slate-200 dark:border-border shadow-sm transition-all hover:scale-105"
                                     onClick={() => setSelectedSection(null)}
                                 >
-                                    <ArrowLeft className="h-5 w-5 text-slate-600" />
+                                    <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-muted-foreground" />
                                 </Button>
                                 <div>
-                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase">Section {selectedSection.section} Intelligence</h2>
-                                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
-                                        <ShieldCheck className="h-3 w-3" /> Mentor Control Panel
+                                    <h2 className="text-xl font-black text-slate-900 dark:text-foreground tracking-tighter uppercase  leading-none">Section {selectedSection.section} Intelligence</h2>
+                                    <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.25em] mt-1.5 flex items-center gap-2 opacity-80">
+                                        <ShieldCheck className="h-3 w-3" /> Mentor Command Deck
                                     </p>
                                 </div>
                             </div>
                             <Button
                                 onClick={fetchSectionGrades}
                                 variant="ghost"
-                                className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 flex items-center gap-2"
+                                className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2 h-9 px-4 hover:bg-slate-50 dark:hover:bg-muted/50 rounded-xl  transition-all"
                             >
-                                <Activity className={cn("h-3.5 w-3.5", loadingSection && "animate-spin")} /> Refresh Intel
+                                <Activity className={cn("h-3.5 w-3.5", loadingSection && "animate-spin")} /> Refresh Matrix
                             </Button>
                         </div>
 
                         {loadingSection ? (
-                            <div className="flex flex-col items-center justify-center py-32 space-y-4">
-                                <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compiling grading matrix...</p>
+                            <div className="flex flex-col items-center justify-center py-24 space-y-4 bg-white dark:bg-background rounded-[2rem] border border-slate-100 dark:border-border border-dashed transition-all">
+                                <div className="relative">
+                                    <div className="h-16 w-16 rounded-full border-4 border-slate-100 dark:border-muted border-t-emerald-500 dark:border-t-emerald-400 animate-spin" />
+                                    <Users className="h-6 w-6 text-emerald-500 dark:text-emerald-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                                </div>
+                                <p className="text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.25em]  animate-pulse">Decompiling Student Metrics...</p>
                             </div>
                         ) : (
-                            <div className="space-y-6">
-
+                            <div className="space-y-4">
                                 {(() => {
                                     const mentorSubjects = Array.from(new Set(sectionGrades.flatMap(s => s.grades.map((g: any) => g.subjectName))));
                                     return (
                                         <>
                                             {mentorSubjects.length === 0 ? (
-                                                <div className="text-center py-12 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                                                    <Info className="h-8 w-8 text-slate-300 mx-auto mb-3" />
-                                                    <p className="text-sm font-bold text-slate-500">No grading data synchronized yet for any subject.</p>
+                                                <div className="text-center py-20 bg-slate-50/50 dark:bg-card/50 rounded-[2.5rem] border border-dashed border-slate-200 dark:border-border transition-all">
+                                                    <Info className="h-10 w-10 text-slate-200 dark:text-muted-foreground/30 mx-auto mb-4" />
+                                                    <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest ">Signal Lost â€¢ No Subject Synchronization Detected</p>
                                                 </div>
                                             ) : (
-                                                <div className="flex flex-wrap gap-2">
+                                                <div className="flex flex-wrap gap-2 pb-2">
                                                     {mentorSubjects.map((sub: unknown) => (
                                                         <button
                                                             key={sub as string}
                                                             onClick={() => setMentorSelectedSubject(sub as string)}
                                                             className={cn(
-                                                                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border",
+                                                                "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm ",
                                                                 mentorSelectedSubject === (sub as string)
-                                                                    ? "bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm"
-                                                                    : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+                                                                    ? "bg-emerald-600 border-emerald-600 text-white shadow-emerald-500/20 scale-105"
+                                                                    : "bg-white dark:bg-card border-slate-200 dark:border-border text-slate-500 dark:text-muted-foreground hover:bg-slate-50 dark:hover:bg-muted"
                                                             )}
                                                         >
                                                             {sub as string}
@@ -492,40 +486,40 @@ export default function FacultyGradesPage() {
                                             )}
 
                                             {mentorSelectedSubject && (
-                                                <Card className="border-none shadow-xl shadow-slate-200/40 rounded-[2.5rem] bg-white overflow-hidden">
-                                                    <div className="overflow-x-auto">
-                                                        <table className="w-full text-left border-collapse min-w-[800px]">
+                                                <Card className="border-none shadow-2xl shadow-slate-200/40 dark:shadow-black/40 rounded-[2.5rem] bg-white dark:bg-card border border-slate-100 dark:border-border overflow-hidden transition-all">
+                                                    <div className="overflow-x-auto no-scrollbar">
+                                                        <table className="w-full text-left border-collapse min-w-[900px]">
                                                             <thead>
-                                                                <tr className="bg-slate-50/80 border-b border-slate-100">
-                                                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest rounded-tl-[2.5rem]">Roll No</th>
-                                                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Name</th>
-                                                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">ST1</th>
-                                                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">ST2</th>
-                                                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">End Term</th>
-                                                                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest rounded-tr-[2.5rem]">Grade</th>
+                                                                <tr className="bg-slate-50 dark:bg-muted/50 border-b border-slate-100 dark:border-border">
+                                                                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] ">Roll Number ID</th>
+                                                                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] ">Personnel Profile</th>
+                                                                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] ">ST1 Value</th>
+                                                                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] ">ST2 Value</th>
+                                                                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] ">End Term</th>
+                                                                    <th className="px-8 py-5 text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-[0.2em] ">Grade Vector</th>
                                                                 </tr>
                                                             </thead>
-                                                            <tbody className="divide-y divide-slate-50">
+                                                            <tbody className="divide-y divide-slate-50 dark:divide-border/50">
                                                                 {sectionGrades.map((student: any) => {
                                                                     const pg = student.grades.find((g: any) => g.subjectName === mentorSelectedSubject);
                                                                     if (!pg) return null;
                                                                     return (
-                                                                        <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
-                                                                            <td className="px-8 py-5 text-sm font-bold text-slate-600">{student.rollNo}</td>
-                                                                            <td className="px-8 py-5 text-sm font-black text-slate-900">{student.name}</td>
-                                                                            <td className="px-8 py-5 text-sm font-medium text-slate-700">
-                                                                                {pg.st1Marks ?? '-'} <span className="text-slate-300 font-medium">/{pg.st1Total ?? '-'}</span>
+                                                                        <tr key={student.id} className="hover:bg-slate-50/50 dark:hover:bg-muted/30 transition-all group">
+                                                                            <td className="px-8 py-5 text-sm font-black text-slate-400 dark:text-muted-foreground/40 font-mono ">{student.rollNo}</td>
+                                                                            <td className="px-8 py-5 text-sm font-black text-slate-900 dark:text-foreground  tracking-tight">{student.name}</td>
+                                                                            <td className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-muted-foreground">
+                                                                                <span className="text-slate-900 dark:text-foreground">{pg.st1Marks ?? '-'}</span> <span className="text-slate-200 dark:text-muted-foreground/30 font-medium">/{pg.st1Total ?? '-'}</span>
                                                                             </td>
-                                                                            <td className="px-8 py-5 text-sm font-medium text-slate-700">
-                                                                                {pg.st2Marks ?? '-'} <span className="text-slate-300 font-medium">/{pg.st2Total ?? '-'}</span>
+                                                                            <td className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-muted-foreground">
+                                                                                <span className="text-slate-900 dark:text-foreground">{pg.st2Marks ?? '-'}</span> <span className="text-slate-200 dark:text-muted-foreground/30 font-medium">/{pg.st2Total ?? '-'}</span>
                                                                             </td>
-                                                                            <td className="px-8 py-5 text-sm font-medium text-slate-700">
-                                                                                {pg.endTermMarks ?? '-'} <span className="text-slate-300 font-medium">/{pg.endTermTotal ?? '-'}</span>
+                                                                            <td className="px-8 py-5 text-sm font-bold text-slate-700 dark:text-muted-foreground">
+                                                                                <span className="text-slate-900 dark:text-foreground">{pg.endTermMarks ?? '-'}</span> <span className="text-slate-200 dark:text-muted-foreground/30 font-medium">/{pg.endTermTotal ?? '-'}</span>
                                                                             </td>
                                                                             <td className="px-8 py-5">
                                                                                 {pg.grade && pg.grade !== '-' ? (
-                                                                                    <span className="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider">{pg.grade}</span>
-                                                                                ) : <span className="text-slate-400">-</span>}
+                                                                                    <span className="bg-emerald-600 dark:bg-emerald-500 text-white dark:text-black px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest  shadow-lg shadow-emerald-500/20">{pg.grade}</span>
+                                                                                ) : <span className="text-slate-200 dark:text-muted-foreground/20  tracking-widest">â€”</span>}
                                                                             </td>
                                                                         </tr>
                                                                     );

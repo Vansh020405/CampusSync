@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
@@ -421,7 +421,7 @@ export default function AdminTimetableManagement() {
                     <div className="flex items-center gap-2">
                         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg mr-4">
                             <span className="text-[10px] font-bold text-slate-400 uppercase">Context:</span>
-                            <span className="text-xs font-bold text-slate-700">{department} • Sem {semester} • {batch}</span>
+                            <span className="text-xs font-bold text-slate-700">{department} â€¢ Sem {semester} â€¢ {batch}</span>
                         </div>
                         <Button
                             variant="destructive"
@@ -661,7 +661,7 @@ export default function AdminTimetableManagement() {
                                                                     </div>
                                                                     {teacherGridData[day][normalizedTime].map((tSlot, tsIdx) => (
                                                                         <div key={tsIdx} className="text-[9px] font-bold text-amber-700 leading-none">
-                                                                            {tSlot.section} • {tSlot.subject}
+                                                                            {tSlot.section} â€¢ {tSlot.subject}
                                                                         </div>
                                                                     ))}
                                                                 </div>
@@ -700,7 +700,7 @@ export default function AdminTimetableManagement() {
                     </div>
                     <div className="flex items-center gap-2 text-slate-300">
                         <Info className="h-3.5 w-3.5" />
-                        <span className="text-[9px] font-black uppercase tracking-widest italic">Global Synchronization Enabled</span>
+                        <span className="text-[9px] font-black uppercase tracking-widest ">Global Synchronization Enabled</span>
                     </div>
                 </div>
             </div>
@@ -715,7 +715,7 @@ export default function AdminTimetableManagement() {
                         </h2>
                         <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
                             <Clock className="h-3.5 w-3.5" />
-                            <span>{editingSlot?.day} • {editingSlot?.time.label} Phase</span>
+                            <span>{editingSlot?.day} â€¢ {editingSlot?.time.label} Phase</span>
                         </div>
                     </div>
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -146,40 +146,40 @@ export default function StudentAttendancePage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto space-y-8 pb-24 animate-in fade-in duration-500 font-sans px-2">
+        <div className="max-w-2xl mx-auto space-y-4 pb-24 animate-in fade-in duration-500 font-sans px-2">
             {/* Journal Header */}
-            <div className="px-1 py-6 flex items-start justify-between">
+            <div className="px-1 py-4 md:py-6 flex items-start justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800 dark:text-foreground tracking-tight">{(session?.user as any)?.name}</h1>
-                    <p className="text-[13px] text-slate-400 dark:text-muted-foreground font-medium mt-1">Section {(session?.user as any)?.section || '4G2'} • Attendence Portal</p>
+                    <h1 className="text-xl md:text-3xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase">{(session?.user as any)?.name}</h1>
+                    <p className="text-[10px] md:text-xs text-slate-400 dark:text-muted-foreground font-black uppercase tracking-widest mt-0.5 opacity-60">Section {(session?.user as any)?.section || '4G2'} â€¢ Attendence Portal</p>
                 </div>
                 <div className="pt-2">
-                    <Clock className="h-6 w-6 text-slate-300 stroke-[1.5px]" />
+                    <Clock className="h-4 w-4 md:h-5 md:w-5 text-slate-300 dark:text-muted-foreground/30" />
                 </div>
             </div>
 
             {/* Global AI Protocol Briefing */}
             {subjects.some(s => s.percentage < 75) && (
-                <div className="p-6 rounded-[2.5rem] bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-xl shadow-indigo-200 dark:shadow-none relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 -m-8 h-32 w-32 rounded-full bg-white/10 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                    <div className="relative z-10 space-y-4">
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
-                                <Sparkles className="h-5 w-5 text-white animate-pulse" />
+                <div className="p-4 md:p-5 rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-xl shadow-indigo-200 dark:shadow-none relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 -m-8 h-20 w-20 md:h-24 md:w-24 rounded-full bg-white/10 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <div className="relative z-10 space-y-2 md:space-y-3">
+                        <div className="flex items-center gap-2 md:gap-2.5">
+                            <div className="h-8 w-8 md:h-9 md:w-9 rounded-lg md:rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+                                <Sparkles className="h-4 w-4 text-white animate-pulse" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-indigo-100 uppercase tracking-[0.2em]">System Status • Restricted</p>
-                                <h2 className="text-xl font-black tracking-tight">Recovery Protocol Active</h2>
+                                <p className="text-[8px] md:text-[9px] font-black text-indigo-100 uppercase tracking-[0.2em]">System Status â€¢ Restricted</p>
+                                <h2 className="text-base md:text-lg font-black tracking-tight">Recovery Protocol Active</h2>
                             </div>
                         </div>
-                        <p className="text-xs font-bold text-indigo-50 leading-relaxed opacity-90">
-                            Our analysis indicates <span className="bg-white/20 px-2 py-0.5 rounded-lg border border-white/20">{subjects.filter(s => s.percentage < 75).length} subjects</span> are currently below the 75% threshold. Expand subjects below to view specific recovery trajectories.
+                        <p className="text-[10px] md:text-[11px] font-bold text-indigo-50 leading-relaxed opacity-90">
+                            Our analysis indicates <span className="bg-white/20 px-1.5 py-0.5 rounded-lg border border-white/20">{subjects.filter(s => s.percentage < 75).length} subjects</span> are currently below the 75% threshold.
                         </p>
                     </div>
                 </div>
             )}
 
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
                 {subjects.map((subject) => {
                     const isExpanded = expandedSubject === subject.name;
                     const subjectRecords = allRecords.filter(r => r.subject === subject.name);
@@ -189,7 +189,7 @@ export default function StudentAttendancePage() {
                         <Card
                             key={subject.name}
                             className={cn(
-                                "border-0 dark:border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none bg-white dark:bg-card rounded-[2.5rem] overflow-hidden transition-all duration-300",
+                                "border-0 dark:border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none bg-white dark:bg-card rounded-[2rem] md:rounded-[2.5rem] overflow-hidden transition-all duration-300",
                                 isExpanded ? "scale-[1.01]" : ""
                             )}
                         >
@@ -197,17 +197,17 @@ export default function StudentAttendancePage() {
                                 className="p-0 cursor-pointer"
                                 onClick={() => setExpandedSubject(isExpanded ? null : subject.name)}
                             >
-                                <div className="p-6 flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="h-14 w-14 bg-slate-50 dark:bg-muted rounded-2xl flex items-center justify-center shrink-0 border border-slate-100 dark:border-border">
-                                            <BookOpen className="h-6 w-6 text-slate-400 dark:text-muted-foreground" />
+                                <div className="p-3.5 md:p-4 flex items-center justify-between">
+                                    <div className="flex items-center gap-2.5 md:gap-3">
+                                        <div className="h-9 w-9 md:h-11 md:w-11 bg-slate-50 dark:bg-muted rounded-lg md:rounded-xl flex items-center justify-center shrink-0 border border-slate-100 dark:border-border">
+                                            <BookOpen className="h-4 w-4 md:h-5 md:w-5 text-slate-400 dark:text-muted-foreground" />
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold text-slate-800 dark:text-foreground tracking-tight">
+                                            <h3 className="text-base md:text-lg font-black text-slate-900 dark:text-foreground tracking-tight uppercase">
                                                 {shortName}
                                             </h3>
-                                            <p className="text-[13px] font-medium text-slate-400 dark:text-muted-foreground mt-0.5">
-                                                {subject.attended}/{subject.total} Classes
+                                            <p className="text-[10px] md:text-[12px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest mt-0">
+                                                {subject.attended}/{subject.total} Sessions
                                             </p>
                                         </div>
                                     </div>
@@ -241,10 +241,16 @@ export default function StudentAttendancePage() {
                                         {/* AI Recovery Insight */}
                                         {(() => {
                                             const risk = riskScores.find(rs => rs.subjectName === subject.name);
-                                            const insight = risk?.requiredAttendance || (subject.percentage < 75 ? `Attend next ${Math.ceil((0.75 * subject.total - subject.attended) / 0.25)} classes to hit 75%` : null);
-
-                                            if (!insight) return null;
-
+                                            const bunkCount = Math.floor(subject.attended / 0.75 - subject.total);
+                                            
+                                            const insight = risk?.requiredAttendance || (
+                                                subject.percentage < 75 
+                                                    ? `Attend next ${Math.ceil((0.75 * subject.total - subject.attended) / 0.25)} classes to hit 75%` 
+                                                    : (bunkCount > 0 
+                                                        ? `Strategic Margin: You can safely skip the next ${bunkCount} sessions without dropping below 75% threshold.` 
+                                                        : `Critical Stability: Attendance is at the limit. Any omission will lead to a shortfall.`)
+                                            );
+ 
                                             return (
                                                 <div className={cn(
                                                     "mb-6 p-4 rounded-2xl flex items-start gap-4 ring-1",
@@ -265,7 +271,7 @@ export default function StudentAttendancePage() {
                                                             "text-[10px] font-black uppercase tracking-[0.2em] leading-none",
                                                             subject.percentage < 75 ? "text-indigo-400 dark:text-indigo-300" : "text-emerald-500 dark:text-emerald-400"
                                                         )}>
-                                                            Intelligence • {subject.percentage < 75 ? "Recovery Plan" : "Safety Margin"}
+                                                            Intelligence â€¢ {subject.percentage < 75 ? "Recovery Plan" : "Safety Margin"}
                                                         </p>
                                                         <p className={cn(
                                                             "text-[13px] font-bold leading-tight",
@@ -429,10 +435,10 @@ export default function StudentAttendancePage() {
                                                     <Calendar className="h-4 w-4 text-slate-400" />
                                                 </div>
                                                 <span className="text-xs font-black text-slate-700 dark:text-foreground uppercase tracking-wider">
-                                                    {new Date(leave.fromDate).toLocaleDateString()} — {new Date(leave.toDate).toLocaleDateString()}
+                                                    {new Date(leave.fromDate).toLocaleDateString()} â€” {new Date(leave.toDate).toLocaleDateString()}
                                                 </span>
                                             </div>
-                                            <p className="text-[13px] font-medium text-slate-500 dark:text-muted-foreground italic truncate max-w-[280px]">"{leave.reason}"</p>
+                                            <p className="text-[13px] font-medium text-slate-500 dark:text-muted-foreground  truncate max-w-[280px]">"{leave.reason}"</p>
                                         </div>
                                         <div className="shrink-0 flex items-center justify-between md:justify-end gap-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-border">
                                             <div className="text-right">

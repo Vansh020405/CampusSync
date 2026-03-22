@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from "next/link"
 import {
@@ -70,21 +70,25 @@ export default function StudentMenuPage() {
     }
 
     return (
-        <div className="max-w-md mx-auto space-y-8 pb-12 pt-4">
-            <header className="px-4">
-                <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-foreground">Apps</h1>
-                <p className="text-sm font-medium text-slate-500 dark:text-muted-foreground">Explore all features</p>
+        <div className="max-w-md mx-auto space-y-6 pb-24 pt-4 px-4 text-center">
+            <header className="space-y-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 rounded-full border border-indigo-100 dark:border-indigo-500/20 mb-2">
+                    <LayoutGrid className="h-3 w-3 text-indigo-600 dark:text-indigo-400" />
+                    <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">System Matrix</span>
+                </div>
+                <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-foreground uppercase  mt-1">Applications</h1>
+                <p className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest opacity-60">Authorized Protocol Access</p>
             </header>
 
             <motion.div
                 variants={container}
                 initial="hidden"
                 animate="show"
-                className="space-y-8"
+                className="space-y-6 pt-2"
             >
                 {menuGroups.map((group, gIdx) => (
-                    <section key={gIdx} className="px-4 space-y-4">
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground ml-1">
+                    <section key={gIdx} className="space-y-3">
+                        <h2 className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-muted-foreground opacity-50 text-left pl-1">
                             {group.title}
                         </h2>
                         <div className="grid grid-cols-4 gap-3">
@@ -94,12 +98,12 @@ export default function StudentMenuPage() {
                                     <motion.div key={iIdx} variants={itemAnim}>
                                         <Link
                                             href={item.href}
-                                            className="flex flex-col items-center gap-2 group"
+                                            className="flex flex-col items-center gap-1.5 group"
                                         >
-                                            <div className={`${item.color} w-full aspect-square rounded-[1.75rem] flex items-center justify-center shadow-sm dark:shadow-none border border-slate-100 dark:border-border/50 group-active:scale-95 transition-all duration-200`}>
-                                                <Icon className="w-6 h-6 stroke-[2.25]" />
+                                            <div className={`${item.color} w-full aspect-square rounded-2xl flex items-center justify-center shadow-sm dark:shadow-none border border-slate-100 dark:border-border/50 group-active:scale-95 transition-all duration-200`}>
+                                                <Icon className="w-5 h-5 stroke-[2.5]" />
                                             </div>
-                                            <span className="text-[10px] font-bold text-slate-600 dark:text-foreground/80 text-center truncate w-full px-1">
+                                            <span className="text-[9px] font-black text-slate-500 dark:text-foreground/70 text-center truncate w-full px-0.5 uppercase tracking-tighter">
                                                 {item.label}
                                             </span>
                                         </Link>

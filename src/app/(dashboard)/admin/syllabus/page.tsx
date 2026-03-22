@@ -1,4 +1,4 @@
-
+﻿
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -275,7 +275,7 @@ export default function AdminSyllabusPage() {
                             <Layers className="h-4 w-4 text-indigo-500" />
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 font-mono">Academic Operations</span>
                         </div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight italic">Syllabus Alloting</h1>
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight ">Syllabus Alloting</h1>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-loose">
                             Allot Subjects, Configure <span className="text-indigo-500">Exams</span> & Assign to Branches
                         </p>
@@ -352,7 +352,7 @@ export default function AdminSyllabusPage() {
                                 <div className="space-y-8">
                                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-50 pb-6">
                                         <div>
-                                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tighter italic">Topic Architecture</h3>
+                                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tighter ">Topic Architecture</h3>
                                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">First select a milestone, then add syllabus nodes</p>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -390,7 +390,7 @@ export default function AdminSyllabusPage() {
                                                         <div className="h-8 w-8 rounded-xl bg-white/10 flex items-center justify-center text-white font-black text-[10px]">
                                                             {ms}
                                                         </div>
-                                                        <span className="text-xs font-black text-white uppercase tracking-widest italic">{ms} SYLLABUS NODES</span>
+                                                        <span className="text-xs font-black text-white uppercase tracking-widest ">{ms} SYLLABUS NODES</span>
                                                     </div>
                                                     <div className="flex items-center gap-3">
                                                         {/* CSV Upload */}
@@ -434,7 +434,7 @@ export default function AdminSyllabusPage() {
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 gap-1 pl-4 border-l-2 border-slate-100 italic">
+                                                <div className="grid grid-cols-1 gap-1 pl-4 border-l-2 border-slate-100 ">
                                                     {newSubject.topics.filter(t => t.examType === ms).length === 0 && (
                                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest py-4 pl-4">No data nodes committed for this milestone.</p>
                                                     )}
@@ -559,7 +559,7 @@ export default function AdminSyllabusPage() {
                                 <Button
                                     onClick={handleAssign}
                                     disabled={isSaving}
-                                    className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-2xl font-black uppercase tracking-[0.2em] italic shadow-xl shadow-emerald-500/20"
+                                    className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-2xl font-black uppercase tracking-[0.2em]  shadow-xl shadow-emerald-500/20"
                                 >
                                     Push Allotment
                                 </Button>
@@ -577,7 +577,7 @@ export default function AdminSyllabusPage() {
                                     <div key={s.id} className="group p-4 rounded-3xl bg-white border border-slate-100 hover:border-indigo-100 transition-all flex items-center justify-between">
                                         <div className="space-y-1">
                                             <p className="text-xs font-black text-slate-900 tracking-tight">{s.subjectName}</p>
-                                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{s.subjectCode} • {s.topics.length} Nodes</p>
+                                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{s.subjectCode} â€¢ {s.topics.length} Nodes</p>
                                         </div>
                                         <Button variant="ghost" size="sm" onClick={() => editSubject(s)} className="h-8 w-8 rounded-full text-slate-300 hover:text-indigo-500 hover:bg-indigo-50">
                                             <Settings2 className="h-4 w-4" />

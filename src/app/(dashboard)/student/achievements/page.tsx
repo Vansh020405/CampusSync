@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import {
@@ -104,27 +104,27 @@ export default function AchievementsPage() {
     ]
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-32 pt-10 px-4 h-[calc(100vh-80px)] overflow-hidden flex flex-col">
+        <div className="max-w-4xl mx-auto space-y-4 md:space-y-5 pb-32 pt-4 md:pt-6 px-4 h-full overflow-hidden flex flex-col">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 shrink-0">
-                <div className="space-y-2">
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-foreground flex items-center gap-4 italic uppercase">
-                        <Trophy className="h-12 w-12 text-yellow-500 dark:text-yellow-400 drop-shadow-xl" />
-                        <span className="text-yellow-500 dark:text-yellow-400 not-italic">AChievements</span>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-8 shrink-0">
+                <div className="space-y-0.5 md:space-y-1">
+                    <h1 className="text-xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-foreground flex items-center gap-2 md:gap-3  uppercase">
+                        <Trophy className="h-6 w-6 md:h-12 md:w-12 text-yellow-500 dark:text-yellow-400 drop-shadow-xl" />
+                        <span className="text-yellow-500 dark:text-yellow-400 not-">AChievements</span>
                     </h1>
-                    <p className="text-slate-500 dark:text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px] ml-1">
-                        Institutional Achievement Space
+                    <p className="text-slate-500 dark:text-muted-foreground font-black uppercase tracking-[0.3em] text-[8px] md:text-[9px] ml-1 opacity-70">
+                        Institutional Performance Log
                     </p>
                 </div>
 
                 <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                     <DialogTrigger asChild>
-                        <Button className="h-14 px-8 rounded-[1.5rem] bg-slate-900 dark:bg-primary text-white font-black text-[11px] uppercase tracking-[0.3em] shadow-2xl hover:bg-black dark:hover:bg-primary/90 transition-all active:scale-95">
-                            <Plus className="h-5 w-5" />
-                            add new achievement
+                        <Button className="h-11 md:h-14 px-5 md:px-8 rounded-xl md:rounded-[1.5rem] bg-slate-900 dark:bg-primary text-white font-black text-[9px] md:text-[11px] uppercase tracking-[0.3em] shadow-xl hover:bg-black dark:hover:bg-primary/90 transition-all active:scale-95 w-full md:w-auto">
+                            <Plus className="h-4 w-4 md:h-5 md:w-5" />
+                            add achievement
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[400px] max-h-[50vh] rounded-[2.5rem] bg-white dark:bg-card border-0 dark:border dark:border-border shadow-[0_0_80px_rgba(0,0,0,0.2)] p-0 overflow-hidden flex flex-col">
+                    <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[400px] max-h-[85vh] rounded-[2.5rem] bg-white dark:bg-card border-0 dark:border dark:border-border shadow-[0_0_80px_rgba(0,0,0,0.2)] p-0 overflow-hidden flex flex-col">
                         <div className="bg-slate-950 p-6 text-white relative overflow-hidden shrink-0">
                             <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-500/20 rounded-full blur-[80px] -mr-24 -mt-24" />
                             <DialogTitle className="text-xl font-black uppercase tracking-tighter">Achievement</DialogTitle>
@@ -247,9 +247,9 @@ export default function AchievementsPage() {
                             onClick={() => setActiveFilter('ALL')}
                             className={cn(
                                 "px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest border transition-all",
-                                activeFilter === 'ALL' 
+                            activeFilter === 'ALL' 
                                     ? "bg-slate-900 dark:bg-primary text-white border-transparent shadow-md" 
-                                    : "bg-white dark:bg-card border-slate-100 dark:border-border text-slate-400 hover:text-indigo-600"
+                                    : "bg-white dark:bg-card border-slate-100 dark:border-border text-slate-400 dark:text-muted-foreground hover:text-indigo-600 dark:hover:text-primary"
                             )}
                         >
                             ALL
@@ -262,7 +262,7 @@ export default function AchievementsPage() {
                                     "px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest border transition-all",
                                     activeFilter === opt.value 
                                         ? "bg-slate-900 dark:bg-primary text-white border-transparent shadow-md" 
-                                        : "bg-white dark:bg-card border-slate-100 dark:border-border text-slate-400 hover:text-indigo-600"
+                                        : "bg-white dark:bg-card border-slate-100 dark:border-border text-slate-400 dark:text-muted-foreground hover:text-indigo-600 dark:hover:text-primary"
                                 )}
                             >
                                 {opt.value === 'PARTICIPATION' ? 'Entry' : opt.value}
@@ -282,17 +282,17 @@ export default function AchievementsPage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: idx * 0.05 }}
                                     onClick={() => setSelectedAchievement(item)}
-                                    className="group relative bg-white dark:bg-card border-0 dark:border dark:border-border rounded-2xl p-4 hover:bg-slate-50 dark:hover:bg-muted/30 transition-all duration-300 cursor-pointer overflow-hidden"
+                                    className="group relative bg-white dark:bg-card border-0 dark:border dark:border-border rounded-2xl p-3.5 hover:bg-slate-50 dark:hover:bg-muted/30 transition-all duration-300 cursor-pointer overflow-hidden"
                                 >
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2 md:gap-2.5">
                                         <div className={cn(
-                                            "h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
+                                            "h-8 w-8 md:h-9 md:w-9 rounded-lg md:rounded-xl flex items-center justify-center shrink-0",
                                             item.position === '1st' ? "bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" :
                                                 item.position === '2nd' ? "bg-slate-50 dark:bg-muted text-slate-500 dark:text-slate-400" :
                                                     item.position === '3rd' ? "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400" :
                                                         "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
                                         )}>
-                                            <Trophy className="h-5 w-5 stroke-[2]" />
+                                            <Trophy className="h-4 w-4 stroke-[2]" />
                                         </div>
                                         <div className="flex-1 min-w-0 overflow-hidden">
                                             <div className="flex items-center gap-2">
@@ -301,7 +301,7 @@ export default function AchievementsPage() {
                                                 </h4>
                                                 {item.hasCertificate && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />}
                                             </div>
-                                            <div className="flex items-center gap-3 text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-wider mt-0.5">
+                                            <div className="flex items-center gap-3 text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-wider mt-0">
                                                 <span className="flex items-center gap-1 truncate">
                                                     <MapPin className="h-3 w-3 text-indigo-500 shrink-0" /> {item.venue}
                                                 </span>
@@ -357,7 +357,7 @@ export default function AchievementsPage() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Position</p>
-                                        <p className="text-sm font-black text-slate-900 dark:text-foreground uppercase italic tracking-tight">{selectedAchievement.position === 'PARTICIPATION' ? 'Entry' : selectedAchievement.position}</p>
+                                        <p className="text-sm font-black text-slate-900 dark:text-foreground uppercase  tracking-tight">{selectedAchievement.position === 'PARTICIPATION' ? 'Entry' : selectedAchievement.position}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</p>

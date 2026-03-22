@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
@@ -145,28 +145,28 @@ export default function FacultyDirectoryPage() {
     });
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-background">
             {/* Professional Student-Side Header */}
-            <div className="bg-white border-b border-slate-200">
-                <div className="max-w-6xl mx-auto px-4 py-8">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Activity className="h-4 w-4 text-emerald-600" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Academic Network</span>
+            <div className="bg-white dark:bg-card border-b border-slate-200 dark:border-border">
+                <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+                        <div className="space-y-0.5 md:space-y-1">
+                            <div className="flex items-center gap-2 mb-1">
+                                <Activity className="h-3 w-3 md:h-4 md:w-4 text-emerald-600 dark:text-emerald-400" />
+                                <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-muted-foreground/60">Academic Network</span>
                             </div>
-                            <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Faculty Nexus</h1>
-                            <p className="text-xs font-bold text-slate-500">Connect with mentors and coordinate strategic engagements.</p>
+                            <h1 className="text-xl md:text-3xl font-black text-slate-900 dark:text-foreground tracking-tight uppercase">Faculty Nexus</h1>
+                            <p className="text-[10px] md:text-xs font-bold text-slate-500 dark:text-muted-foreground/80 opacity-80">Connect with mentors and coordinate strategic engagements.</p>
                         </div>
                         <div className="flex items-center gap-3">
                             <Button
                                 onClick={handleRefresh}
                                 disabled={isLoading}
                                 variant="outline"
-                                className="h-11 px-6 rounded-xl border-slate-200 font-bold text-xs flex items-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
+                                className="h-10 md:h-11 px-5 md:px-6 rounded-xl border-slate-200 dark:border-border bg-white dark:bg-card font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-muted transition-all active:scale-95 shadow-sm dark:shadow-none"
                             >
-                                <RefreshCcw className={cn("h-3.5 w-3.5 text-slate-400", isLoading && "animate-spin")} />
-                                <span>Sync Nexus</span>
+                                <RefreshCcw className={cn("h-3 w-3 md:h-3.5 md:w-3.5 text-slate-400", isLoading && "animate-spin")} />
+                                <span>Sync</span>
                             </Button>
                         </div>
                     </div>
@@ -176,13 +176,13 @@ export default function FacultyDirectoryPage() {
             <div className="max-w-6xl mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Navigation & Selection */}
-                    <aside className="lg:col-span-3 space-y-6">
-                        <Card className="border-none shadow-sm rounded-2xl bg-white overflow-hidden">
-                            <CardContent className="p-6 space-y-6">
+                    <aside className="lg:col-span-3 space-y-4 md:space-y-6">
+                        <Card className="border-none shadow-sm dark:shadow-none rounded-2xl bg-white dark:bg-card overflow-hidden border dark:border-border">
+                            <CardContent className="p-4 md:p-6 space-y-6">
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Departments</label>
-                                        <Filter className="h-3 w-3 text-slate-300" />
+                                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest">Departments</label>
+                                        <Filter className="h-3 w-3 text-slate-300 dark:text-muted-foreground/30" />
                                     </div>
                                     <div className="space-y-1">
                                         {departments.map((dept) => (
@@ -190,8 +190,10 @@ export default function FacultyDirectoryPage() {
                                                 key={dept}
                                                 onClick={() => setSelectedDepartment(dept)}
                                                 className={cn(
-                                                    "w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                                    selectedDepartment === dept ? "bg-emerald-50 text-emerald-700 shadow-sm" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                                                    "w-full text-left px-4 py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all",
+                                                    selectedDepartment === dept 
+                                                        ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 shadow-sm" 
+                                                        : "text-slate-400 hover:text-slate-600 dark:hover:text-foreground hover:bg-slate-50 dark:hover:bg-muted"
                                                 )}
                                             >
                                                 {dept}
@@ -220,14 +222,14 @@ export default function FacultyDirectoryPage() {
                     </aside>
 
                     {/* Feed Section */}
-                    <main className="lg:col-span-9 space-y-6">
+                    <main className="lg:col-span-9 space-y-4 md:space-y-6">
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="relative flex-1 group">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 md:h-4 md:w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                                 <input
                                     type="text"
-                                    placeholder="Search mentor or domain..."
-                                    className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/10 outline-none transition-all shadow-sm"
+                                    placeholder="Mentor, domain, or subject code..."
+                                    className="w-full h-11 md:h-12 pl-11 pr-4 rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card text-[11px] md:text-xs font-black text-slate-800 dark:text-foreground placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/10 outline-none transition-all shadow-sm dark:shadow-none uppercase tracking-tight"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
@@ -236,27 +238,27 @@ export default function FacultyDirectoryPage() {
 
                         {/* Active Transmissions (Horizontal Strip if on mobile/condensed on desktop) */}
                         {bookings.length > 0 && (
-                            <div className="space-y-3">
+                            <div className="space-y-2 md:space-y-3">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Live Reliability Buffer</span>
+                                    <span className="text-[8px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest pl-1">Live Reliability Buffer</span>
                                 </div>
-                                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                                <div className="flex gap-3 md:gap-4 overflow-x-auto no-scrollbar pb-2">
                                     {bookings.slice(0, 5).map(b => (
-                                        <Card key={b.id} className="flex-shrink-0 w-64 border-none shadow-sm bg-white rounded-2xl p-4 group">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-400">
+                                        <Card key={b.id} className="flex-shrink-0 w-56 md:w-64 border-none shadow-sm dark:shadow-none bg-white dark:bg-card rounded-2xl p-3.5 md:p-4 group border dark:border-border">
+                                            <div className="flex items-center justify-between mb-2.5 md:mb-3">
+                                                <div className="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-slate-50 dark:bg-muted flex items-center justify-center text-[9px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground/50 uppercase tracking-tighter">
                                                     {(b.faculty?.name || b.facultyName || "F").split(' ').map((n: string) => n[0]).join('')}
                                                 </div>
                                                 <Badge className={cn(
-                                                    "h-5 px-2 rounded-full border-none text-[8px] font-black uppercase tracking-widest",
-                                                    b.status === 'APPROVED' ? "bg-emerald-100 text-emerald-700" :
-                                                        b.status === 'REJECTED' ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"
+                                                    "h-5 px-2 rounded-full border-none text-[7px] md:text-[8px] font-black uppercase tracking-widest shadow-none",
+                                                    b.status === 'APPROVED' ? "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" :
+                                                        b.status === 'REJECTED' ? "bg-rose-100 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400" : "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
                                                 )}>
                                                     {b.status}
                                                 </Badge>
                                             </div>
-                                            <p className="text-xs font-black text-slate-900 truncate mb-1">{b.faculty?.name || b.facultyName}</p>
-                                            <p className="text-[10px] font-bold text-slate-400 truncate opacity-60 italic">"{b.message}"</p>
+                                            <p className="text-[11px] md:text-xs font-black text-slate-900 dark:text-foreground truncate mb-0.5 uppercase tracking-tight">{b.faculty?.name || b.facultyName}</p>
+                                            <p className="text-[9px] md:text-[10px] font-bold text-slate-400 dark:text-muted-foreground/60 truncate opacity-60 ">"{b.message}"</p>
                                         </Card>
                                     ))}
                                 </div>
@@ -264,13 +266,13 @@ export default function FacultyDirectoryPage() {
                         )}
 
                         {/* Faculty Pool */}
-                        <div className="space-y-4">
+                        <div className="space-y-3 md:space-y-4">
                             <div className="flex items-center gap-2 mb-1">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Faculty Pool</span>
+                                <span className="text-[9px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest pl-1">Faculty Pool</span>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                                 {isLoading ? (
-                                    Array(4).fill(0).map((_, i) => <div key={i} className="h-40 rounded-2xl bg-white animate-pulse" />)
+                                    Array(4).fill(0).map((_, i) => <div key={i} className="h-32 md:h-40 rounded-2xl bg-white dark:bg-card animate-pulse border dark:border-border" />)
                                 ) : filteredFaculty.length > 0 ? (
                                     filteredFaculty.map((faculty) => (
                                         <FacultyCard
@@ -280,8 +282,8 @@ export default function FacultyDirectoryPage() {
                                         />
                                     ))
                                 ) : (
-                                    <div className="col-span-full py-20 text-center bg-white rounded-2xl border border-slate-100 shadow-sm">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Zero Matches Found</p>
+                                    <div className="col-span-full py-16 text-center bg-white dark:bg-card rounded-2xl border border-slate-100 dark:border-border shadow-sm dark:shadow-none">
+                                        <p className="text-[9px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest  opacity-50">Zero Matches Found in this Matrix</p>
                                     </div>
                                 )}
                             </div>
@@ -290,26 +292,25 @@ export default function FacultyDirectoryPage() {
                 </div>
             </div>
 
-            {/* Connection Drawer */}
             <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                <DrawerContent className="bg-white/95 backdrop-blur-2xl border-t border-slate-100 rounded-t-[2.5rem] p-4">
+                <DrawerContent className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-100 dark:border-border rounded-t-[2rem] p-4">
                     <div className="mx-auto w-full max-w-lg">
-                        <div className="mx-auto w-12 h-1 rounded-full bg-slate-200 mb-6 mt-1" />
-                        <DrawerHeader className="pb-6">
-                            <DrawerTitle className="text-2xl font-black text-slate-900 text-center uppercase tracking-tighter italic">Establish Link</DrawerTitle>
-                            <DrawerDescription className="text-center font-bold text-slate-400 uppercase tracking-[0.2em] text-[9px]">Target: {selectedFaculty?.name}</DrawerDescription>
+                        <div className="mx-auto w-10 h-1 rounded-full bg-slate-200 dark:bg-muted mb-6 mt-1" />
+                        <DrawerHeader className="pb-4">
+                            <DrawerTitle className="text-xl md:text-2xl font-black text-slate-900 dark:text-foreground text-center uppercase tracking-tighter ">Establish Link</DrawerTitle>
+                            <DrawerDescription className="text-center font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-[0.2em] text-[8px] md:text-[9px]">Target: {selectedFaculty?.name}</DrawerDescription>
                         </DrawerHeader>
 
-                        <div className="px-4 space-y-6">
-                            <div className="flex p-1 bg-slate-50 border border-slate-100 rounded-2xl">
+                        <div className="px-4 space-y-5 md:space-y-6">
+                            <div className="flex p-1 bg-slate-50 dark:bg-muted border border-slate-100 dark:border-border rounded-xl md:rounded-2xl">
                                 <button
-                                    className={cn("flex-1 h-11 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all", bookingType === "MESSAGE" ? "bg-white shadow-sm text-indigo-600" : "text-slate-400")}
+                                    className={cn("flex-1 h-10 md:h-11 rounded-lg md:rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all", bookingType === "MESSAGE" ? "bg-white dark:bg-card shadow-sm text-indigo-600 dark:text-primary" : "text-slate-400")}
                                     onClick={() => setBookingType("MESSAGE")}
                                 >
                                     Quick Message
                                 </button>
                                 <button
-                                    className={cn("flex-1 h-11 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all", bookingType === "APPOINTMENT" ? "bg-white shadow-sm text-emerald-600" : "text-slate-400")}
+                                    className={cn("flex-1 h-10 md:h-11 rounded-lg md:rounded-xl text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all", bookingType === "APPOINTMENT" ? "bg-white dark:bg-card shadow-sm text-emerald-600 dark:text-emerald-400" : "text-slate-400")}
                                     onClick={() => setBookingType("APPOINTMENT")}
                                 >
                                     Appointment
@@ -317,12 +318,12 @@ export default function FacultyDirectoryPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Payload Content</label>
+                                <label className="text-[8px] md:text-[9px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest ml-1">Payload Content</label>
                                 <Textarea
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
                                     placeholder="Briefly state your objective..."
-                                    className="min-h-[120px] rounded-2xl bg-white border-slate-200 text-xs font-bold p-4 resize-none focus:ring-0"
+                                    className="min-h-[100px] md:min-h-[120px] rounded-xl md:rounded-2xl bg-white dark:bg-card border-slate-200 dark:border-border text-[11px] md:text-xs font-black p-4 resize-none focus:ring-0 uppercase tracking-tight"
                                 />
                             </div>
 
@@ -330,17 +331,17 @@ export default function FacultyDirectoryPage() {
                                 onClick={handleSendMessage}
                                 disabled={sending || !message.trim()}
                                 className={cn(
-                                    "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95",
-                                    bookingType === "MESSAGE" ? "bg-slate-900 hover:bg-slate-800" : "bg-emerald-600 hover:bg-emerald-700"
+                                    "w-full h-12 md:h-14 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95",
+                                    bookingType === "MESSAGE" ? "bg-slate-900 dark:bg-primary hover:bg-slate-800 dark:hover:bg-primary/90 text-white dark:text-primary-foreground" : "bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-700 dark:hover:bg-emerald-600 text-white"
                                 )}
                             >
                                 {sending ? "Transmitting..." : "Initiate Handshake"}
                             </Button>
                         </div>
 
-                        <div className="p-6">
+                        <div className="p-4 md:p-6 text-center">
                             <DrawerClose asChild>
-                                <Button variant="ghost" className="w-full text-[9px] font-black uppercase tracking-widest text-slate-300">Abort Operation</Button>
+                                <Button variant="ghost" className="w-full text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-300 dark:text-muted-foreground/30 hover:bg-transparent">Abort Operation</Button>
                             </DrawerClose>
                         </div>
                     </div>
@@ -354,37 +355,37 @@ function FacultyCard({ faculty, onClick }: any) {
     const isOnline = faculty.status === 'AVAILABLE' || faculty.isAvailable;
     return (
         <Card
-            className="group border-none shadow-sm rounded-2xl bg-white overflow-hidden transition-all duration-300 hover:shadow-md hover:ring-1 hover:ring-emerald-100 cursor-pointer"
+            className="group border-none shadow-sm dark:shadow-none rounded-2xl bg-white dark:bg-card overflow-hidden transition-all duration-300 hover:shadow-xl dark:hover:shadow-indigo-500/10 hover:-translate-y-1 cursor-pointer border dark:border-border"
             onClick={onClick}
         >
-            <CardContent className="p-6">
-                <div className="flex items-center gap-4">
+            <CardContent className="p-4 md:p-6">
+                <div className="flex items-center gap-3 md:gap-4">
                     <div className={cn(
-                        "h-14 w-14 rounded-2xl flex items-center justify-center text-lg font-black text-white shadow-sm shrink-0",
-                        isOnline ? "bg-emerald-600" : "bg-slate-300"
+                        "h-12 w-12 md:h-14 md:w-14 rounded-xl md:rounded-2xl flex items-center justify-center text-sm md:text-lg font-black text-white shadow-sm shrink-0 uppercase tracking-tighter",
+                        isOnline ? "bg-emerald-600 dark:bg-emerald-500" : "bg-slate-300 dark:bg-muted"
                     )}>
-                        {faculty.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                        {(faculty.name || "F").split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                     </div>
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                            <h4 className="font-black text-sm text-slate-900 truncate tracking-tight">{faculty.name}</h4>
+                            <h4 className="font-black text-sm text-slate-900 dark:text-foreground truncate tracking-tight uppercase">{faculty.name}</h4>
                             <div className={cn(
-                                "h-2 w-2 rounded-full shrink-0",
-                                isOnline ? "bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-slate-300"
+                                "h-1.5 w-1.5 md:h-2 md:w-2 rounded-full shrink-0",
+                                isOnline ? "bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-slate-300 dark:bg-muted"
                             )} />
                         </div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5 truncate">{faculty.department}</p>
+                        <p className="text-[8px] md:text-[10px] font-black text-slate-400 dark:text-muted-foreground/60 uppercase tracking-widest mt-0.5 truncate opacity-70">{faculty.department}</p>
                     </div>
                 </div>
-                <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
+                <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-slate-50 dark:border-border flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="p-2 rounded-lg bg-slate-50 text-slate-400">
+                        <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-muted text-slate-400 dark:text-muted-foreground/50">
                             <MapPin className="h-3 w-3" />
                         </div>
-                        <span className="text-[10px] font-bold text-slate-500 truncate">{faculty.cabin || "Room 302"}</span>
+                        <span className="text-[9px] md:text-[10px] font-black text-slate-500 dark:text-muted-foreground uppercase">{faculty.cabin || "Room 302"}</span>
                     </div>
-                    <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-emerald-50 hover:text-emerald-600">
-                        <ChevronRight className="h-4 w-4" />
+                    <Button variant="ghost" className="h-7 w-7 md:h-8 md:w-8 p-0 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400">
+                        <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     </Button>
                 </div>
             </CardContent>
